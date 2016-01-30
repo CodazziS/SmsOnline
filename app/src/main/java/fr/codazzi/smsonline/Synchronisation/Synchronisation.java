@@ -1,76 +1,72 @@
-package fr.codazzi.smsonline.Synchronisation;
+package fr.codazzi.smsonline.synchronisation;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import fr.codazzi.smsonline.*;
 
 public class Synchronisation extends Service {
+    private LocationManager locationMgr = null;
+    private LocationListener onLocationChange = new LocationListener() {
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
 
-    private NotificationManager mNM;
-    private int NOTIFICATION = R.string.app_name;
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+            Toast.makeText(getBaseContext(),
+                    "OKOK : ",
+                    Toast.LENGTH_LONG).show();
+        }
+    };
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
 
     @Override
     public void onCreate() {
-        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        showNotification();
+        Toast.makeText(getBaseContext(), "OK1 : ", Toast.LENGTH_LONG).show();
+
+        super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LocalService", "Received start id " + startId + ": " + intent);
-        return START_NOT_STICKY;
+        Toast.makeText(getBaseContext(), "OK2 : ", Toast.LENGTH_LONG).show();
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        // Cancel the persistent notification.
-        mNM.cancel(NOTIFICATION);
-
-        // Tell the user we stopped.
-        Toast.makeText(this, "SWB crash", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.e("TEST ICI", "TEST OK");
-        return null;
-    }
-
-    //private final IBinder mBinder = new LocalBinder();
-
-    private void showNotification() {
-        // In this sample, we'll use the same text for the ticker and the expanded notification
-        CharSequence text = "Started";
-
-
-
-        // Set the info for the views that show in the notification panel.
-        Notification notification = new Notification.Builder(this)
-                //.setSmallIcon(R.drawable.)  // the status icon
-                .setTicker(text)  // the status text
-                .setWhen(System.currentTimeMillis())  // the time stamp
-                .setContentTitle("Test")  // the label of the entry
-                .setContentText(text)  // the contents of the entry
-                .build();
-
-        // Send the notification.
-        mNM.notify(NOTIFICATION, notification);
-    }
-
-    public void SayHello() {
-        Log.e("HELLOWORD", "HELLO !");
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                SayHello();
-            }
-        }, 10000);
+        super.onDestroy();
     }
 }
