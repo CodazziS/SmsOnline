@@ -1,14 +1,15 @@
-package fr.codazzi.smsonline;
+package fr.codazzi.smsonline.Synchronisation;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class SyncReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
+        Log.e("ORECEIVER", "OK HERE");
         Intent myIntent = new Intent(context, Synchronisation.class);
         context.startService(myIntent);
     }

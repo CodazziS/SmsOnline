@@ -1,18 +1,14 @@
-package fr.codazzi.smsonline;
+package fr.codazzi.smsonline.Synchronisation;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
-
-import java.util.logging.LogRecord;
+import fr.codazzi.smsonline.*;
 
 public class Synchronisation extends Service {
 
@@ -56,7 +52,7 @@ public class Synchronisation extends Service {
 
         // Set the info for the views that show in the notification panel.
         Notification notification = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_info_black_24dp)  // the status icon
+                //.setSmallIcon(R.drawable.)  // the status icon
                 .setTicker(text)  // the status text
                 .setWhen(System.currentTimeMillis())  // the time stamp
                 .setContentTitle("Test")  // the label of the entry
