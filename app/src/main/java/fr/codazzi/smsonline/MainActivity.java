@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         putMain();
+        startService(new Intent(MainActivity.this, Synchronisation.class));
     }
 
     @Override
@@ -86,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         c_activity = "main";
-
-        startService(new Intent(MainActivity.this, Synchronisation.class));
     }
 
     public void putSettings() {
