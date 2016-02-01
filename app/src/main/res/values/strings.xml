@@ -1,8 +1,16 @@
 <resources>
+    <!-- DEFINES -->
+    <string translatable="false" name="api_url">http://devapi.swb.ovh/Api/</string>
+
+    <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
+
+    <!-- VIEWS -->
+        <!-- activity_main -->
     <string name="action_settings">Settings</string>
 
-
+    <!-- JAVA -->
+        <!-- MainActivity -->
     <string name="home_back_to_quit">Press a second time for quit the application</string>
     <string name="home_change_not_saved">Modifications has not been saved</string>
 </resources>

@@ -3,6 +3,7 @@
     package="fr.codazzi.smsonline">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -27,8 +28,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <service android:name="fr.codazzi.smsonline.synchronisation.Synchronisation"/>
 
+        <service android:name="fr.codazzi.smsonline.synchronisation.Synchronisation"/>
     </application>
 
 </manifest>

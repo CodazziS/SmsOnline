@@ -22,8 +22,8 @@ public class Synchronisation extends Service {
     public void onCreate() {
         super.onCreate();
         android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        if (this.api != null) {
-            this.api = new Api();
+        if (this.api == null) {
+            this.api = new Api(this);
         }
         syncLoop();
     }
@@ -40,6 +40,7 @@ public class Synchronisation extends Service {
 
     public void syncLoop() {
         Log.i("SYNCHRONIZATION", "SYNC NOW");
+        this.api.Sync();
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

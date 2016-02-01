@@ -18,12 +18,89 @@
         android:layout_height="wrap_content"
         >
         <!-- Go to settings -->
-        <TextView
+        <LinearLayout
+            style="@style/Block"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Settings"
-            android:onClick="goToSettings" />
+            >
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@android:drawable/ic_menu_manage"/>
+            <TextView
+                style="@style/ItemTitleImg"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:text="@string/action_settings"
+                android:onClick="goToSettings" />
+        </LinearLayout>
 
+        <!-- Status -->
+        <LinearLayout
+            style="@style/Block"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@android:drawable/ic_menu_help"/>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    style="@style/ItemTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Status"
+                    />
+
+                <TextView
+                    style="@style/ItemValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Todo"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Last sync -->
+        <LinearLayout
+            style="@style/Block"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@android:drawable/ic_menu_info_details"/>
+            <LinearLayout
+            style="@style/Block"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+                <TextView
+                    style="@style/ItemTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Last synchronisation"
+                    />
+
+                <TextView
+                    style="@style/ItemValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Todo"
+                    />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

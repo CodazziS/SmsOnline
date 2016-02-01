@@ -9,7 +9,6 @@ public class SyncReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e("ORECEIVER", "OK HERE");
         Intent myIntent = new Intent(context, Synchronisation.class);
         context.startService(myIntent);
     }
