@@ -39,7 +39,6 @@ public class Synchronisation extends Service {
     }
 
     public void syncLoop() {
-        Log.i("SYNCHRONIZATION", "SYNC NOW");
         this.api.Sync();
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -47,6 +46,6 @@ public class Synchronisation extends Service {
             public void run() {
                 syncLoop();
             }
-        }, 15000);
+        }, 30000);
     }
 }

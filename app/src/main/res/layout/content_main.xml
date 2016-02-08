@@ -23,6 +23,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="goToSettings"
             >
             <ImageView
                 android:layout_width="35dp"
@@ -32,8 +33,8 @@
                 style="@style/ItemTitleImg"
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
-                android:text="@string/action_settings"
-                android:onClick="goToSettings" />
+                android:text="@string/main_settings"
+                 />
         </LinearLayout>
 
         <!-- Status -->
@@ -42,6 +43,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="goToMain"
             >
             <ImageView
                 android:layout_width="35dp"
@@ -57,14 +59,15 @@
                     style="@style/ItemTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Status"
+                    android:text="@string/main_status"
                     />
 
                 <TextView
                     style="@style/ItemValue"
+                    android:id="@+id/status_str"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Todo"
+                    android:text=""
                     />
             </LinearLayout>
         </LinearLayout>
@@ -75,6 +78,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="goToMain"
             >
             <ImageView
                 android:layout_width="35dp"
@@ -90,14 +94,15 @@
                     style="@style/ItemTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Last synchronisation"
+                    android:text="@string/main_sync"
                     />
 
                 <TextView
                     style="@style/ItemValue"
+                    android:id="@+id/sync_str"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Todo"
+                    android:text=""
                     />
             </LinearLayout>
         </LinearLayout>

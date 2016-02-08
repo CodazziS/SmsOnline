@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import fr.codazzi.smsonline.synchronisation.Synchronisation;
@@ -20,13 +21,13 @@ public class MainActivity extends AppCompatActivity {
     private String c_activity;
     private String email = "";
     private String password = "";
+    private int error = 0;
+    private int state = 0;
 
     private long lastPressTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.getInfos();
-
         super.onCreate(savedInstanceState);
         putMain();
         startService(new Intent(MainActivity.this, Synchronisation.class));
@@ -40,11 +41,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        int id;
 
-        if (id == R.id.action_settings) {
+        id = item.getItemId();
+        /*if (id == R.id.main_settings) {
             return true;
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 
@@ -68,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
     /* Save and get infos */
     public void saveInfos() {
-        SharedPreferences settings = this.getSharedPreferences("swb_infos", 0);
+        SharedPreferences settings;
+
+        settings = this.getSharedPreferences("swb_infos", 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("email", this.email);
         editor.putString("password", this.password);
@@ -76,28 +80,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getInfos() {
-        SharedPreferences settings = this.getSharedPreferences("swb_infos", 0);
+        SharedPreferences settings;
+
+        settings = this.getSharedPreferences("swb_infos", 0);
         this.email = settings.getString("email", "");
         this.password = settings.getString("password", "");
+        this.error = settings.getInt("error", 0);
+        this.state = settings.getInt("state", 0);
+        Log.e("READ_STATE", String.valueOf(this.state));
     }
 
     /* Navigation */
     public void putMain() {
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        TextView status;
+        TextView sync;
+        Toolbar toolbar;
+
         c_activity = "main";
+        this.getInfos();
+        setContentView(R.layout.activity_main);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        status = (TextView) findViewById(R.id.status_str);
+
+        if (error != 0) {
+            if (error == -1) {
+                status.setText(getResources().getStringArray(R.array.errors_str)[0]);
+            } else {
+                status.setText(getResources().getStringArray(R.array.errors_str)[this.error]);
+            }
+        } else {
+            status.setText(getResources().getStringArray(R.array.actions_str)[this.state]);
+        }
+        //sync = (TextView) findViewById(R.id.sync_str);
+        //sync.setText(getResources().getStringArray(R.array.actions_str)[this.state]);
+
     }
 
     public void putSettings() {
+        EditText email;
+        EditText password;
+
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         c_activity = "settings";
-        EditText email = (EditText) findViewById(R.id.config_email);
+        email = (EditText) findViewById(R.id.config_email);
         email.setText(this.email);
-
-        EditText password = (EditText) findViewById(R.id.config_password);
+        password = (EditText) findViewById(R.id.config_password);
         password.setText(this.password);
     }
 
@@ -105,15 +136,24 @@ public class MainActivity extends AppCompatActivity {
     public void goToSettings(View view) {
         putSettings();
     }
-    public void saveSettings(View view) {
-        EditText email = (EditText) findViewById(R.id.config_email);
-        this.email = email.getText().toString();
+    public void goToMain(View view) {
+        putMain();
+        Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_refreshed), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
 
-        EditText password = (EditText) findViewById(R.id.config_password);
+    public void saveSettings(View view) {
+        EditText email;
+        EditText password;
+
+        email = (EditText) findViewById(R.id.config_email);
+        this.email = email.getText().toString();
+        password = (EditText) findViewById(R.id.config_password);
         this.password = password.getText().toString();
 
         saveInfos();
         putMain();
-
+        Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 }
