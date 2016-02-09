@@ -1,5 +1,6 @@
 package fr.codazzi.smsonline.controllers;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -10,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,20 +33,24 @@ public class Api {
 
     public void Sync() {
         Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_errors + " errors on " + nb_access + " access." );
+
+
         if (this.token == null || this.user == null) {
             Log.i("API", "GetToken");
             this.getToken();
         } else {
-            resetToken();
-            Log.i("API", "ResetToken");
-        }
-        this.saveState();
-    }
+            switch (state) {
+                case 1:
+                    this.addDevice();
+                    break;
+                case 2:
+                    this.syncContacts();
+                    break;
 
-    private void callback() {
-        if (this.error != 0) {
-            this.token = null;
-            this.user = null;
+                default:
+                    Log.e("STATE ERROR", "Unknow state action");
+            }
+
         }
         this.saveState();
     }
@@ -57,6 +63,10 @@ public class Api {
     }
 
     private void saveState() {
+        if (this.error != 0) {
+            this.token = null;
+            this.user = null;
+        }
         SharedPreferences settings = this.context.getSharedPreferences("swb_infos", 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("error", this.error);
@@ -64,6 +74,23 @@ public class Api {
         //@TODO add date
         //editor.putString("password", this.password);
         editor.apply();
+    }
+
+    private void syncContacts () {
+        try {
+            if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
+                JSONArray contacts = Contacts.getAllContacts(context);
+                Log.i("CONTACTS", contacts.toString());
+            } else {
+                Log.i("CONTACTS", "NO permission");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Same if contacts is not synchronized, we go in next step
+        //this.state++;
+        this.saveState();
     }
 
     private void addDevice() {
@@ -85,6 +112,7 @@ public class Api {
                         if (result != null) {
                             res = new JSONObject(result.toString());
                             self.error = res.getInt("error");
+                            self.state = 2;
                         } else {
                             e.printStackTrace();
                             self.error = 2;
@@ -93,7 +121,7 @@ public class Api {
                         e1.printStackTrace();
                         self.error = -1;
                     }
-                    self.callback();
+                    self.saveState();
                 }
             });
     }
@@ -127,7 +155,6 @@ public class Api {
                                         self.token = res.getString("token");
                                         self.user = res.getString("user");
                                         self.state = 1;
-                                        self.addDevice();
                                     }
                                     self.error = error;
                                 } else {
@@ -140,7 +167,7 @@ public class Api {
                                 nb_errors++;
                                 self.error = -1;
                             }
-                            self.callback();
+                            self.saveState();
                         }
                     });
             } else {

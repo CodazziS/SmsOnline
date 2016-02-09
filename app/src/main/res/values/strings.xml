@@ -7,7 +7,9 @@
     <string-array name="actions_str">
         <!-- 00 --><item>Initialisation</item>
         <!-- 01 --><item>Login</item>
-        <!-- 02 --><item>Connected</item>
+        <!-- 02 --><item>Contacts synchronization</item>
+        <!-- 03 --><item>Messages synchronization</item>
+        <!-- 04 --><item>Synchronized</item>
     </string-array>
     <string-array name="errors_str">
         <!-- 00 --><item>Unkown error</item>
