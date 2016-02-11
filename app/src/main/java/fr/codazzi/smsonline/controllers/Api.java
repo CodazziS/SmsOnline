@@ -24,18 +24,21 @@ public class Api {
     int state = 0;
     int error = 0;
     Context context = null;
+    Boolean reset_api = false;
+    /* Debug */
     int nb_access = 0;
-    int nb_errors = 0;
+
 
     public Api(Context _context) {
         this.context = _context;
     }
 
     public void Sync() {
-        Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_errors + " errors on " + nb_access + " access." );
-
-
-        if (this.token == null || this.user == null) {
+        Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_access++ + " access." );
+        this.readState();
+        if (this.reset_api) {
+            this.resetApi();
+        } else if (this.token == null || this.user == null) {
             Log.i("API", "GetToken");
             this.getToken();
         } else {
@@ -50,16 +53,24 @@ public class Api {
                 default:
                     Log.e("STATE ERROR", "Unknow state action");
             }
-
         }
         this.saveState();
     }
 
-    private void resetToken() {
+    private void resetApi() {
         this.token = null;
         this.user = null;
         this.state = 0;
         this.error = 0;
+        this.reset_api = false;
+        Log.e("API", "Reset API");
+    }
+
+    public void readState() {
+        SharedPreferences settings;
+
+        settings = context.getSharedPreferences("swb_infos", 0);
+        this.reset_api = settings.getBoolean("reset_api", false);
     }
 
     private void saveState() {
@@ -71,16 +82,43 @@ public class Api {
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("error", this.error);
         editor.putInt("state", this.state);
+        editor.putBoolean("reset_api", this.reset_api);
         //@TODO add date
         //editor.putString("password", this.password);
         editor.apply();
     }
 
     private void syncContacts () {
+        final Api self = this;
         try {
             if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
                 JSONArray contacts = Contacts.getAllContacts(context);
-                Log.i("CONTACTS", contacts.toString());
+                Ion.with(context)
+                        .load(context.getString(R.string.api_url)  + "Contacts/Add")
+                        .setBodyParameter("user", this.user)
+                        .setBodyParameter("token", this.token)
+                        .setBodyParameter("contacts", contacts.toString())
+                        .asString()
+                        .setCallback(new FutureCallback<String>() {
+                            @Override
+                            public void onCompleted(Exception e, String result) {
+                                JSONObject res;
+                                try {
+                                    if (result != null) {
+                                        Log.i("TEST CONTACTS", result);
+                                        res = new JSONObject(result);
+                                        self.error = res.getInt("error");
+                                    } else {
+                                        e.printStackTrace();
+                                        self.error = 2;
+                                    }
+                                } catch (JSONException e1) {
+                                    e1.printStackTrace();
+                                    self.error = -1;
+                                }
+                                self.saveState();
+                            }
+                        });
             } else {
                 Log.i("CONTACTS", "NO permission");
             }
@@ -89,7 +127,7 @@ public class Api {
             e.printStackTrace();
         }
         // Same if contacts is not synchronized, we go in next step
-        //this.state++;
+        this.state++;
         this.saveState();
     }
 
@@ -102,15 +140,15 @@ public class Api {
             .setBodyParameter("user", this.user)
             .setBodyParameter("token", this.token)
             .setBodyParameter("android_id", android_id)
-            .asJsonObject()
-            .setCallback(new FutureCallback<JsonObject>() {
+            .asString()
+            .setCallback(new FutureCallback<String>() {
                 @Override
-                public void onCompleted(Exception e, JsonObject result) {
+                public void onCompleted(Exception e, String result) {
                     JSONObject res;
 
                     try {
                         if (result != null) {
-                            res = new JSONObject(result.toString());
+                            res = new JSONObject(result);
                             self.error = res.getInt("error");
                             self.state = 2;
                         } else {
@@ -137,19 +175,17 @@ public class Api {
             email = URLEncoder.encode(settings.getString("email", ""), "utf-8");
             password = URLEncoder.encode(settings.getString("password", ""), "utf-8");
             if (email.length() > 4 && password.length() > 4) {
-                nb_access++;
                 Ion.with(context)
                     .load(context.getString(R.string.api_url) + "Users/GetToken?email=" + email + "&password=" + password)
-                    .asJsonObject()
-                    .setCallback(new FutureCallback<JsonObject>() {
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
                         @Override
-                        public void onCompleted(Exception e, JsonObject result) {
+                        public void onCompleted(Exception e, String result) {
                             JSONObject res;
                             int error;
-
                             try {
                                 if (result != null) {
-                                    res = new JSONObject(result.toString());
+                                    res = new JSONObject(result);
                                     error = res.getInt("error");
                                     if (error == 0) {
                                         self.token = res.getString("token");
@@ -158,13 +194,11 @@ public class Api {
                                     }
                                     self.error = error;
                                 } else {
-                                    nb_errors++;
                                     e.printStackTrace();
                                     self.error = 2;
                                 }
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
-                                nb_errors++;
                                 self.error = -1;
                             }
                             self.saveState();

@@ -46,6 +46,6 @@ public class Synchronisation extends Service {
             public void run() {
                 syncLoop();
             }
-        }, 30000);
+        }, 5000);
     }
 }

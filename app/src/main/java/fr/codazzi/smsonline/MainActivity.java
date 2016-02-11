@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private String c_activity;
     private String email = "";
     private String password = "";
+    private Boolean reset_api = false;
     private int error = 0;
     private int state = 0;
 
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("email", this.email);
         editor.putString("password", this.password);
+        editor.putBoolean("reset_api", this.reset_api);
         editor.apply();
 
         //@TODO better permissions
@@ -155,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
         this.email = email.getText().toString();
         password = (EditText) findViewById(R.id.config_password);
         this.password = password.getText().toString();
+        this.reset_api = true;
 
         saveInfos();
         putMain();
