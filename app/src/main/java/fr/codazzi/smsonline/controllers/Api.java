@@ -3,6 +3,8 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import fr.codazzi.smsonline.*;
@@ -25,6 +27,7 @@ public class Api {
     int error = 0;
     Context context = null;
     Boolean reset_api = false;
+    Boolean wifi_only = true;
     /* Debug */
     int nb_access = 0;
 
@@ -34,7 +37,19 @@ public class Api {
     }
 
     public void Sync() {
+        ConnectivityManager connManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
         Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_access++ + " access." );
+
+        if (this.wifi_only && !mWifi.isConnected()) {
+            Log.i("SYNCHRONIZATION", "Wifi only.");
+            this.error = 2;
+            this.saveState();
+            return;
+        }
+
+
         this.readState();
         if (this.reset_api) {
             this.resetApi();
@@ -71,6 +86,7 @@ public class Api {
 
         settings = context.getSharedPreferences("swb_infos", 0);
         this.reset_api = settings.getBoolean("reset_api", false);
+        this.wifi_only = settings.getBoolean("wifi_only", true);
     }
 
     private void saveState() {
