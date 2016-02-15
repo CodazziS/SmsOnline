@@ -9,7 +9,6 @@ import android.util.Log;
 
 import fr.codazzi.smsonline.*;
 
-import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -23,11 +22,15 @@ import java.net.URLEncoder;
 public class Api {
     String token = null;
     String user = null;
+
     int state = 0;
     int error = 0;
+
     Context context = null;
     Boolean reset_api = false;
     Boolean wifi_only = true;
+
+
     /* Debug */
     int nb_access = 0;
 

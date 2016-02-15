@@ -1,4 +1,4 @@
-package fr.codazzi.smsonline.synchronisation;
+package fr.codazzi.smsonline.sync;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
