@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.codazzi.smsonline">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:required="false" android:name="android.permission.READ_SMS"/>
     <uses-permission android:required="false" android:name="android.permission.READ_CONTACTS"/>
 
     <application
@@ -24,13 +25,13 @@
             </intent-filter>
         </activity>
 
-        <receiver android:enabled="true" android:exported="false" android:name="fr.codazzi.smsonline.synchronisation.SyncReceiver">
+        <receiver android:enabled="true" android:exported="false" android:name="fr.codazzi.smsonline.sync.SyncReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <service android:name="fr.codazzi.smsonline.synchronisation.Synchronisation"/>
+        <service android:name="fr.codazzi.smsonline.sync.Synchronisation"/>
     </application>
 
 </manifest>
