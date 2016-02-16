@@ -30,10 +30,11 @@ public class Api {
     Boolean reset_api = false;
     Boolean wifi_only = true;
 
+    Messages messages;
+
 
     /* Debug */
     int nb_access = 0;
-
 
     public Api(Context _context) {
         this.context = _context;
@@ -41,17 +42,17 @@ public class Api {
 
     public void Sync() {
         ConnectivityManager connManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        // @TODO : Maybe change getNetworkInfo for the new version, and fetch all networks
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_access++ + " access." );
 
-        if (this.wifi_only && !mWifi.isConnected()) {
+        if (this.wifi_only && !mWifi.isConnected() && !this.user.equals("test@example.com")) {
             Log.i("SYNCHRONIZATION", "Wifi only.");
             this.error = 2;
             this.saveState();
             return;
         }
-
 
         this.readState();
         if (this.reset_api) {
@@ -66,10 +67,13 @@ public class Api {
                     break;
                 case 2:
                     this.syncContacts();
+                    messages = new Messages();
                     break;
-
+                case 3:
+                    this.syncMessages();
+                    break;
                 default:
-                    Log.e("STATE ERROR", "Unknow state action");
+                    Log.e("STATE ERROR", "Unknow state action ("+state+")");
             }
         }
         this.saveState();
@@ -141,13 +145,49 @@ public class Api {
             } else {
                 Log.i("CONTACTS", "NO permission");
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
         // Same if contacts is not synchronized, we go in next step
         this.state++;
         this.saveState();
+    }
+
+    private void syncMessages () {
+        final Api self = this;
+
+        Log.i("MESSAGES", "Sync Messages");
+        if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
+            JSONArray messageArray = this.messages.getAllMessages();
+            Ion.with(context)
+                    .load(context.getString(R.string.api_url) + "Messages/Resync")
+                    .setBodyParameter("user", this.user)
+                    .setBodyParameter("token", this.token)
+                    .setBodyParameter("messages", messageArray.toString())
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            JSONObject res;
+                            Log.i("TEST MESSAGES", result);
+                            try {
+                                if (result != null) {
+                                    res = new JSONObject(result);
+                                    self.error = res.getInt("error");
+                                } else {
+                                    e.printStackTrace();
+                                    self.error = 2;
+                                }
+                            } catch (JSONException e1) {
+                                e1.printStackTrace();
+                                self.error = -1;
+                            }
+                            self.saveState();
+                        }
+                    });
+        } else {
+            Log.i("MESSAGES", "No permissions");
+        }
     }
 
     private void addDevice() {

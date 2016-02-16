@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         //@TODO better permissions
         Tools.getPermission(this, Manifest.permission.READ_CONTACTS);
+        Tools.getPermission(this, Manifest.permission.READ_SMS);
 
     }
 
@@ -173,6 +174,19 @@ public class MainActivity extends AppCompatActivity {
         if (this.wifi_only) {
             Log.i("PUT SETTING", "IS CHECKED");
         }
+        this.reset_api = true;
+
+        saveInfos();
+        putMain();
+        Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
+
+    public void testSettings(View view) {
+
+        this.email = "test@example.com";
+        this.password = "azertyuiop";
+        this.wifi_only = false;
         this.reset_api = true;
 
         saveInfos();
