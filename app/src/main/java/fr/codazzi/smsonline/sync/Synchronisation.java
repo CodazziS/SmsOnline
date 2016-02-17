@@ -30,7 +30,7 @@ public class Synchronisation extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+        return START_REDELIVER_INTENT;
     }
 
     @Override
@@ -46,6 +46,6 @@ public class Synchronisation extends Service {
             public void run() {
                 syncLoop();
             }
-        }, 60000);
+        }, 10000);
     }
 }

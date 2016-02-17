@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 public class Api {
     String token = null;
     String user = null;
+    String key = null;
 
     int state = 0;
     int error = 0;
@@ -82,6 +83,7 @@ public class Api {
     private void resetApi() {
         this.token = null;
         this.user = null;
+        this.key = null;
         this.state = 0;
         this.error = 0;
         this.reset_api = false;
@@ -100,6 +102,7 @@ public class Api {
         if (this.error != 0) {
             this.token = null;
             this.user = null;
+            this.key = null;
         }
         SharedPreferences settings = this.context.getSharedPreferences("swb_infos", 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -120,6 +123,7 @@ public class Api {
                         .load(context.getString(R.string.api_url)  + "Contacts/Add")
                         .setBodyParameter("user", this.user)
                         .setBodyParameter("token", this.token)
+                        .setBodyParameter("key", this.key)
                         .setBodyParameter("contacts", contacts.toString())
                         .asString()
                         .setCallback(new FutureCallback<String>() {
@@ -249,6 +253,7 @@ public class Api {
                                     if (error == 0) {
                                         self.token = res.getString("token");
                                         self.user = res.getString("user");
+                                        self.key = res.getString("key");
                                         self.state = 1;
                                     }
                                     self.error = error;
