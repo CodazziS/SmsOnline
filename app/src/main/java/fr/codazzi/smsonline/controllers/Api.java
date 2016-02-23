@@ -22,6 +22,8 @@ import java.net.URLEncoder;
 public class Api {
     String token = null;
     String user = null;
+    String email = null;
+    String password = null;
     String key = null;
 
     int state = 0;
@@ -33,35 +35,41 @@ public class Api {
 
     Messages messages;
 
-
     /* Debug */
     int nb_access = 0;
+    Boolean test_mode = false;
 
     public Api(Context _context) {
         this.context = _context;
     }
 
-    public void Sync() {
+    public Boolean Sync() {
         ConnectivityManager connManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
         // @TODO : Maybe change getNetworkInfo for the new version, and fetch all networks
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
         Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_access++ + " access." );
 
-        if (this.wifi_only && !mWifi.isConnected() && !this.user.equals("test@example.com")) {
+        this.readState();
+        if (this.email != null && this.email.equals("test@example.com")) {
+            this.test_mode = true;
+        } else {
+            this.test_mode = false;
+        }
+
+        if (this.wifi_only && !mWifi.isConnected() && !test_mode) {
             Log.i("SYNCHRONIZATION", "Wifi only.");
             this.error = 2;
             this.saveState();
-            return;
+            return false;
         }
 
-        this.readState();
         if (this.reset_api) {
             this.resetApi();
         } else if (this.token == null || this.user == null) {
             Log.i("API", "GetToken");
             this.getToken();
         } else {
+            Log.i("STATE", String.valueOf(state));
             switch (state) {
                 case 1:
                     this.addDevice();
@@ -78,11 +86,14 @@ public class Api {
             }
         }
         this.saveState();
+        return test_mode;
     }
 
     private void resetApi() {
         this.token = null;
         this.user = null;
+        this.email = null;
+        this.password = null;
         this.key = null;
         this.state = 0;
         this.error = 0;
@@ -96,6 +107,8 @@ public class Api {
         settings = context.getSharedPreferences("swb_infos", 0);
         this.reset_api = settings.getBoolean("reset_api", false);
         this.wifi_only = settings.getBoolean("wifi_only", true);
+        this.email = settings.getString("email", "");
+        this.password = settings.getString("password", "");
     }
 
     private void saveState() {
@@ -132,7 +145,6 @@ public class Api {
                                 JSONObject res;
                                 try {
                                     if (result != null) {
-                                        Log.i("TEST CONTACTS", result);
                                         res = new JSONObject(result);
                                         self.error = res.getInt("error");
                                     } else {
@@ -160,7 +172,6 @@ public class Api {
     private void syncMessages () {
         final Api self = this;
 
-        Log.i("MESSAGES", "Sync Messages");
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
             JSONArray messageArray = this.messages.getAllMessages();
             Ion.with(context)
@@ -233,47 +244,50 @@ public class Api {
         final Api self = this;
 
         try {
-            /* Verify is we have all informations */
-            SharedPreferences settings = this.context.getSharedPreferences("swb_infos", 0);
-            email = URLEncoder.encode(settings.getString("email", ""), "utf-8");
-            password = URLEncoder.encode(settings.getString("password", ""), "utf-8");
-            if (email.length() > 4 && password.length() > 4) {
-                Ion.with(context)
-                    .load(context.getString(R.string.api_url) + "Users/GetToken?email=" + email + "&password=" + password)
-                    .asString()
-                    .setCallback(new FutureCallback<String>() {
-                        @Override
-                        public void onCompleted(Exception e, String result) {
-                            JSONObject res;
-                            int error;
-                            try {
-                                if (result != null) {
-                                    res = new JSONObject(result);
-                                    error = res.getInt("error");
-                                    if (error == 0) {
-                                        self.token = res.getString("token");
-                                        self.user = res.getString("user");
-                                        self.key = res.getString("key");
-                                        self.state = 1;
-                                    }
-                                    self.error = error;
-                                } else {
-                                    e.printStackTrace();
-                                    self.error = 2;
-                                }
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                                self.error = -1;
-                            }
-                            self.saveState();
-                        }
-                    });
-            } else {
-                self.error = 1;
-            }
+            email = URLEncoder.encode(this.email, "utf-8");
+            password = URLEncoder.encode(this.password, "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            self.error = 1;
+            return;
         }
+
+        if (email.length() <= 4 || password.length() <= 4) {
+            self.error = 1;
+            return;
+        }
+
+        Ion.with(context)
+            .load(context.getString(R.string.api_url) + "Users/GetToken?email=" + email + "&password=" + password)
+            .asString()
+            .setCallback(new FutureCallback<String>() {
+                @Override
+                public void onCompleted(Exception e, String result) {
+                    JSONObject res;
+                    int error;
+                    try {
+                        if (result != null) {
+                            res = new JSONObject(result);
+                            error = res.getInt("error");
+                            if (error == 0) {
+                                self.token = res.getString("token");
+                                self.user = res.getString("user");
+                                self.key = res.getString("key");
+                                self.state = 1;
+                            }
+                            self.error = error;
+                        } else {
+                            e.printStackTrace();
+                            self.error = 2;
+                        }
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                        self.error = -1;
+                    }
+                    self.saveState();
+                }
+            });
+
     }
 
 }

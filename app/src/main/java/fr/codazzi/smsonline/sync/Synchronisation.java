@@ -39,13 +39,16 @@ public class Synchronisation extends Service {
     }
 
     public void syncLoop() {
-        this.api.Sync();
+        int time = 10000;
+        if (this.api.Sync()) {
+            time = 700;
+        }
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 syncLoop();
             }
-        }, 10000);
+        }, time);
     }
 }
