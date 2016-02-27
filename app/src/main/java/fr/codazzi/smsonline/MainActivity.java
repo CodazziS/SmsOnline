@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (c_activity == "main") {
+        if (c_activity.equals("main")) {
             long pressTime = System.nanoTime();
             long diff = (pressTime - lastPressTime) / 1000000;
             if (diff <= 2000) {

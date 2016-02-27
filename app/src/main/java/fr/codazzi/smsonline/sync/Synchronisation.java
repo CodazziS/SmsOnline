@@ -7,6 +7,7 @@ import android.os.*;
 import android.os.Process;
 import android.util.Log;
 
+import fr.codazzi.smsonline.BuildConfig;
 import fr.codazzi.smsonline.controllers.Api;
 
 
@@ -42,6 +43,9 @@ public class Synchronisation extends Service {
         int time = 10000;
         if (this.api.Sync()) {
             time = 700;
+        }
+        if (BuildConfig.DEBUG) {
+            time = 3000;
         }
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {

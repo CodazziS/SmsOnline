@@ -25,6 +25,7 @@ public class Api {
     String email = null;
     String password = null;
     String key = null;
+    String android_id = null;
 
     int state = 0;
     int error = 0;
@@ -41,6 +42,7 @@ public class Api {
 
     public Api(Context _context) {
         this.context = _context;
+        this.android_id = Tools.getDeviceID(this.context);
     }
 
     public Boolean Sync() {
@@ -79,10 +81,13 @@ public class Api {
                     messages = new Messages();
                     break;
                 case 3:
-                    this.syncMessages();
+                    this.syncMessages(true);
+                    break;
+                case 4:
+                    //this.syncMessages(false);
                     break;
                 default:
-                    Log.e("STATE ERROR", "Unknow state action ("+state+")");
+                    Log.e("STATE ERROR", "Unknown state action ("+state+")");
             }
         }
         this.saveState();
@@ -169,22 +174,32 @@ public class Api {
         this.saveState();
     }
 
-    private void syncMessages () {
+    private void syncMessages (Boolean getAllMessages) {
         final Api self = this;
-
+        JSONArray messages = new JSONArray();
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
-            JSONArray messageArray = this.messages.getAllMessages();
+            String url;
+            if (getAllMessages) {
+                messages = this.messages.getAllMessages(context);
+                url = "Messages/Resync";
+            } else {
+                url = "Messages/Add";
+            }
+
             Ion.with(context)
-                    .load(context.getString(R.string.api_url) + "Messages/Resync")
+                    .load(context.getString(R.string.api_url) + url)
                     .setBodyParameter("user", this.user)
                     .setBodyParameter("token", this.token)
-                    .setBodyParameter("messages", messageArray.toString())
+                    .setBodyParameter("android_id", this.android_id)
+                    .setBodyParameter("key", this.key)
+                    .setBodyParameter("messages", messages.toString())
                     .asString()
                     .setCallback(new FutureCallback<String>() {
                         @Override
                         public void onCompleted(Exception e, String result) {
                             JSONObject res;
                             Log.i("TEST MESSAGES", result);
+                            // @TODO: self.state = 4;
                             try {
                                 if (result != null) {
                                     res = new JSONObject(result);
