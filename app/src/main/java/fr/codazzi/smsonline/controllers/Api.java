@@ -72,6 +72,7 @@ public class Api {
             this.getToken();
         } else {
             Log.i("STATE", String.valueOf(state));
+            Log.e("ANDROID ID", this.android_id);
             switch (state) {
                 case 1:
                     this.addDevice();
@@ -84,7 +85,7 @@ public class Api {
                     this.syncMessages(true);
                     break;
                 case 4:
-                    //this.syncMessages(false);
+                    this.syncMessages(false);
                     break;
                 default:
                     Log.e("STATE ERROR", "Unknown state action ("+state+")");
@@ -183,7 +184,8 @@ public class Api {
                 messages = this.messages.getAllMessages(context);
                 url = "Messages/Resync";
             } else {
-                url = "Messages/Add";
+                messages = this.messages.getLastsMessages(context);
+                url = "Messages/Sync";
             }
 
             Ion.with(context)
@@ -199,7 +201,7 @@ public class Api {
                         public void onCompleted(Exception e, String result) {
                             JSONObject res;
                             Log.i("TEST MESSAGES", result);
-                            // @TODO: self.state = 4;
+                            self.state = 4;
                             try {
                                 if (result != null) {
                                     res = new JSONObject(result);
@@ -224,17 +226,19 @@ public class Api {
         final Api self = this;
         String android_id = Tools.getDeviceID(this.context);
 
+        Log.e("MODEL", android.os.Build.MODEL);
         Ion.with(context)
             .load(context.getString(R.string.api_url)  + "Devices/Add")
             .setBodyParameter("user", this.user)
             .setBodyParameter("token", this.token)
             .setBodyParameter("android_id", android_id)
+            .setBodyParameter("model", android.os.Build.MODEL)
             .asString()
             .setCallback(new FutureCallback<String>() {
                 @Override
                 public void onCompleted(Exception e, String result) {
                     JSONObject res;
-
+                    Log.e("Sync Device", result);
                     try {
                         if (result != null) {
                             res = new JSONObject(result);
