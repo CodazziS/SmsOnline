@@ -200,7 +200,6 @@ public class Api {
                         @Override
                         public void onCompleted(Exception e, String result) {
                             JSONObject res;
-                            Log.i("TEST MESSAGES", result);
                             self.state = 4;
                             try {
                                 if (result != null) {
