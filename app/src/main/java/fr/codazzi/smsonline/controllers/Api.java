@@ -33,11 +33,9 @@ public class Api {
     Context context = null;
     Boolean reset_api = false;
     Boolean wifi_only = true;
-
     Messages messages;
 
     /* Debug */
-    int nb_access = 0;
     Boolean test_mode = false;
 
     public Api(Context _context) {
@@ -49,7 +47,6 @@ public class Api {
         ConnectivityManager connManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
         // @TODO : Maybe change getNetworkInfo for the new version, and fetch all networks
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        Log.i("SYNCHRONIZATION", "Sync Thread: " + nb_access++ + " access." );
 
         this.readState();
         if (this.email != null && this.email.equals("test@example.com")) {
@@ -59,7 +56,6 @@ public class Api {
         }
 
         if (this.wifi_only && !mWifi.isConnected() && !test_mode) {
-            Log.i("SYNCHRONIZATION", "Wifi only.");
             this.error = 2;
             this.saveState();
             return false;
@@ -68,11 +64,8 @@ public class Api {
         if (this.reset_api) {
             this.resetApi();
         } else if (this.token == null || this.user == null) {
-            Log.i("API", "GetToken");
             this.getToken();
         } else {
-            Log.i("STATE", String.valueOf(state));
-            Log.e("ANDROID ID", this.android_id);
             switch (state) {
                 case 1:
                     this.addDevice();
@@ -104,7 +97,6 @@ public class Api {
         this.state = 0;
         this.error = 0;
         this.reset_api = false;
-        Log.e("API", "Reset API");
     }
 
     public void readState() {
@@ -164,8 +156,6 @@ public class Api {
                                 self.saveState();
                             }
                         });
-            } else {
-                Log.i("CONTACTS", "NO permission");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -177,7 +167,7 @@ public class Api {
 
     private void syncMessages (Boolean getAllMessages) {
         final Api self = this;
-        JSONArray messages = new JSONArray();
+        JSONArray messages;
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
             String url;
             if (getAllMessages) {
@@ -216,8 +206,6 @@ public class Api {
                             self.saveState();
                         }
                     });
-        } else {
-            Log.i("MESSAGES", "No permissions");
         }
     }
 
@@ -225,7 +213,6 @@ public class Api {
         final Api self = this;
         String android_id = Tools.getDeviceID(this.context);
 
-        Log.e("MODEL", android.os.Build.MODEL);
         Ion.with(context)
             .load(context.getString(R.string.api_url)  + "Devices/Add")
             .setBodyParameter("user", this.user)
@@ -237,7 +224,6 @@ public class Api {
                 @Override
                 public void onCompleted(Exception e, String result) {
                     JSONObject res;
-                    Log.e("Sync Device", result);
                     try {
                         if (result != null) {
                             res = new JSONObject(result);

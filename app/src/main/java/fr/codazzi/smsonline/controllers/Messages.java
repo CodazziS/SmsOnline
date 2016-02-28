@@ -1,18 +1,14 @@
 package fr.codazzi.smsonline.controllers;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import fr.codazzi.smsonline.Tools;
 
 public class Messages {
 
@@ -86,7 +82,6 @@ public class Messages {
 
         try {
             if (c.moveToFirst()) {
-                Log.e("SMS FOUND", "NUMBER: " + c.getCount());
                 for (messagesNb = 0; messagesNb < c.getCount(); messagesNb++) {
                     if (message_type.equals("sms")) {
                         mess_id = c.getString(c.getColumnIndex("_id"));
@@ -117,7 +112,6 @@ public class Messages {
                                 this.unreadSmsList = "";
                             }
                         }
-
                     } else if (message_type.equals("mms")) {
                         /* @TODO MMS */
                     }

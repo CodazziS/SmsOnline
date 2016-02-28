@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.*;
 import android.os.Process;
-import android.util.Log;
 
 import fr.codazzi.smsonline.BuildConfig;
 import fr.codazzi.smsonline.controllers.Api;

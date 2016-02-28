@@ -1,14 +1,15 @@
 package fr.codazzi.smsonline;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,6 +73,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /* Ask Permissions */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String perm[], int[] grtRes) {
+        if (grtRes.length > 0) {
+            this.loopPermissions();
+        }
+    }
+    public void loopPermissions() {
+        if (!Tools.checkPermission(this, Manifest.permission.READ_CONTACTS)) {
+            Tools.getPermission(this, Manifest.permission.READ_CONTACTS);
+        }
+        if (!Tools.checkPermission(this, Manifest.permission.READ_SMS)) {
+            Tools.getPermission(this, Manifest.permission.READ_SMS);
+        }
+    }
+    public void askPermissions() {
+        final Activity ac = this;
+        new AlertDialog.Builder(this)
+            .setTitle("Permissions")
+            .setMessage("The application need permissions for run.")
+            //.setIcon(R.drawable.)
+            .setPositiveButton("Ask Permissions", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    if (!Tools.checkPermission(ac, Manifest.permission.READ_CONTACTS)) {
+                        Tools.getPermission(ac, Manifest.permission.READ_CONTACTS);
+                    }
+                    if (!Tools.checkPermission(ac, Manifest.permission.READ_SMS)) {
+                        Tools.getPermission(ac, Manifest.permission.READ_SMS);
+                    }
+                    dialog.dismiss();
+                }
+            })
+            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            })
+            .show();
+    }
+
     /* Save and get infos */
     public void saveInfos() {
         SharedPreferences settings;
@@ -84,10 +125,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("wifi_only", this.wifi_only);
         editor.apply();
 
-        //@TODO better permissions
-        Tools.getPermission(this, Manifest.permission.READ_CONTACTS);
-        Tools.getPermission(this, Manifest.permission.READ_SMS);
-
+        this.askPermissions();
     }
 
     public void getInfos() {
@@ -99,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
         this.wifi_only = settings.getBoolean("wifi_only", true);
         this.error = settings.getInt("error", 0);
         this.state = settings.getInt("state", 0);
-        Log.e("READ_STATE", String.valueOf(this.state));
     }
 
     /* Navigation */
@@ -144,9 +181,6 @@ public class MainActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.config_password);
         password.setText(this.password);
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
-        if (this.wifi_only) {
-            Log.i("PUT SETTING", "NEEED CHECKED");
-        }
         wifi_only.setChecked(this.wifi_only);
     }
 
@@ -171,9 +205,6 @@ public class MainActivity extends AppCompatActivity {
         this.password = password.getText().toString();
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
         this.wifi_only = wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused();
-        if (this.wifi_only) {
-            Log.i("PUT SETTING", "IS CHECKED");
-        }
         this.reset_api = true;
 
         saveInfos();
