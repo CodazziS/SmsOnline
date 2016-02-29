@@ -39,12 +39,12 @@ public class Synchronisation extends Service {
     }
 
     public void syncLoop() {
-        int time = 10000;
+        int time = 20000;
         if (this.api.Sync()) {
             time = 700;
         }
         if (BuildConfig.DEBUG) {
-            time = 3000;
+            time = 5000;
         }
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
