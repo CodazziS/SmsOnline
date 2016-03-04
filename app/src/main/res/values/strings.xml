@@ -1,6 +1,6 @@
 <resources>
     <!-- DEFINES -->
-    <string translatable="false" name="api_url">http://devapi.swb.ovh/Api/</string>
+    <string translatable="false" name="api_url">https://devapi.swb.ovh/Api/</string>
 
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
