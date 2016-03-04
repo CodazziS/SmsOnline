@@ -14,6 +14,8 @@ public class Messages {
 
     private long lastDateSms = 0;
     private long lastDateMms = 0;
+    private long maxSmsCurrentDate;
+    private long maxMmsCurrentDate;
     String unreadSmsList = "";
 
 
@@ -39,6 +41,10 @@ public class Messages {
         /* TODO : Concat MMS + SMS */
         messages = sms;
         return messages;
+    }
+
+    public void confirmDates() {
+        this.lastDateSms = this.maxSmsCurrentDate;
     }
 
     private JSONArray getMms(Context context) {
@@ -79,6 +85,7 @@ public class Messages {
         JSONObject message;
         int messagesNb;
         String mess_id;
+        maxSmsCurrentDate = 0;
 
         try {
             if (c.moveToFirst()) {
@@ -94,8 +101,8 @@ public class Messages {
                         message.put("type", c.getString(c.getColumnIndex("type")));
                         message.put("body", c.getString(c.getColumnIndex("body")));
                         messages.put(message);
-                        if (c.getLong(c.getColumnIndex("date")) > this.lastDateSms) {
-                            this.lastDateSms = c.getLong(c.getColumnIndex("date"));
+                        if (c.getLong(c.getColumnIndex("date")) > this.maxSmsCurrentDate) {
+                            this.maxSmsCurrentDate = c.getLong(c.getColumnIndex("date"));
                         }
                         if (c.getString(c.getColumnIndex("read")).equals("0")) {
                             if (!this.unreadSmsList.equals("")) {

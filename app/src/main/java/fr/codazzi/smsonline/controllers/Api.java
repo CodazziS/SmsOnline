@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Date;
 
 public class Api {
     String token = null;
@@ -26,6 +27,7 @@ public class Api {
     String password = null;
     String key = null;
     String android_id = null;
+    long last_sync = 0;
 
     int state = 0;
     int error = 0;
@@ -44,18 +46,21 @@ public class Api {
     }
 
     public Boolean Sync() {
-        ConnectivityManager connManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        // @TODO : Maybe change getNetworkInfo for the new version, and fetch all networks
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        ConnectivityManager cm = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = cm.getActiveNetworkInfo();
 
         this.readState();
+        this.test_mode = (this.email != null && this.email.equals("test@example.com"));
+        /*
         if (this.email != null && this.email.equals("test@example.com")) {
             this.test_mode = true;
         } else {
             this.test_mode = false;
         }
+        */
 
-        if (this.wifi_only && !mWifi.isConnected() && !test_mode) {
+        if ((this.wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
+                || !network.isConnectedOrConnecting()) {
             this.error = 2;
             this.saveState();
             return false;
@@ -105,6 +110,7 @@ public class Api {
         settings = context.getSharedPreferences("swb_infos", 0);
         this.reset_api = settings.getBoolean("reset_api", false);
         this.wifi_only = settings.getBoolean("wifi_only", true);
+        this.last_sync = settings.getLong("last_sync", 0);
         this.email = settings.getString("email", "");
         this.password = settings.getString("password", "");
     }
@@ -119,6 +125,7 @@ public class Api {
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("error", this.error);
         editor.putInt("state", this.state);
+        editor.putLong("last_sync", this.last_sync);
         editor.putBoolean("reset_api", this.reset_api);
         //@TODO add date
         //editor.putString("password", this.password);
@@ -195,6 +202,10 @@ public class Api {
                                 if (result != null) {
                                     res = new JSONObject(result);
                                     self.error = res.getInt("error");
+                                    if (self.error == 0) {
+                                        self.messages.confirmDates();
+                                        self.last_sync = new Date().getTime();
+                                    }
                                 } else {
                                     e.printStackTrace();
                                     self.error = 2;
