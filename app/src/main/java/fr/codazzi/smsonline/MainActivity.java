@@ -18,12 +18,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import fr.codazzi.smsonline.sync.Synchronisation;
 
 public class MainActivity extends AppCompatActivity {
     private String c_activity;
     private String email = "";
     private String password = "";
+    private long last_sync;
     private Boolean wifi_only = true;
     private Boolean reset_api = false;
     private int error = 0;
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         this.wifi_only = settings.getBoolean("wifi_only", true);
         this.error = settings.getInt("error", 0);
         this.state = settings.getInt("state", 0);
+        this.last_sync = settings.getLong("last_sync", 0);
     }
 
     /* Navigation */
@@ -144,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         TextView status;
         TextView sync;
         Toolbar toolbar;
+        Date last_sync;
 
         c_activity = "main";
         this.getInfos();
@@ -162,9 +170,15 @@ public class MainActivity extends AppCompatActivity {
         } else {
             status.setText(getResources().getStringArray(R.array.actions_str)[this.state]);
         }
-        //sync = (TextView) findViewById(R.id.sync_str);
-        //sync.setText(getResources().getStringArray(R.array.actions_str)[this.state]);
-
+        sync = (TextView) findViewById(R.id.sync_str);
+        if (this.last_sync != 0) {
+            last_sync = new Date(this.last_sync);
+            DateFormat dateFormat = DateFormat.getDateInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            sync.setText(dateFormat.format(last_sync) + " " + sdf.format(last_sync));
+        } else {
+            sync.setText(getResources().getString(R.string.never_sync));
+        }
     }
 
     public void putSettings() {
