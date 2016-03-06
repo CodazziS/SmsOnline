@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:required="false" android:name="android.permission.READ_SMS"/>
     <uses-permission android:required="false" android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -30,8 +31,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
-        <service android:name="fr.codazzi.smsonline.sync.Synchronisation"/>
+        <receiver android:name="fr.codazzi.smsonline.sync.Synchronisation">
+            <intent-filter>
+                <action android:name="fr.codazzi.smsonline.android.action.broadcast" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
