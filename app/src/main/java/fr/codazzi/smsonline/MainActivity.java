@@ -2,14 +2,20 @@ package fr.codazzi.smsonline;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +26,7 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -41,7 +48,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         putMain();
-        startService(new Intent(MainActivity.this, Synchronisation.class));
+
+        Intent myIntent = new Intent(this, Synchronisation.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,  0, myIntent, 0);
+        AlarmManager alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.SECOND, 1); // first time
+        long frequency = 10 * 1000; // in ms
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), frequency, pendingIntent);
     }
 
     @Override
@@ -131,7 +146,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("wifi_only", this.wifi_only);
         editor.apply();
 
-        this.askPermissions();
+        if (!Tools.checkPermission(this, Manifest.permission.READ_CONTACTS) ||
+                !Tools.checkPermission(this, Manifest.permission.READ_CONTACTS)) {
+            this.askPermissions();
+        }
     }
 
     public void getInfos() {
@@ -238,5 +256,25 @@ public class MainActivity extends AppCompatActivity {
         putMain();
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+        if (!test_mode) {
+            test_mode = true;
+            testLoop();
+        }
+    }
+
+    boolean test_mode = false;
+    public void testLoop() {
+        int time = 3000;
+
+        Intent intent = new Intent(this, Synchronisation.class);
+        getApplicationContext().sendBroadcast(intent);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                testLoop();
+            }
+        }, time);
     }
 }

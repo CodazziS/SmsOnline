@@ -19,8 +19,11 @@ public class Messages {
     String unreadSmsList = "";
 
 
-    public JSONArray getLastsMessages(Context context) {
+    public JSONArray getLastsMessages(Context context, long _lastDateSms, long _lastDateMms, String _unreadSmsList) {
 
+        this.lastDateSms = _lastDateSms;
+        this.lastDateMms = _lastDateMms;
+        this.unreadSmsList = _unreadSmsList;
         JSONArray messages = null;
         String selection = "date > " + this.lastDateSms + " " +
                 "OR (_id IN (" + this.unreadSmsList + ") AND read = 1)";
@@ -43,8 +46,17 @@ public class Messages {
         return messages;
     }
 
-    public void confirmDates() {
+    public JSONObject confirmDates() {
         this.lastDateSms = this.maxSmsCurrentDate;
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("lastDateSms", lastDateSms);
+            obj.put("lastDateMms", lastDateMms);
+            obj.put("unreadSmsList", unreadSmsList);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj;
     }
 
     private JSONArray getMms(Context context) {

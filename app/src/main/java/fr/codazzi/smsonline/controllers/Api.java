@@ -3,8 +3,6 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import fr.codazzi.smsonline.*;
@@ -21,13 +19,13 @@ import java.net.URLEncoder;
 import java.util.Date;
 
 public class Api {
+    /*
     String token = null;
     String user = null;
     String email = null;
     String password = null;
     String key = null;
     String android_id = null;
-    long last_sync = 0;
 
     int state = 0;
     int error = 0;
@@ -37,27 +35,89 @@ public class Api {
     Boolean wifi_only = true;
     Messages messages;
 
-    /* Debug */
     Boolean test_mode = false;
+    */
+    Context context;
+    String android_id;
+
+    /* settings */
+    int error = 0;
+    String token;
+    String user;
+    String key;
+    int state;
+    long last_sync;
+    long last_sms;
+    long last_mms;
+    String unread_sms = "";
+    boolean reset_api = false;
 
     public Api(Context _context) {
         this.context = _context;
         this.android_id = Tools.getDeviceID(this.context);
     }
 
+    private void saveSettings() {
+        if (this.error != 0) {
+            this.token = null;
+            this.user = null;
+            this.key = null;
+        }
+        SharedPreferences settings = this.context.getSharedPreferences("swb_infos", 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("error", this.error);
+        editor.putInt("state", this.state);
+        editor.putLong("last_sync", this.last_sync);
+        editor.putLong("last_sms", this.last_sms);
+        editor.putLong("last_mms", this.last_mms);
+        editor.putString("api_token", this.token);
+        editor.putString("api_key", this.key);
+        editor.putString("api_user", this.user);
+        editor.putString("api_unread_sms", this.unread_sms);
+        if (this.reset_api) {
+            editor.putBoolean("reset_api", true);
+        }
+        editor.apply();
+    }
+
+    public void Run(SharedPreferences settings) {
+        this.state = settings.getInt("state", 0);
+        this.token = settings.getString("api_token", null);
+        this.key = settings.getString("api_key", null);
+        this.user = settings.getString("api_user", null);
+        this.unread_sms = settings.getString("api_unread_sms", null);
+        this.last_sync = settings.getLong("last_sync", 0);
+
+        Log.d("api STATE", "State: " + state);
+        if (this.token == null || this.user == null) {
+            this.getToken(settings.getString("email", ""), settings.getString("password", ""));
+        } else {
+            switch (settings.getInt("state", -1)) {
+                case 1:
+                    this.addDevice();
+                    break;
+                case 2:
+                    this.syncContacts();
+                    break;
+                case 3:
+                    this.syncMessages(true);
+                    break;
+                case 4:
+                    this.syncMessages(false);
+                    break;
+                default:
+                    Log.e("STATE ERROR", "Unknown state action ("+state+")");
+            }
+        }
+        this.saveSettings();
+    }
+    /*
     public Boolean Sync() {
         ConnectivityManager cm = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
 
         this.readState();
         this.test_mode = (this.email != null && this.email.equals("test@example.com"));
-        /*
-        if (this.email != null && this.email.equals("test@example.com")) {
-            this.test_mode = true;
-        } else {
-            this.test_mode = false;
-        }
-        */
 
         if ((this.wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
                 || !network.isConnectedOrConnecting()) {
@@ -91,8 +151,9 @@ public class Api {
         }
         this.saveState();
         return test_mode;
-    }
+    }*/
 
+    /*
     private void resetApi() {
         this.token = null;
         this.user = null;
@@ -100,10 +161,14 @@ public class Api {
         this.password = null;
         this.key = null;
         this.state = 0;
-        this.error = 0;
+        if (this.error != 0) {
+            this.error = 0;
+        }
         this.reset_api = false;
     }
+    */
 
+    /*
     public void readState() {
         SharedPreferences settings;
 
@@ -114,7 +179,9 @@ public class Api {
         this.email = settings.getString("email", "");
         this.password = settings.getString("password", "");
     }
+    */
 
+    /*
     private void saveState() {
         if (this.error != 0) {
             this.token = null;
@@ -131,6 +198,7 @@ public class Api {
         //editor.putString("password", this.password);
         editor.apply();
     }
+    */
 
     private void syncContacts () {
         final Api self = this;
@@ -153,14 +221,13 @@ public class Api {
                                         res = new JSONObject(result);
                                         self.error = res.getInt("error");
                                     } else {
-                                        e.printStackTrace();
                                         self.error = 2;
                                     }
                                 } catch (JSONException e1) {
                                     e1.printStackTrace();
                                     self.error = -1;
                                 }
-                                self.saveState();
+                                self.saveSettings();
                             }
                         });
             }
@@ -169,52 +236,58 @@ public class Api {
         }
         // Same if contacts is not synchronized, we go in next step
         this.state++;
-        this.saveState();
+        this.saveSettings();
     }
 
     private void syncMessages (Boolean getAllMessages) {
         final Api self = this;
-        JSONArray messages;
+        final Messages messages = new Messages();
+        JSONArray messages_arr;
+
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
             String url;
             if (getAllMessages) {
-                messages = this.messages.getAllMessages(context);
+                messages_arr = messages.getAllMessages(context);
                 url = "Messages/Resync";
             } else {
-                messages = this.messages.getLastsMessages(context);
+                messages_arr = messages.getLastsMessages(context, this.last_sms, this.last_sms, this.unread_sms);
                 url = "Messages/Sync";
             }
-
             Ion.with(context)
                     .load(context.getString(R.string.api_url) + url)
                     .setBodyParameter("user", this.user)
                     .setBodyParameter("token", this.token)
                     .setBodyParameter("android_id", this.android_id)
                     .setBodyParameter("key", this.key)
-                    .setBodyParameter("messages", messages.toString())
+                    .setBodyParameter("messages", messages_arr.toString())
                     .asString()
                     .setCallback(new FutureCallback<String>() {
                         @Override
                         public void onCompleted(Exception e, String result) {
                             JSONObject res;
+                            JSONObject result_obj;
                             self.state = 4;
                             try {
                                 if (result != null) {
                                     res = new JSONObject(result);
                                     self.error = res.getInt("error");
                                     if (self.error == 0) {
-                                        self.messages.confirmDates();
+                                        result_obj = messages.confirmDates();
+                                        self.last_sms = result_obj.getLong("lastDateSms");
+                                        self.last_mms = result_obj.getLong("lastDateMms");
+                                        self.unread_sms = result_obj.getString("unreadSmsList");
                                         self.last_sync = new Date().getTime();
+                                    } else {
+                                        self.reset_api = true;
                                     }
                                 } else {
-                                    e.printStackTrace();
                                     self.error = 2;
                                 }
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                                 self.error = -1;
                             }
-                            self.saveState();
+                            self.saveSettings();
                         }
                     });
         }
@@ -241,26 +314,23 @@ public class Api {
                             self.error = res.getInt("error");
                             self.state = 2;
                         } else {
-                            e.printStackTrace();
                             self.error = 2;
                         }
                     } catch (JSONException e1) {
                         e1.printStackTrace();
                         self.error = -1;
                     }
-                    self.saveState();
+                    self.saveSettings();
                 }
             });
     }
 
-    private void getToken() {
-        String email;
-        String password;
+    private void getToken(String email, String password) {
         final Api self = this;
 
         try {
-            email = URLEncoder.encode(this.email, "utf-8");
-            password = URLEncoder.encode(this.password, "utf-8");
+            email = URLEncoder.encode(email, "utf-8");
+            password = URLEncoder.encode(password, "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             self.error = 1;
@@ -289,6 +359,8 @@ public class Api {
                                 self.user = res.getString("user");
                                 self.key = res.getString("key");
                                 self.state = 1;
+                            } else {
+                                self.reset_api = true;
                             }
                             self.error = error;
                         } else {
@@ -299,7 +371,7 @@ public class Api {
                         e1.printStackTrace();
                         self.error = -1;
                     }
-                    self.saveState();
+                    self.saveSettings();
                 }
             });
 

@@ -2,56 +2,49 @@ package fr.codazzi.smsonline.sync;
 
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.*;
 import android.os.Process;
+import android.util.Log;
 
 import fr.codazzi.smsonline.BuildConfig;
 import fr.codazzi.smsonline.controllers.Api;
 
 
-public class Synchronisation extends Service {
-    Api api = null;
+public class Synchronisation  extends BroadcastReceiver {
 
     @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
-    }
+    public void onReceive(Context context, Intent intent) {
+        Log.d("SYNC LOOP", "LOOP");
+        boolean test_mode;
+        SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = cm.getActiveNetworkInfo();
+        test_mode = (settings.getString("email", "").equals("test@example.com"));
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        if (this.api == null) {
-            this.api = new Api(this);
+        if (settings.getBoolean("reset_api", false)) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putLong("last_sms", 0);
+            editor.putLong("last_mms", 0);
+            editor.putString("api_token", null);
+            editor.putString("api_key", null);
+            editor.putString("api_user", null);
+            editor.putString("api_unread_sms", "");
+            editor.putBoolean("reset_api", false);
+            editor.apply();
         }
-        syncLoop();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return START_REDELIVER_INTENT;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    public void syncLoop() {
-        int time = 20000;
-        if (this.api.Sync()) {
-            time = 700;
+        if ((settings.getBoolean("wifi_only", false) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
+                || !network.isConnectedOrConnecting()) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt("error", 2);
+            editor.apply();
         }
-        if (BuildConfig.DEBUG) {
-            time = 5000;
-        }
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                syncLoop();
-            }
-        }, time);
+
+        new Api(context).Run(settings);
     }
 }
