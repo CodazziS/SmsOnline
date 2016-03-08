@@ -38,11 +38,12 @@ public class Synchronisation  extends BroadcastReceiver {
             editor.putBoolean("reset_api", false);
             editor.apply();
         }
-        if ((settings.getBoolean("wifi_only", false) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
+        if ((settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = settings.edit();
             editor.putInt("error", 2);
             editor.apply();
+            return;
         }
 
         new Api(context).Run(settings);
