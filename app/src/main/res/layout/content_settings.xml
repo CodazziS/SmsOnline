@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -11,52 +12,55 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="fr.codazzi.smsonline.MainActivity"
     tools:showIn="@layout/activity_settings">
-
+    <!--
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:hint="@string/settings_email"
-                android:id="@+id/config_email"
-                />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:hint="@string/settings_password"
-                android:id="@+id/config_password"
-                />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.v7.widget.AppCompatCheckBox
+        -->
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_only_wifi"
-            android:id="@+id/config_wifi_only"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:inputType="textEmailAddress"
+            android:hint="@string/settings_email"
+            android:id="@+id/config_email"
             />
+    </android.support.design.widget.TextInputLayout>
 
-
-        <android.support.v7.widget.AppCompatButton
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_save"
-            android:onClick="saveSettings"
+            android:inputType="textPassword"
+            android:hint="@string/settings_password"
+            android:id="@+id/config_password"
             />
-    </LinearLayout>
+    </android.support.design.widget.TextInputLayout>
 
-</RelativeLayout>
+    <android.support.v7.widget.AppCompatCheckBox
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_only_wifi"
+        android:id="@+id/config_wifi_only"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        />
+
+
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_save"
+        android:onClick="saveSettings"
+        />
+</LinearLayout>
+
+<!--
+</LinearLayout>
+-->

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -12,106 +13,125 @@
     tools:context="fr.codazzi.smsonline.MainActivity"
     tools:showIn="@layout/activity_main">
 
+    <!--
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
+    -->
         <!-- Go to settings -->
-        <LinearLayout
-            style="@style/Block"
-            android:orientation="horizontal"
+    <TextView
+        style="@style/ItemTitle"
+        android:layout_marginTop="10dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_settings"
+        android:drawableStart="@android:drawable/ic_menu_manage"
+        android:drawableLeft="@android:drawable/ic_menu_manage"
+        android:onClick="goToSettings"
+        android:padding="5dp" />
+    <!--
+    <LinearLayout
+        style="@style/Block"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="goToSettings"
+        >
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:contentDescription="@string/main_settings"
+            android:src="@android:drawable/ic_menu_manage"/>
+        <TextView
+            style="@style/ItemTitleImg"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="goToSettings"
-            >
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@android:drawable/ic_menu_manage"/>
-            <TextView
-                style="@style/ItemTitleImg"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:text="@string/main_settings"
-                 />
-        </LinearLayout>
+            android:layout_height="35dp"
+            android:text="@string/main_settings"
+             />
+    </LinearLayout>
+    -->
 
-        <!-- Status -->
+    <!-- Status -->
+    <LinearLayout
+        style="@style/Block"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="goToMain"
+        >
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:contentDescription="@string/main_status"
+            android:src="@android:drawable/ic_menu_help"/>
+
         <LinearLayout
-            style="@style/Block"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="goToMain"
-            >
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@android:drawable/ic_menu_help"/>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
-                <TextView
-                    style="@style/ItemTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/main_status"
-                    />
-
-                <TextView
-                    style="@style/ItemValue"
-                    android:id="@+id/status_str"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Last sync -->
-        <LinearLayout
-            style="@style/Block"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="goToMain"
-            >
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@android:drawable/ic_menu_info_details"/>
-            <LinearLayout
-            style="@style/Block"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
-                <TextView
-                    style="@style/ItemTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/main_sync"
-                    />
+            <TextView
+                style="@style/ItemTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_status"
+                />
 
-                <TextView
-                    style="@style/ItemValue"
-                    android:id="@+id/sync_str"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    />
-            </LinearLayout>
+            <TextView
+                style="@style/ItemValue"
+                android:id="@+id/status_str"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                />
         </LinearLayout>
-        <android.support.v7.widget.AppCompatButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="TEST BUTTON"
-            android:onClick="testSettings"
-            />
     </LinearLayout>
 
-</RelativeLayout>
+    <!-- Last sync -->
+    <LinearLayout
+        style="@style/Block"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="goToMain"
+        >
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:contentDescription="@string/main_sync"
+            android:src="@android:drawable/ic_menu_info_details"/>
+        <LinearLayout
+        style="@style/Block"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+            <TextView
+                style="@style/ItemTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_sync"
+                />
+
+            <TextView
+                style="@style/ItemValue"
+                android:id="@+id/sync_str"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_panic"
+        android:onClick="testSettings"
+        />
+    <!--
+    </LinearLayout>
+    -->
+
+</LinearLayout>
