@@ -36,6 +36,7 @@ public class Synchronisation  extends BroadcastReceiver {
             editor.putString("api_user", null);
             editor.putString("api_unread_sms", "");
             editor.putBoolean("reset_api", false);
+            editor.putBoolean("working", false);
             editor.apply();
         }
         if ((settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)

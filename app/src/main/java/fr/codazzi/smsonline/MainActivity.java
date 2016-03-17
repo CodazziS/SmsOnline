@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -30,6 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import fr.codazzi.smsonline.controllers.Api;
 import fr.codazzi.smsonline.sync.Synchronisation;
 
 public class MainActivity extends AppCompatActivity {
@@ -243,6 +246,46 @@ public class MainActivity extends AppCompatActivity {
         putMain();
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+        this.logonLoop();
+    }
+
+    public void logonLoop() {
+        SharedPreferences settings = getSharedPreferences("swb_infos", 0);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = cm.getActiveNetworkInfo();
+
+        Log.d("Logon Loop", "Passed");
+        if (settings.getBoolean("reset_api", false)) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putLong("last_sms", 0);
+            editor.putLong("last_mms", 0);
+            editor.putInt("state", 0);
+            editor.putString("api_token", null);
+            editor.putString("api_key", null);
+            editor.putString("api_user", null);
+            editor.putString("api_unread_sms", "");
+            editor.putBoolean("reset_api", false);
+            editor.putBoolean("working", false);
+            editor.apply();
+        }
+        if ((settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
+                || !network.isConnectedOrConnecting()) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt("error", 2);
+            editor.apply();
+            return;
+        }
+
+        new Api(this).Run(settings);
+        if (settings.getInt("error", -1) == 0 && settings.getInt("state", 4) != 4) {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    logonLoop();
+                }
+            }, 1000);
+        }
     }
 
     public void testSettings(View view) {
