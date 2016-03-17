@@ -19,24 +19,6 @@ import java.net.URLEncoder;
 import java.util.Date;
 
 public class Api {
-    /*
-    String token = null;
-    String user = null;
-    String email = null;
-    String password = null;
-    String key = null;
-    String android_id = null;
-
-    int state = 0;
-    int error = 0;
-
-    Context context = null;
-    Boolean reset_api = false;
-    Boolean wifi_only = true;
-    Messages messages;
-
-    Boolean test_mode = false;
-    */
     Context context;
     String android_id;
 
@@ -51,6 +33,7 @@ public class Api {
     long last_mms;
     String unread_sms = "";
     boolean reset_api = false;
+    SharedPreferences settings = null;
 
     public Api(Context _context) {
         this.context = _context;
@@ -63,7 +46,6 @@ public class Api {
             this.user = null;
             this.key = null;
         }
-        SharedPreferences settings = this.context.getSharedPreferences("swb_infos", 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("error", this.error);
         editor.putInt("state", this.state);
@@ -74,19 +56,29 @@ public class Api {
         editor.putString("api_key", this.key);
         editor.putString("api_user", this.user);
         editor.putString("api_unread_sms", this.unread_sms);
+        editor.putBoolean("working", false);
         if (this.reset_api) {
             editor.putBoolean("reset_api", true);
         }
         editor.apply();
     }
 
-    public void Run(SharedPreferences settings) {
+    public void Run(SharedPreferences _settings) {
+        this.settings = _settings;
+        if (settings.getBoolean("working", false)) {
+            return;
+        }
+
         this.state = settings.getInt("state", 0);
         this.token = settings.getString("api_token", null);
         this.key = settings.getString("api_key", null);
         this.user = settings.getString("api_user", null);
         this.unread_sms = settings.getString("api_unread_sms", null);
         this.last_sync = settings.getLong("last_sync", 0);
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("working", true);
+        editor.apply();
 
         Log.d("api STATE", "State: " + state);
         if (this.token == null || this.user == null) {
@@ -109,96 +101,8 @@ public class Api {
                     Log.e("STATE ERROR", "Unknown state action ("+state+")");
             }
         }
-        this.saveSettings();
+        //this.saveSettings();
     }
-    /*
-    public Boolean Sync() {
-        ConnectivityManager cm = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo network = cm.getActiveNetworkInfo();
-
-        this.readState();
-        this.test_mode = (this.email != null && this.email.equals("test@example.com"));
-
-        if ((this.wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
-                || !network.isConnectedOrConnecting()) {
-            this.error = 2;
-            this.saveState();
-            return false;
-        }
-
-        if (this.reset_api) {
-            this.resetApi();
-        } else if (this.token == null || this.user == null) {
-            this.getToken();
-        } else {
-            switch (state) {
-                case 1:
-                    this.addDevice();
-                    break;
-                case 2:
-                    this.syncContacts();
-                    messages = new Messages();
-                    break;
-                case 3:
-                    this.syncMessages(true);
-                    break;
-                case 4:
-                    this.syncMessages(false);
-                    break;
-                default:
-                    Log.e("STATE ERROR", "Unknown state action ("+state+")");
-            }
-        }
-        this.saveState();
-        return test_mode;
-    }*/
-
-    /*
-    private void resetApi() {
-        this.token = null;
-        this.user = null;
-        this.email = null;
-        this.password = null;
-        this.key = null;
-        this.state = 0;
-        if (this.error != 0) {
-            this.error = 0;
-        }
-        this.reset_api = false;
-    }
-    */
-
-    /*
-    public void readState() {
-        SharedPreferences settings;
-
-        settings = context.getSharedPreferences("swb_infos", 0);
-        this.reset_api = settings.getBoolean("reset_api", false);
-        this.wifi_only = settings.getBoolean("wifi_only", true);
-        this.last_sync = settings.getLong("last_sync", 0);
-        this.email = settings.getString("email", "");
-        this.password = settings.getString("password", "");
-    }
-    */
-
-    /*
-    private void saveState() {
-        if (this.error != 0) {
-            this.token = null;
-            this.user = null;
-            this.key = null;
-        }
-        SharedPreferences settings = this.context.getSharedPreferences("swb_infos", 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("error", this.error);
-        editor.putInt("state", this.state);
-        editor.putLong("last_sync", this.last_sync);
-        editor.putBoolean("reset_api", this.reset_api);
-        //@TODO add date
-        //editor.putString("password", this.password);
-        editor.apply();
-    }
-    */
 
     private void syncContacts () {
         final Api self = this;
@@ -206,10 +110,11 @@ public class Api {
             if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
                 JSONArray contacts = Contacts.getAllContacts(context);
                 Ion.with(context)
-                        .load(context.getString(R.string.api_url)  + "Contacts/Add")
+                        .load(context.getString(R.string.api_url) + "Contacts/Add")
                         .setBodyParameter("user", this.user)
                         .setBodyParameter("token", this.token)
                         .setBodyParameter("key", this.key)
+                        .setBodyParameter("android_id", this.android_id)
                         .setBodyParameter("contacts", contacts.toString())
                         .asString()
                         .setCallback(new FutureCallback<String>() {
@@ -225,6 +130,7 @@ public class Api {
                                     }
                                 } catch (JSONException e1) {
                                     e1.printStackTrace();
+                                    Log.d("JSON", result);
                                     self.error = -1;
                                 }
                                 self.saveSettings();
@@ -285,6 +191,7 @@ public class Api {
                                 }
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
+                                Log.d("JSON", result);
                                 self.error = -1;
                             }
                             self.saveSettings();
@@ -318,6 +225,7 @@ public class Api {
                         }
                     } catch (JSONException e1) {
                         e1.printStackTrace();
+                        Log.d("JSON", result);
                         self.error = -1;
                     }
                     self.saveSettings();
@@ -369,12 +277,12 @@ public class Api {
                         }
                     } catch (JSONException e1) {
                         e1.printStackTrace();
+                        Log.d("JSON", result);
                         self.error = -1;
                     }
                     self.saveSettings();
                 }
             });
-
     }
 
 }
