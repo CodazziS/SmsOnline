@@ -12,7 +12,7 @@
         <!-- 04 --><item>Synchronized</item>
     </string-array>
     <string-array name="errors_str">
-        <!-- 00 --><item>Unkown error</item>
+        <!-- 00 --><item>Unknown error</item>
         <!-- 01 --><item>Missing credentials</item>
         <!-- 02 --><item>Network error</item>
         <!-- 03 --><item>Email is not valid</item>
@@ -26,6 +26,7 @@
     <string name="main_settings">Settings</string>
     <string name="main_status">Status</string>
     <string name="main_sync">Last synchronisation</string>
+    <string name="main_panic">PANIC BUTTON</string>
     <string name="never_sync">Never</string>
 
         <!-- activity_main - settings -->

@@ -13,6 +13,9 @@ public class SyncReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals("")) {
+
+        }
         Intent myIntent = new Intent(context, Synchronisation.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,  0, myIntent, 0);
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);

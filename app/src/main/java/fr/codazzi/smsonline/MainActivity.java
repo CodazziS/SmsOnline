@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,9 +17,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -196,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
             last_sync = new Date(this.last_sync);
             DateFormat dateFormat = DateFormat.getDateInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            sync.setText(dateFormat.format(last_sync) + " " + sdf.format(last_sync));
+            sync.setText(String.valueOf(dateFormat.format(last_sync) + " " + sdf.format(last_sync)));
         } else {
             sync.setText(getResources().getString(R.string.never_sync));
         }
