@@ -10,11 +10,11 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:fullBackupContent="@xml/mybackupscheme"
+        android:fullBackupContent="false"
         android:theme="@style/AppTheme">
 
         <activity
@@ -22,13 +22,14 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.BROWSABLE" />
+                <!--
                 <data android:scheme="http"
                     android:host="swb.ovh"
                     android:pathPrefix="/androidapp" />
+                -->
             </intent-filter>
         </activity>
 
