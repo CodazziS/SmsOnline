@@ -242,11 +242,13 @@ public class Api {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             self.error = 1;
+            self.saveSettings();
             return;
         }
 
         if (email.length() <= 4 || password.length() <= 4) {
             self.error = 1;
+            self.saveSettings();
             return;
         }
 
@@ -284,5 +286,4 @@ public class Api {
                 }
             });
     }
-
 }
