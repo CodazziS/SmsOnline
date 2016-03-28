@@ -296,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
 
         saveInfos();
         putMain();
-        Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(android.R.id.content), "PANIC MODE!!!", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
         if (!test_mode) {
             test_mode = true;

@@ -3,6 +3,7 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Debug;
 import android.util.Log;
 
 import fr.codazzi.smsonline.*;
@@ -34,10 +35,16 @@ public class Api {
     String unread_sms = "";
     boolean reset_api = false;
     SharedPreferences settings = null;
+    String api_url = "";
 
     public Api(Context _context) {
         this.context = _context;
         this.android_id = Tools.getDeviceID(this.context);
+        if (BuildConfig.DEBUG) {
+            this.api_url = context.getString(R.string.api_url_debug);
+        } else {
+            this.api_url = context.getString(R.string.api_url);
+        }
     }
 
     private void saveSettings() {
@@ -66,6 +73,12 @@ public class Api {
     public void Run(SharedPreferences _settings) {
         this.settings = _settings;
         if (settings.getBoolean("working", false)) {
+            /* If the last working time have more of 5 min */
+            if (settings.getLong("last_working", 0) > ((new Date()).getTime() + 300000)) {
+                Log.i("API", "To long time for the working state");
+                this.reset_api = true;
+                this.saveSettings();
+            }
             return;
         }
 
@@ -78,6 +91,7 @@ public class Api {
 
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("working", true);
+        editor.putLong("last_working", (new Date()).getTime());
         editor.apply();
 
         Log.d("api STATE", "State: " + state);
@@ -110,7 +124,7 @@ public class Api {
             if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
                 JSONArray contacts = Contacts.getAllContacts(context);
                 Ion.with(context)
-                        .load(context.getString(R.string.api_url) + "Contacts/Add")
+                        .load(this.api_url + "Contacts/Add")
                         .setBodyParameter("user", this.user)
                         .setBodyParameter("token", this.token)
                         .setBodyParameter("key", this.key)
@@ -160,7 +174,7 @@ public class Api {
                 url = "Messages/Sync";
             }
             Ion.with(context)
-                    .load(context.getString(R.string.api_url) + url)
+                    .load(this.api_url + url)
                     .setBodyParameter("user", this.user)
                     .setBodyParameter("token", this.token)
                     .setBodyParameter("android_id", this.android_id)
@@ -175,6 +189,7 @@ public class Api {
                             self.state = 4;
                             try {
                                 if (result != null) {
+                                    Log.d("SWB", result);
                                     res = new JSONObject(result);
                                     self.error = res.getInt("error");
                                     if (self.error == 0) {
@@ -205,7 +220,7 @@ public class Api {
         String android_id = Tools.getDeviceID(this.context);
 
         Ion.with(context)
-            .load(context.getString(R.string.api_url)  + "Devices/Add")
+            .load(this.api_url + "Devices/Add")
             .setBodyParameter("user", this.user)
             .setBodyParameter("token", this.token)
             .setBodyParameter("android_id", android_id)
@@ -253,7 +268,7 @@ public class Api {
         }
 
         Ion.with(context)
-            .load(context.getString(R.string.api_url) + "Users/GetToken?email=" + email + "&password=" + password)
+            .load(this.api_url + "Users/GetToken?email=" + email + "&password=" + password)
             .asString()
             .setCallback(new FutureCallback<String>() {
                 @Override
