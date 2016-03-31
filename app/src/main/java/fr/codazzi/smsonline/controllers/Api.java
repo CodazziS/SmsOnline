@@ -71,13 +71,17 @@ public class Api {
     }
 
     public void Run(SharedPreferences _settings) {
+        Log.d("API", "Run the API");
         this.settings = _settings;
+        Long last_work = settings.getLong("last_working", 0);
         if (settings.getBoolean("working", false)) {
             /* If the last working time have more of 5 min */
-            if (settings.getLong("last_working", 0) > ((new Date()).getTime() + 300000)) {
+            if (last_work == 0 || last_work > ((new Date()).getTime() - 300000)) {
                 Log.i("API", "To long time for the working state");
                 this.reset_api = true;
                 this.saveSettings();
+            } else {
+                Log.i("API", "In working state");
             }
             return;
         }
@@ -159,6 +163,23 @@ public class Api {
         this.saveSettings();
     }
 
+    private void confirmSent (String message_id) {
+        Ion.with(context)
+                .load(this.api_url + "Messages/ConfirmSent")
+                .setBodyParameter("user", this.user)
+                .setBodyParameter("token", this.token)
+                .setBodyParameter("key", this.key)
+                .setBodyParameter("android_id", this.android_id)
+                .setBodyParameter("message_id", message_id)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Log.d("SWB API", result);
+                    }
+                });
+    }
+
     private void syncMessages (Boolean getAllMessages) {
         final Api self = this;
         final Messages messages = new Messages();
@@ -186,6 +207,8 @@ public class Api {
                         public void onCompleted(Exception e, String result) {
                             JSONObject res;
                             JSONObject result_obj;
+                            JSONObject message_to_send;
+                            JSONArray messages_to_send;
                             self.state = 4;
                             try {
                                 if (result != null) {
@@ -198,6 +221,19 @@ public class Api {
                                         self.last_mms = result_obj.getLong("lastDateMms");
                                         self.unread_sms = result_obj.getString("unreadSmsList");
                                         self.last_sync = new Date().getTime();
+                                        /* Look if we do send messages */
+                                        if (res.has("messages_to_send")) {
+                                            messages_to_send = res.getJSONArray("messages_to_send");
+                                            for (int i = 0; i < messages_to_send.length(); ++i) {
+                                                message_to_send = messages_to_send.getJSONObject(i);
+                                                Messages.sendMessage(
+                                                        message_to_send.getString("address"),
+                                                        message_to_send.getString("body"),
+                                                        "sms");
+                                                self.confirmSent(message_to_send.getString("id"));
+                                                Log.d("API SWB", messages_to_send.get(i).toString());
+                                            }
+                                        }
                                     } else {
                                         self.reset_api = true;
                                     }

@@ -110,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
         if (!Tools.checkPermission(this, Manifest.permission.READ_SMS)) {
             Tools.getPermission(this, Manifest.permission.READ_SMS);
         }
+        if (!Tools.checkPermission(this, Manifest.permission.SEND_SMS)) {
+            Tools.getPermission(this, Manifest.permission.SEND_SMS);
+        }
     }
     public void askPermissions() {
         final Activity ac = this;
@@ -124,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (!Tools.checkPermission(ac, Manifest.permission.READ_SMS)) {
                         Tools.getPermission(ac, Manifest.permission.READ_SMS);
+                    }
+                    if (!Tools.checkPermission(ac, Manifest.permission.SEND_SMS)) {
+                        Tools.getPermission(ac, Manifest.permission.SEND_SMS);
                     }
                     dialog.dismiss();
                 }
@@ -149,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         if (!Tools.checkPermission(this, Manifest.permission.READ_CONTACTS) ||
-                !Tools.checkPermission(this, Manifest.permission.READ_CONTACTS)) {
+                !Tools.checkPermission(this, Manifest.permission.READ_CONTACTS) ||
+                !Tools.checkPermission(this, Manifest.permission.SEND_SMS)) {
             this.askPermissions();
         }
     }

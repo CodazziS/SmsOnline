@@ -1,13 +1,17 @@
 package fr.codazzi.smsonline.controllers;
 
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.telephony.SmsManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 public class Messages {
@@ -141,6 +145,20 @@ public class Messages {
             e.printStackTrace();
         }
         return messages;
+    }
+
+    static public void sendMessage(String address, String body, String type) {
+        if (type.equals("sms")) {
+            SmsManager sms = SmsManager.getDefault();
+            ArrayList<String> mSMSMessage = sms.divideMessage(body);
+            ArrayList<PendingIntent> deliveredIntents;
+
+            deliveredIntents = new ArrayList<>();
+            for (int i = 0; i < mSMSMessage.size(); i++) {
+                deliveredIntents.add(i, null);
+            }
+            sms.sendMultipartTextMessage(address, null, mSMSMessage, null, deliveredIntents);
+        }
     }
 
     /*
