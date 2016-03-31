@@ -39,7 +39,8 @@ public class Synchronisation  extends BroadcastReceiver {
             editor.putBoolean("working", false);
             editor.apply();
         }
-        if ((settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
+        if (        network == null
+                || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = settings.edit();
             editor.putInt("error", 2);
