@@ -24,7 +24,7 @@
     </style>
     <style name="ItemTitle">
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">16dp</item>
+        <item name="android:textSize">16sp</item>
     </style>
     <!--
     <style name="ItemTitleImg">
@@ -35,7 +35,7 @@
     -->
     <style name="ItemValue">
         <item name="android:textStyle">normal</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
 

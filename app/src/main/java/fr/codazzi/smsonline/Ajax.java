@@ -1,86 +1,100 @@
 package fr.codazzi.smsonline;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by Azzod on 02/04/2016.
- */
+import fr.codazzi.smsonline.controllers.Api;
+
 public class Ajax {
 
 
-    static public void get() {
-        // String URL,
-        // String? data
-        final String data = "name=test";
-
+    static public void get(final String url, final String data, final String callback, final Object... args) {
         new Thread(new Runnable() {
             public void run() {
-                Ajax.execute("GET", "https://devapi.swb.ovh/api/index/tester?" + data, null);
+                Ajax.execute("GET", url + "?" + data, null, callback, args);
             }
         }).start();
     }
 
-    static private void execute(String method, String dataUrl, String dataPost) {
-        Log.d("THREAD", "Start execute");
-        //String dataUrl = "https://devapi.swb.ovh/api/index/tester";
-        //String dataUrlParameters = "name=Test";
+    static public void post(final String url, final String data, final String callback, final Object... args) {
+        new Thread(new Runnable() {
+            public void run() {
+                Ajax.execute("POST", url, data, callback, args);
+            }
+        }).start();
+    }
+
+    static private void execute(String method, String dataUrl, String dataPost, String callback, Object... args) {
         URL url;
         HttpURLConnection connection = null;
-
         try {
-            // Create connection
             url = new URL(dataUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-            //connection.setRequestProperty("Content-Language", "en-US");
             connection.setUseCaches(false);
             connection.setDoInput(true);
-            if (method.equals("GET")) {
-                connection.setRequestMethod("GET");
-            } else if (method.equals("POST")) {
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Length","" + Integer.toString(dataPost.getBytes().length));
-                connection.setDoOutput(true);
 
-                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-                wr.writeBytes(dataPost);
-                wr.flush();
-                wr.close();
-            } else {
-                throw new IOException("Only GET and POST methods are allowed");
+            switch (method) {
+                case "GET":
+                    connection.setRequestMethod("GET");
+                    break;
+                case "POST":
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Length","" + Integer.toString(dataPost.getBytes().length));
+                    connection.setDoOutput(true);
+                    DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+                    wr.writeBytes(dataPost);
+                    wr.flush();
+                    wr.close();
+                    break;
+                default:
+                    return;
             }
-
-            Log.d("THREAD", "End");
-            // Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-
-            StringBuffer response = new StringBuffer();
-            while ((line = rd.readLine()) != null) {
-                Log.d("THREAD", line);
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            String responseStr = response.toString();
-            Log.d("THREAD", "RES");
-
-            Log.d("THREAD", responseStr);
+            Ajax.getResponce(connection, callback, args);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
+        }
+    }
+
+    static public void getResponce(HttpURLConnection connection, String callback, Object... args) {
+        InputStream is;
+        BufferedReader rd;
+        String line;
+        String response = "";
+
+        try {
+            is = connection.getInputStream();
+            rd = new BufferedReader(new InputStreamReader(is));
+
+            while ((line = rd.readLine()) != null) {
+                response += line;
+            }
+            rd.close();
+            switch(callback) {
+                case "syncMessagesRes":
+                    Api.syncMessagesRes(response, args);
+                    break;
+                case "syncContactseRes":
+                    Api.syncContactseRes(response, args);
+                    break;
+                case "addDeviceRes":
+                    Api.addDeviceRes(response, args);
+                    break;
+                case "getTokenRes":
+                    Api.getTokenRes(response, args);
+                    break;
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 }

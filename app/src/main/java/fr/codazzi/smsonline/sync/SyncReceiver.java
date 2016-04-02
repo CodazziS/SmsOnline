@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.Calendar;
 
@@ -13,8 +12,8 @@ public class SyncReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals("")) {
-
+        if (intent.getAction().equals("EXIT")) {
+            return;
         }
         Intent myIntent = new Intent(context, Synchronisation.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,  0, myIntent, 0);
