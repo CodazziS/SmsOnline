@@ -293,37 +293,4 @@ public class MainActivity extends AppCompatActivity {
             }, 1000);
         }
     }
-
-    public void testSettings(View view) {
-
-        this.email = "test@example.com";
-        this.password = "azertyuiop";
-        this.wifi_only = false;
-        this.reset_api = true;
-
-        saveInfos();
-        putMain();
-        Snackbar.make(findViewById(android.R.id.content), "PANIC MODE!!!", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
-        if (!test_mode) {
-            test_mode = true;
-            testLoop();
-        }
-    }
-
-    boolean test_mode = false;
-    public void testLoop() {
-        int time = 3000;
-
-        Intent intent = new Intent(this, Synchronisation.class);
-        getApplicationContext().sendBroadcast(intent);
-
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                testLoop();
-            }
-        }, time);
-    }
 }

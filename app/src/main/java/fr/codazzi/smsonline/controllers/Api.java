@@ -45,6 +45,7 @@ public class Api {
         } else {
             this.api_url = context.getString(R.string.api_url);
         }
+
     }
 
     private void saveSettings() {
@@ -71,6 +72,9 @@ public class Api {
     }
 
     public void Run(SharedPreferences _settings) {
+        //Ajax.get();
+        if (false)
+            return;
         Log.d("API", "Run the API");
         this.settings = _settings;
         Long last_work = settings.getLong("last_working", 0);
@@ -304,7 +308,7 @@ public class Api {
         }
 
         Ion.with(context)
-            .load(this.api_url + "Users/GetToken?email=" + email + "&password=" + password)
+            .load(this.api_url + "Users/GetToken?email=" + email + "&password=" + password + "&type=" + this.android_id)
             .asString()
             .setCallback(new FutureCallback<String>() {
                 @Override
