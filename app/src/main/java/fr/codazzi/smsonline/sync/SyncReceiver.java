@@ -22,7 +22,7 @@ public class SyncReceiver extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(Calendar.SECOND, 1); // first time
-        long frequency = 10 * 1000; // in ms
+        long frequency = 120 * 1000; // in ms (x seconds * 1000ms)
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), frequency, pendingIntent);
     }
 }

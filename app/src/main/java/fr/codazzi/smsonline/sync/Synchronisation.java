@@ -21,11 +21,9 @@ public class Synchronisation  extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("SYNC LOOP", "LOOP");
-        boolean test_mode;
         SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
-        test_mode = (settings.getString("email", "").equals("test@example.com"));
 
         if (settings.getBoolean("reset_api", false)) {
             SharedPreferences.Editor editor = settings.edit();
@@ -40,7 +38,7 @@ public class Synchronisation  extends BroadcastReceiver {
             editor.apply();
         }
         if (        network == null
-                || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI && !test_mode)
+                || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = settings.edit();
             editor.putInt("error", 2);
