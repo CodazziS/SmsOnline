@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(Calendar.SECOND, 1); // first time
-        long frequency = 10 * 1000; // in ms
+        long frequency = 120 * 1000; // in ms
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), frequency, pendingIntent);
     }
 
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     logonLoop();
                 }
-            }, 1000);
+            }, 5000);
         }
     }
 }
