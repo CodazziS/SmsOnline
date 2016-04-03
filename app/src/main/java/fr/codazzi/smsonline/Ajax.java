@@ -70,6 +70,9 @@ public class Ajax {
         String line;
         String response = "";
 
+        if (callback == null) {
+            return;
+        }
         try {
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
