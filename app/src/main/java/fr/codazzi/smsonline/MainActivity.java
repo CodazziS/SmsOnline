@@ -35,7 +35,8 @@ import fr.codazzi.smsonline.controllers.Api;
 import fr.codazzi.smsonline.sync.Synchronisation;
 
 public class MainActivity extends AppCompatActivity {
-    private String c_activity;
+    /*
+
     private String email = "";
     private String password = "";
     private long last_sync;
@@ -43,14 +44,21 @@ public class MainActivity extends AppCompatActivity {
     private Boolean reset_api = false;
     private int error = 0;
     private int state = 0;
+    */
 
+    private String c_activity;
     private long lastPressTime;
+    SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.settings = this.getSharedPreferences("swb_infos", 0);
         putMain();
+        this.setAlarm();
+    }
 
+    private void setAlarm() {
         Intent myIntent = new Intent(this, Synchronisation.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,  0, myIntent, 0);
         AlarmManager alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
@@ -69,10 +77,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id;
+        /*int id;
 
         id = item.getItemId();
-        /*if (id == R.id.main_settings) {
+        if (id == R.id.main_settings) {
             return true;
         }*/
         return super.onOptionsItemSelected(item);
@@ -103,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
             this.loopPermissions();
         }
     }
-    public void loopPermissions() {
+
+    private void loopPermissions() {
         if (!Tools.checkPermission(this, Manifest.permission.READ_CONTACTS)) {
             Tools.getPermission(this, Manifest.permission.READ_CONTACTS);
         }
@@ -114,12 +123,12 @@ public class MainActivity extends AppCompatActivity {
             Tools.getPermission(this, Manifest.permission.SEND_SMS);
         }
     }
-    public void askPermissions() {
+
+    private void askPermissions() {
         final Activity ac = this;
         new AlertDialog.Builder(this)
             .setTitle("Permissions")
             .setMessage("The application need permissions for run.")
-            //.setIcon(R.drawable.)
             .setPositiveButton("Ask Permissions", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     if (!Tools.checkPermission(ac, Manifest.permission.READ_CONTACTS)) {
@@ -143,7 +152,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* Save and get infos */
+    /*
     public void saveInfos() {
+        /*
         SharedPreferences settings;
 
         settings = this.getSharedPreferences("swb_infos", 0);
@@ -153,14 +164,11 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("reset_api", this.reset_api);
         editor.putBoolean("wifi_only", this.wifi_only);
         editor.apply();
-
-        if (!Tools.checkPermission(this, Manifest.permission.READ_CONTACTS) ||
-                !Tools.checkPermission(this, Manifest.permission.READ_CONTACTS) ||
-                !Tools.checkPermission(this, Manifest.permission.SEND_SMS)) {
-            this.askPermissions();
-        }
+        *
+        this.loopPermissions();
     }
 
+    /*
     public void getInfos() {
         SharedPreferences settings;
 
@@ -172,43 +180,50 @@ public class MainActivity extends AppCompatActivity {
         this.state = settings.getInt("state", 0);
         this.last_sync = settings.getLong("last_sync", 0);
     }
+    */
 
     /* Navigation */
     public void putMain() {
         TextView status;
         TextView sync;
         Toolbar toolbar;
-        Date last_sync;
+        Date last_sync_date;
+        int error;
+        int state;
+        long last_sync;
 
         c_activity = "main";
-        this.getInfos();
+        //this.getInfos();
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         status = (TextView) findViewById(R.id.status_str);
-
+        error = this.settings.getInt("error", 0);
+        state = this.settings.getInt("state", 0);
         if (error != 0) {
             if (error == -1) {
                 status.setText(getResources().getStringArray(R.array.errors_str)[0]);
             } else {
-                status.setText(getResources().getStringArray(R.array.errors_str)[this.error]);
+                status.setText(getResources().getStringArray(R.array.errors_str)[error]);
             }
         } else {
-            status.setText(getResources().getStringArray(R.array.actions_str)[this.state]);
+            status.setText(getResources().getStringArray(R.array.actions_str)[state]);
         }
         sync = (TextView) findViewById(R.id.sync_str);
-        if (this.last_sync != 0) {
-            last_sync = new Date(this.last_sync);
+        last_sync = settings.getLong("last_sync", 0);
+        if (last_sync != 0) {
+            last_sync_date = new Date(last_sync);
             DateFormat dateFormat = DateFormat.getDateInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            sync.setText(String.valueOf(dateFormat.format(last_sync) + " " + sdf.format(last_sync)));
+            sync.setText(String.valueOf(dateFormat.format(last_sync_date) + " " + sdf.format(last_sync_date)));
         } else {
             sync.setText(getResources().getString(R.string.never_sync));
         }
     }
 
-    public void putSettings() {
+    /* On clicks */
+    public void goToSettings(View view) {
         EditText email;
         EditText password;
         CheckBox wifi_only;
@@ -218,16 +233,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         c_activity = "settings";
         email = (EditText) findViewById(R.id.config_email);
-        email.setText(this.email);
+        email.setText(this.settings.getString("email", ""));
         password = (EditText) findViewById(R.id.config_password);
-        password.setText(this.password);
+        password.setText(this.settings.getString("password", ""));
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
-        wifi_only.setChecked(this.wifi_only);
-    }
-
-    /* On clicks */
-    public void goToSettings(View view) {
-        putSettings();
+        wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
     }
     public void goToMain(View view) {
         putMain();
@@ -241,14 +251,17 @@ public class MainActivity extends AppCompatActivity {
         CheckBox wifi_only;
 
         email = (EditText) findViewById(R.id.config_email);
-        this.email = email.getText().toString();
         password = (EditText) findViewById(R.id.config_password);
-        this.password = password.getText().toString();
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
-        this.wifi_only = wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused();
-        this.reset_api = true;
 
-        saveInfos();
+        SharedPreferences.Editor editor = this.settings.edit();
+        editor.putString("email", email.getText().toString());
+        editor.putString("password", password.getText().toString());
+        editor.putBoolean("reset_api", true);
+        editor.putBoolean("wifi_only", wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused());
+        editor.apply();
+
+        this.loopPermissions();
         putMain();
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
@@ -256,12 +269,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logonLoop() {
+        /*
         SharedPreferences settings = getSharedPreferences("swb_infos", 0);
+        */
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
 
         Log.d("Logon Loop", "Passed");
-        if (settings.getBoolean("reset_api", false)) {
+        /*
+        if (this.settings.getBoolean("reset_api", false)) {
             SharedPreferences.Editor editor = settings.edit();
             editor.putLong("last_sms", 0);
             editor.putLong("last_mms", 0);
@@ -274,16 +290,17 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean("working", false);
             editor.apply();
         }
-        if ((settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
+        */
+        if ((this.settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
-            SharedPreferences.Editor editor = settings.edit();
+            SharedPreferences.Editor editor = this.settings.edit();
             editor.putInt("error", 2);
             editor.apply();
             return;
         }
 
-        new Api(this).Run(settings);
-        if (settings.getInt("error", -1) == 0 && settings.getInt("state", 4) != 4) {
+        new Api(this, this.settings).Run();
+        if (this.settings.getInt("error", -1) == 0 && this.settings.getInt("api_state", 4) != 4) {
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
