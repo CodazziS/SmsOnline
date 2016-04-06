@@ -25,7 +25,9 @@ public class Synchronisation  extends BroadcastReceiver {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
 
+        /*
         if (settings.getBoolean("reset_api", false)) {
+            Log.d("Sync", "Reset API");
             SharedPreferences.Editor editor = settings.edit();
             editor.putLong("last_sms", 0);
             editor.putLong("last_mms", 0);
@@ -36,7 +38,9 @@ public class Synchronisation  extends BroadcastReceiver {
             editor.putBoolean("reset_api", false);
             editor.putBoolean("working", false);
             editor.apply();
+            return;
         }
+        */
         if (        network == null
                 || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
@@ -46,6 +50,6 @@ public class Synchronisation  extends BroadcastReceiver {
             return;
         }
 
-        new Api(context).Run(settings);
+        new Api(context, settings).Run();
     }
 }

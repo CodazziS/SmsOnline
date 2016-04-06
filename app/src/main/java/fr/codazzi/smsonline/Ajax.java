@@ -12,14 +12,30 @@ import fr.codazzi.smsonline.controllers.Api;
 public class Ajax {
 
 
-    static public void get(final String url, final String data, final String callback, final Object... args) {
+    /*static public void get(final String url, final String data, final String callback, final Object... args) {
         new Thread(new Runnable() {
             public void run() {
                 Ajax.execute("GET", url + "?" + data, null, callback, args);
             }
         }).start();
+    }*/
+
+    static public void get(final String url, final String data, final String callback, final Api api) {
+        new Thread(new Runnable() {
+            public void run() {
+                Ajax.execute("GET", url + "?" + data, null, callback, api);
+            }
+        }).start();
     }
 
+    static public void post(final String url, final String data, final String callback, final Api api) {
+        new Thread(new Runnable() {
+            public void run() {
+                Ajax.execute("POST", url, data, callback, api);
+            }
+        }).start();
+    }
+    /*
     static public void post(final String url, final String data, final String callback, final Object... args) {
         new Thread(new Runnable() {
             public void run() {
@@ -27,8 +43,9 @@ public class Ajax {
             }
         }).start();
     }
+    */
 
-    static private void execute(String method, String dataUrl, String dataPost, String callback, Object... args) {
+    static private void execute(String method, String dataUrl, String dataPost, String callback, Api api) {
         URL url;
         HttpURLConnection connection = null;
         try {
@@ -54,7 +71,7 @@ public class Ajax {
                 default:
                     return;
             }
-            Ajax.getResponce(connection, callback, args);
+            Ajax.getResponce(connection, callback, api);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -64,7 +81,7 @@ public class Ajax {
         }
     }
 
-    static public void getResponce(HttpURLConnection connection, String callback, Object... args) {
+    static public void getResponce(HttpURLConnection connection, String callback, Api api) {
         InputStream is;
         BufferedReader rd;
         String line;
@@ -76,26 +93,29 @@ public class Ajax {
         try {
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
-
             while ((line = rd.readLine()) != null) {
                 response += line;
             }
             rd.close();
             switch(callback) {
                 case "syncMessagesRes":
-                    Api.syncMessagesRes(response, args);
+                    //Api.syncMessagesRes(response, args);
+                    api.syncMessagesRes(response);
                     break;
-                case "syncContactseRes":
-                    Api.syncContactseRes(response, args);
+                case "syncContactsRes":
+                    //Api.syncContactsRes(response, args);
+                    api.syncContactsRes(response);
                     break;
                 case "addDeviceRes":
-                    Api.addDeviceRes(response, args);
+                    //Api.addDeviceRes(response, args);
+                    api.addDeviceRes(response);
                     break;
                 case "getTokenRes":
-                    Api.getTokenRes(response, args);
+                    //Api test = (Api) args[0];
+                    api.getTokenRes(response);
+                    //Api.getTokenRes(response, args);
                     break;
             }
-
         } catch(Exception e) {
             e.printStackTrace();
         }
