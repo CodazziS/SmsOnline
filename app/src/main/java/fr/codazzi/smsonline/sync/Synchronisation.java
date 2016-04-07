@@ -25,22 +25,6 @@ public class Synchronisation  extends BroadcastReceiver {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
 
-        /*
-        if (settings.getBoolean("reset_api", false)) {
-            Log.d("Sync", "Reset API");
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putLong("last_sms", 0);
-            editor.putLong("last_mms", 0);
-            editor.putString("api_token", null);
-            editor.putString("api_key", null);
-            editor.putString("api_user", null);
-            editor.putString("api_unread_sms", "");
-            editor.putBoolean("reset_api", false);
-            editor.putBoolean("working", false);
-            editor.apply();
-            return;
-        }
-        */
         if (        network == null
                 || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {

@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
 public class Messages {
 
     private long lastDateSms = 0;
@@ -160,24 +159,4 @@ public class Messages {
             sms.sendMultipartTextMessage(address, null, mSMSMessage, null, deliveredIntents);
         }
     }
-
-    /*
-    public void logMessages (String message_type, Cursor c) {
-        int messagesNb;
-        int columnNb;
-
-        if (c.moveToFirst()) {
-            for (messagesNb = 0; messagesNb < c.getCount(); messagesNb++) {
-                Log.e("-------", "-----------------------");
-                for (columnNb = 0; columnNb < c.getColumnCount(); columnNb++) {
-                    if (c.getColumnName(columnNb) != null && c.getString(columnNb) != null) {
-                        Log.e(messagesNb + " -- " + c.getColumnName(columnNb), c.getString(columnNb));
-                    }
-                }
-                Log.e("-------", "-----------------------");
-                c.moveToNext();
-            }
-        }
-    }
-    */
 }

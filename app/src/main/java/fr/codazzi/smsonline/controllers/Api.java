@@ -190,10 +190,6 @@ public class Api {
     }
 
     public void syncMessagesRes(String data) {
-        /*
-        SharedPreferences settings = (SharedPreferences) args[0];
-        SharedPreferences.Editor editor = settings.edit();
-        */
         JSONObject res;
         this.error = -1;
         JSONObject message_to_send;
@@ -205,7 +201,6 @@ public class Api {
                 error = res.getInt("error");
                 if (error == 0) {
                     this.state = 4;
-                    //editor.putInt("api_state", 4);
                     if (res.has("messages_to_send")) {
                         messages_to_send = res.getJSONArray("messages_to_send");
                         for (int i = 0; i < messages_to_send.length(); ++i) {
@@ -226,23 +221,9 @@ public class Api {
             this.error = -1;
         }
         this.saveSettings();
-        /*
-        if (error != 0) {
-            editor.putBoolean("reset_api", true);
-        }
-        editor.putBoolean("working", false);
-        editor.apply();
-        */
     }
 
     private void confirmSent(String message_id) {
-        /*
-        String api_url = (String) args[1];
-        String user = (String) args[2];
-        String token = (String) args[3];
-        String android_id = (String) args[4];
-        String key = (String) args[5];
-        */
 
         try {
             String url = api_url + "Messages/ConfirmSent";
@@ -279,8 +260,6 @@ public class Api {
     }
 
     public void syncContactsRes(String data) {
-        /*SharedPreferences settings = (SharedPreferences) args[0];
-        SharedPreferences.Editor editor = settings.edit();*/
         JSONObject res;
         this.error = -1;
         try {
@@ -315,8 +294,6 @@ public class Api {
     }
 
     public void addDeviceRes(String data) {
-        //SharedPreferences settings = (SharedPreferences) args[0];
-        //SharedPreferences.Editor editor = settings.edit();
         JSONObject res;
         this.error = -1;
 
@@ -374,35 +351,4 @@ public class Api {
         }
         this.saveSettings();
     }
-
-    /*
-    static public void getTokenRes(String data, Object... args) {
-        SharedPreferences settings = (SharedPreferences) args[0];
-        SharedPreferences.Editor editor = settings.edit();
-        JSONObject res;
-        int error = -1;
-
-        try {
-            if (data != null && !data.equals("")) {
-                res = new JSONObject(data);
-
-                error = res.getInt("error");
-                if (error == 0) {
-                    editor.putString("api_token", res.getString("token"));
-                    editor.putString("api_key", res.getString("key"));
-                    editor.putString("api_user", res.getString("user"));
-                    editor.putInt("api_state", 1);
-                }
-            }
-        } catch (JSONException e1) {
-            e1.printStackTrace();
-            Log.d("JSON", data);
-            error = -1;
-        }
-        if (error != 0) {
-            editor.putBoolean("reset_api", true);
-        }
-        editor.putBoolean("working", false);
-        editor.apply();
-    }*/
 }

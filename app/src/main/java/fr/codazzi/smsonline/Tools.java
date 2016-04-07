@@ -22,7 +22,7 @@ public class Tools {
     }
 
     /*
-        Convert a bitmap image to string (For web view for exemple)
+        Convert a bitmap image to string (For web view for example)
      */
     static public String bitmapToString64(Bitmap photo) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

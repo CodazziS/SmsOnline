@@ -11,15 +11,6 @@ import fr.codazzi.smsonline.controllers.Api;
 
 public class Ajax {
 
-
-    /*static public void get(final String url, final String data, final String callback, final Object... args) {
-        new Thread(new Runnable() {
-            public void run() {
-                Ajax.execute("GET", url + "?" + data, null, callback, args);
-            }
-        }).start();
-    }*/
-
     static public void get(final String url, final String data, final String callback, final Api api) {
         new Thread(new Runnable() {
             public void run() {
@@ -35,15 +26,6 @@ public class Ajax {
             }
         }).start();
     }
-    /*
-    static public void post(final String url, final String data, final String callback, final Object... args) {
-        new Thread(new Runnable() {
-            public void run() {
-                Ajax.execute("POST", url, data, callback, args);
-            }
-        }).start();
-    }
-    */
 
     static private void execute(String method, String dataUrl, String dataPost, String callback, Api api) {
         URL url;
@@ -99,21 +81,16 @@ public class Ajax {
             rd.close();
             switch(callback) {
                 case "syncMessagesRes":
-                    //Api.syncMessagesRes(response, args);
                     api.syncMessagesRes(response);
                     break;
                 case "syncContactsRes":
-                    //Api.syncContactsRes(response, args);
                     api.syncContactsRes(response);
                     break;
                 case "addDeviceRes":
-                    //Api.addDeviceRes(response, args);
                     api.addDeviceRes(response);
                     break;
                 case "getTokenRes":
-                    //Api test = (Api) args[0];
                     api.getTokenRes(response);
-                    //Api.getTokenRes(response, args);
                     break;
             }
         } catch(Exception e) {
