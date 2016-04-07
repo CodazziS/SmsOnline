@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         status = (TextView) findViewById(R.id.status_str);
         error = this.settings.getInt("error", 0);
-        state = this.settings.getInt("state", 0);
+        state = this.settings.getInt("api_state", 0);
         if (error != 0) {
             if (error == -1) {
                 status.setText(getResources().getStringArray(R.array.errors_str)[0]);
