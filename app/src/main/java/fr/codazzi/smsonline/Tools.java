@@ -35,15 +35,13 @@ public class Tools {
         Return true if the permission is granted, ask the permission on
             Android 6+
      */
-    static public boolean getPermission (Activity ac, String permission) {
+    static public void getPermission (Activity ac, String permission) {
 
         if (Build.VERSION.SDK_INT > 22) {
             if (ac.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                 ac.requestPermissions(new String[]{permission}, 0);
-                return false;
             }
         }
-        return true;
     }
 
     static public boolean checkPermission (Context c, String permission) {

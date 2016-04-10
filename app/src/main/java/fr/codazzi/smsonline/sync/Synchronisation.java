@@ -1,18 +1,14 @@
 package fr.codazzi.smsonline.sync;
 
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.*;
-import android.os.Process;
 import android.util.Log;
 
-import fr.codazzi.smsonline.BuildConfig;
 import fr.codazzi.smsonline.controllers.Api;
 
 

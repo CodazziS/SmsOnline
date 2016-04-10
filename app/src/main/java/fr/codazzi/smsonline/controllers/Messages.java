@@ -13,13 +13,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Messages {
+class Messages {
 
     private long lastDateSms = 0;
     private long lastDateMms = 0;
     private long maxSmsCurrentDate;
     private long maxMmsCurrentDate;
-    String unreadSmsList = "";
+    private String unreadSmsList = "";
 
 
     public JSONArray getLastsMessages(Context context, long _lastDateSms, long _lastDateMms, String _unreadSmsList) {
