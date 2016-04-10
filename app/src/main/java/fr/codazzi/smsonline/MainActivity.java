@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -180,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
     public void goToSettings(View view) {
         EditText email;
         EditText password;
+        Button saveBtn;
         CheckBox wifi_only;
 
         setContentView(R.layout.activity_settings);
@@ -192,6 +194,14 @@ public class MainActivity extends AppCompatActivity {
         password.setText(this.settings.getString("password", ""));
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
         wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
+
+        saveBtn = (Button) findViewById(R.id.saveSettings);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveSettings(v);
+            }
+        });
     }
     public void goToMain(View view) {
         putMain();
