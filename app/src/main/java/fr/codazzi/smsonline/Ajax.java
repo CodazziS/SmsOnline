@@ -53,7 +53,7 @@ public class Ajax {
                 default:
                     return;
             }
-            Ajax.getResponce(connection, callback, api);
+            Ajax.getResponse(connection, callback, api);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -63,7 +63,7 @@ public class Ajax {
         }
     }
 
-    static public void getResponce(HttpURLConnection connection, String callback, Api api) {
+    static private void getResponse(HttpURLConnection connection, String callback, Api api) {
         InputStream is;
         BufferedReader rd;
         String line;

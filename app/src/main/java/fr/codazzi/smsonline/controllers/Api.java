@@ -16,24 +16,24 @@ import java.util.Date;
 
 public class Api {
     /* Vars */
-    String android_id;
-    String api_url = "";
-    Context context;
-    SharedPreferences settings = null;
+    private String android_id;
+    private String api_url = "";
+    private Context context;
+    private SharedPreferences settings = null;
 
     /* Settings */
-    boolean reset_api;
-    boolean working;
-    int error;
-    int state;
-    long last_sync;
-    long last_sms;
-    long last_mms;
-    long last_work;
-    String token;
-    String user;
-    String key;
-    String unread_sms = "";
+    private boolean reset_api;
+    private boolean working;
+    private int error;
+    private int state;
+    private long last_sync;
+    private long last_sms;
+    private long last_mms;
+    private long last_work;
+    private String token;
+    private String user;
+    private String key;
+    private String unread_sms = "";
 
 
     public Api(Context _context, SharedPreferences _settings) {
@@ -105,7 +105,7 @@ public class Api {
             this.key = null;
             this.unread_sms = null;
             this.saveSettings();
-            Log.d("API", "Error -> API reseted");
+            Log.d("API", "Error -> API reset");
             return false;
         } else {
             this.working = this.settings.getBoolean("working", false);

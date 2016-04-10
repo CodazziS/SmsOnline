@@ -14,7 +14,7 @@ import org.json.JSONObject;
 
 import fr.codazzi.smsonline.Tools;
 
-public class Contacts {
+class Contacts {
 
     public static JSONArray getAllContacts (Context c) throws JSONException {
         JSONArray contactsJSON = new JSONArray();

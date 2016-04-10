@@ -13,45 +13,49 @@
     tools:context="fr.codazzi.smsonline.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <!--
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
-    -->
-        <!-- Go to settings -->
-    <TextView
-        style="@style/ItemTitle"
-        android:layout_marginTop="10dp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/main_settings"
-        android:drawableStart="@android:drawable/ic_menu_manage"
-        android:drawableLeft="@android:drawable/ic_menu_manage"
-        android:onClick="goToSettings"
-        android:padding="5dp" />
-    <!--
     <LinearLayout
         style="@style/Block"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="goToSettings"
         >
         <ImageView
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:contentDescription="@string/main_settings"
-            android:src="@android:drawable/ic_menu_manage"/>
-        <TextView
-            style="@style/ItemTitleImg"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:contentDescription="@string/main_sync"
+            android:src="@mipmap/ic_launcher"/>
+        <LinearLayout
+            style="@style/Block"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:text="@string/main_settings"
-             />
+            android:layout_height="wrap_content"
+            >
+            <TextView
+                style="@style/mainTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_title"
+                />
+            <TextView
+                style="@style/mainTitleUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_url"
+                />
+        </LinearLayout>
     </LinearLayout>
-    -->
+
+    <!-- Go to settings -->
+    <TextView
+        style="@style/ItemTitleSingle"
+        android:layout_marginTop="10dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_settings"
+        android:drawableStart="@drawable/ic_settings_black_24dp"
+        android:drawableLeft="@drawable/ic_settings_black_24dp"
+        android:onClick="goToSettings"
+        android:padding="5dp" />
 
     <!-- Status -->
     <LinearLayout
@@ -59,13 +63,12 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="goToMain"
         >
         <ImageView
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:contentDescription="@string/main_status"
-            android:src="@android:drawable/ic_menu_help"/>
+            android:src="@drawable/ic_info_outline_black_24dp"/>
 
         <LinearLayout
             android:orientation="vertical"
@@ -95,19 +98,19 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="goToMain"
+
         >
         <ImageView
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:contentDescription="@string/main_sync"
-            android:src="@android:drawable/ic_menu_info_details"/>
+            android:src="@drawable/ic_schedule_black_24dp"/>
         <LinearLayout
-        style="@style/Block"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+            style="@style/Block"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
             <TextView
                 style="@style/ItemTitle"
                 android:layout_width="match_parent"
@@ -125,8 +128,28 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!--
-    </LinearLayout>
-    -->
+    <TextView
+        style="@style/ItemTitle"
+        android:layout_marginTop="10dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_refresh"
+        android:drawableStart="@drawable/ic_refresh_black_24dp"
+        android:drawableLeft="@drawable/ic_refresh_black_24dp"
+        android:onClick="goToMain"
+        android:padding="5dp"
+        />
+
+    <TextView
+        style="@style/ItemTitle"
+        android:layout_marginTop="10dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_goto_website"
+        android:drawableStart="@drawable/ic_open_in_browser_black_24dp"
+        android:drawableLeft="@drawable/ic_open_in_browser_black_24dp"
+        android:padding="5dp"
+        android:onClick="goToWebsite"
+        />
 
 </LinearLayout>

@@ -1,7 +1,6 @@
 package fr.codazzi.smsonline;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -10,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -37,7 +37,7 @@ import fr.codazzi.smsonline.sync.Synchronisation;
 public class MainActivity extends AppCompatActivity {
     private String c_activity;
     private long lastPressTime;
-    SharedPreferences settings;
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* Navigation */
-    public void putMain() {
+    private void putMain() {
         TextView status;
         TextView sync;
         Toolbar toolbar;
@@ -198,6 +198,10 @@ public class MainActivity extends AppCompatActivity {
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_refreshed), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
+    public void goToWebsite(View view) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.main_url)));
+        startActivity(browserIntent);
+    }
 
     public void saveSettings(View view) {
         EditText email;
@@ -222,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         this.logonLoop();
     }
 
-    public void logonLoop() {
+    private void logonLoop() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
         Log.d("Logon Loop", "Passed");
