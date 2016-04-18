@@ -66,7 +66,7 @@ public class Api {
         editor.putLong("last_working", (new Date()).getTime());
         editor.apply();
 
-        Log.d("api STATE", "State: " + this.state);
+        //Log.d("api STATE", "State: " + this.state);
         switch (this.state) {
             case 0:
                 this.getToken();
@@ -84,12 +84,13 @@ public class Api {
                 this.syncMessages(false);
                 break;
             default:
-                Log.e("STATE ERROR", "Unknown state action ("+state+")");
+                this.reset_api = true;
+                saveSettings();
+                //Log.e("STATE ERROR", "Unknown state action ("+state+")");
         }
     }
 
     private boolean getSettings() {
-        Log.d("API", "GetSettings");
         this.reset_api = this.settings.getBoolean("reset_api", false);
         if (this.reset_api) {
             this.reset_api = false;
@@ -105,7 +106,6 @@ public class Api {
             this.key = null;
             this.unread_sms = null;
             this.saveSettings();
-            Log.d("API", "Error -> API reset");
             return false;
         } else {
             this.working = this.settings.getBoolean("working", false);
@@ -120,11 +120,7 @@ public class Api {
             this.key = this.settings.getString("api_key", null);
             this.unread_sms = this.settings.getString("api_unread_sms", null);
         }
-        if (this.user != null) {
-            Log.d("API_USER", this.user);
-        } else {
-            Log.d("API_USER", "User is null");
-        }
+
         return true;
     }
 
@@ -134,7 +130,6 @@ public class Api {
             this.user = null;
             this.key = null;
             this.reset_api = true;
-            Log.d("API", "Error -> Need to reset the API");
         }
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putBoolean("reset_api", this.reset_api);
@@ -205,24 +200,50 @@ public class Api {
                         messages_to_send = res.getJSONArray("messages_to_send");
                         for (int i = 0; i < messages_to_send.length(); ++i) {
                             message_to_send = messages_to_send.getJSONObject(i);
+                            String url = api_url + "Messages/ConfirmSent";
+                            String smsdata =
+                                    "user=" + URLEncoder.encode(user, "utf-8") +
+                                    "&token=" + URLEncoder.encode(token, "utf-8") +
+                                    "&android_id=" + URLEncoder.encode(android_id, "utf-8") +
+                                    "&key=" + URLEncoder.encode(key, "utf-8") +
+                                    "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
+
+                            Ajax.post(url, smsdata, "sendMessage", this);
+                            /*
+                            message_to_send = messages_to_send.getJSONObject(i);
                             Messages.sendMessage(
                                     message_to_send.getString("address"),
                                     message_to_send.getString("body"),
                                     "sms");
                             this.confirmSent(message_to_send.getString("id"));
-                            Log.d("API SWB", messages_to_send.get(i).toString());
+                            */
                         }
                     }
                 }
             }
-        } catch (JSONException e1) {
+        } catch (Exception e1) {
             e1.printStackTrace();
-            Log.d("JSON", data);
             this.error = -1;
         }
         this.saveSettings();
     }
 
+    public void sendMessage(String data) {
+        JSONObject res;
+        try {
+
+            res = new JSONObject(data);
+            Log.e("API-SEND", "SEND: " + res.getString("address") + "-" + res.getString("body"));
+            Messages.sendMessage(
+                    res.getString("address"),
+                    res.getString("body"),
+                    "sms");
+        } catch (JSONException e1) {
+            e1.printStackTrace();
+            this.error = -1;
+        }
+    }
+    /*
     private void confirmSent(String message_id) {
 
         try {
@@ -239,6 +260,7 @@ public class Api {
             e.printStackTrace();
         }
     }
+    */
 
     private void syncContacts() {
         try {
@@ -270,7 +292,6 @@ public class Api {
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
-            Log.d("JSON", data);
             error = -1;
         }
         this.saveSettings();
@@ -305,7 +326,6 @@ public class Api {
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
-            Log.d("JSON", data);
             this.error = -1;
         }
         this.saveSettings();
@@ -347,7 +367,6 @@ public class Api {
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
-            Log.d("JSON", data);
         }
         this.saveSettings();
     }
