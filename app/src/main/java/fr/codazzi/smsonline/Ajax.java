@@ -1,5 +1,7 @@
 package fr.codazzi.smsonline;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -30,6 +32,12 @@ public class Ajax {
     static private void execute(String method, String dataUrl, String dataPost, String callback, Api api) {
         URL url;
         HttpURLConnection connection = null;
+        Log.d("AJAX-METHOD", method);
+        Log.d("AJAX-URL", dataUrl);
+        if (dataPost != null) {
+            Log.d("AJAX-DATA", dataPost);
+        }
+
         try {
             url = new URL(dataUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -69,19 +77,29 @@ public class Ajax {
         String line;
         String response = "";
 
-        if (callback == null) {
-            return;
-        }
         try {
+            /*
+            if (callback == null) {
+                return;
+            }
+            */
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
             while ((line = rd.readLine()) != null) {
                 response += line;
             }
             rd.close();
+            Log.d("AJAX-RESPONSE", response);
+
+            if (callback == null) {
+                return;
+            }
             switch(callback) {
                 case "syncMessagesRes":
                     api.syncMessagesRes(response);
+                    break;
+                case "sendMessage":
+                    api.sendMessage(response);
                     break;
                 case "syncContactsRes":
                     api.syncContactsRes(response);
