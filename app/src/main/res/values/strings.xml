@@ -1,9 +1,7 @@
 <resources>
 
 
-    <!-- DEFINES -->
-    <string translatable="false" name="api_url">https://online.swb.ovh/Api/</string>
-    <string translatable="false" name="api_url_debug">https://devapi.swb.ovh/Api/</string>
+
 
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
@@ -47,4 +45,8 @@
     <string name="home_change_not_saved">Modifications has not been saved</string>
     <string name="home_change_saved">Modifications saved</string>
     <string name="home_refreshed">Status updated</string>
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_text">The application need permissions for run.</string>
+    <string name="permissions_ask">Ask Permissions</string>
+    <string name="permission_cancel">Cancel</string>
 </resources>

@@ -110,7 +110,10 @@ public class Ajax {
                 case "getTokenRes":
                     api.getTokenRes(response);
                     break;
-            }
+                case "getVersionRes":
+                    api.getVersionRes(response);
+                    break;
+        }
         } catch(Exception e) {
             e.printStackTrace();
         }

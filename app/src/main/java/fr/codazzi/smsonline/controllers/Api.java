@@ -69,7 +69,7 @@ public class Api {
         //Log.d("api STATE", "State: " + this.state);
         switch (this.state) {
             case 0:
-                this.getToken();
+                this.getVersion();
                 break;
             case 1:
                 this.addDevice();
@@ -349,7 +349,6 @@ public class Api {
             this.saveSettings();
         }
     }
-
     public void getTokenRes(String data) {
         JSONObject res;
         this.error = -1;
@@ -369,5 +368,41 @@ public class Api {
             e1.printStackTrace();
         }
         this.saveSettings();
+    }
+
+    private void getVersion() {
+        try {
+            String url = this.api_url + "Index/GetVersion";
+            String email = URLEncoder.encode(this.settings.getString("email", ""), "utf-8");
+            String password = URLEncoder.encode(this.settings.getString("password", ""), "utf-8");
+            if (email.length() <= 4 || password.length() <= 4) {
+                this.error = 1;
+                this.saveSettings();
+                return;
+            }
+            Ajax.get(url, "", "getVersionRes", this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.error = 1;
+            this.saveSettings();
+        }
+    }
+    public void getVersionRes(String data) {
+        JSONObject res;
+        this.error = -1;
+        int api_version;
+
+        try {
+            if (data != null && !data.equals("")) {
+                res = new JSONObject(data);
+                this.error = res.getInt("error");
+                api_version = res.getInt("api_version");
+                if (this.error == 0 && api_version == this.context.getResources().getInteger(R.integer.api_version)) {
+                    this.getToken();
+                }
+            }
+        } catch (JSONException e1) {
+            e1.printStackTrace();
+        }
     }
 }
