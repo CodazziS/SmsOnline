@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<resources>
+
+    <!-- COMMON -->
+    <string name="app_name">SmsOnline</string>
+    <string-array name="actions_str">
+    <!-- 00 -->
+        <item>Initialisation</item>
+    <!-- 01 -->
+        <item>Connexion</item>
+    <!-- 02 -->
+        <item>Synchronisation des contacts</item>
+    <!-- 03 -->
+        <item>Synchronisation des contacts</item>
+    <!-- 04 -->
+        <item>Synchronisé</item>
+    </string-array>
+    <string-array name="errors_str">
+    <!-- 00 -->
+        <item>Erreur inconnue</item>
+    <!-- 01 -->
+        <item>Identifiants manquants</item>
+    <!-- 02 -->
+        <item>Erreur réseau</item>
+    <!-- 03 -->
+        <item>L\'email n\'est pas valide</item>
+    <!-- 04 -->
+        <item>Le mot de passe est trop court</item>
+    <!-- 05 -->
+        <item>L\'email existe déjà</item>
+    <!-- 06 -->
+        <item>Identifiants erronés</item>
+    </string-array>
+    <!-- VIEWS -->
+    <!-- activity_main - main -->
+    <string name="main_title">SWB Online</string>
+    <string name="main_url">https://online.swb.ovh</string>
+    <string name="main_settings">Paramètres</string>
+    <string name="main_status">Etat</string>
+    <string name="main_sync">Dernière synchronisation</string>
+    <string name="main_refresh">Actualiser les informations</string>
+    <string name="main_goto_website">Visiter le site web</string>
+    <string name="never_sync">Jamais</string>
+    <!-- activity_main - settings -->
+    <string name="settings_email">Email</string>
+    <string name="settings_password">Mot de passe</string>
+    <string name="settings_only_wifi">Synchroniser seulement en Wifi</string>
+    <string name="settings_save">Sauvegarder les paramètres</string>
+    <!-- JAVA -->
+    <!-- MainActivity -->
+    <string name="home_back_to_quit">Appuyez une seconde fois pour quitter</string>
+    <string name="home_change_not_saved">Les modifications n\'ont pas été sauvegardées</string>
+    <string name="home_change_saved">Modifications sauvegardées</string>
+    <string name="home_refreshed">Etat actualisé</string>
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_text">L\'application nécessites certains droits pour fonctionner.</string>
+    <string name="permissions_ask">Autoriser l\'application</string>
+    <string name="permission_cancel">Annuler</string>
+</resources>

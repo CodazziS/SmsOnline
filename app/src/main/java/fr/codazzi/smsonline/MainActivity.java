@@ -7,9 +7,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -122,15 +125,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         new AlertDialog.Builder(this)
-            .setTitle("Permissions")
-            .setMessage("The application need permissions for run.")
-            .setPositiveButton("Ask Permissions", new DialogInterface.OnClickListener() {
+            .setTitle(getString(R.string.permissions_title))
+            .setMessage(getString(R.string.permissions_text))
+            .setPositiveButton(getString(R.string.permissions_ask), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     main.loopPermissions();
                     dialog.dismiss();
                 }
             })
-            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            .setNegativeButton(getString(R.string.permission_cancel), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                 }
@@ -207,6 +210,17 @@ public class MainActivity extends AppCompatActivity {
         putMain();
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_refreshed), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+    }
+    public void putInfos(View view) {
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            Snackbar.make(findViewById(android.R.id.content),
+                    getString(R.string.app_name) + " - V" + pInfo.versionName + " (" + pInfo.versionCode + ")",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
     public void goToWebsite(View view) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.main_url)));
