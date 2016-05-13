@@ -209,14 +209,6 @@ public class Api {
                                     "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
 
                             Ajax.post(url, smsdata, "sendMessage", this);
-                            /*
-                            message_to_send = messages_to_send.getJSONObject(i);
-                            Messages.sendMessage(
-                                    message_to_send.getString("address"),
-                                    message_to_send.getString("body"),
-                                    "sms");
-                            this.confirmSent(message_to_send.getString("id"));
-                            */
                         }
                     }
                 }
