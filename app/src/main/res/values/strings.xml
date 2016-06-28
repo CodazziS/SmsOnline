@@ -1,8 +1,4 @@
 <resources>
-
-
-
-
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
     <string-array name="actions_str">
@@ -31,12 +27,14 @@
     <string name="main_sync">Last synchronisation</string>
     <string name="main_refresh">Refresh informations</string>
     <string name="main_goto_website">Visite the Website</string>
+    <string name="main_enable_notification">Notification access is disabled</string>
     <string name="never_sync">Never</string>
 
         <!-- activity_main - settings -->
     <string name="settings_email">Email</string>
     <string name="settings_password">Password</string>
     <string name="settings_only_wifi">Sync only on Wifi network</string>
+    <string name="settings_api">Server URL</string>
     <string name="settings_save">Save settings</string>
 
     <!-- JAVA -->

@@ -3,6 +3,5 @@
     <!-- DEFINES -->
     <string translatable="false" name="api_url">https://online.swb.ovh/Api/</string>
     <string translatable="false" name="api_url_debug">https://devapi.swb.ovh/Api/</string>
-
     <integer translatable="false" name="api_version">1</integer>
 </resources>

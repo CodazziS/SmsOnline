@@ -40,11 +40,11 @@ public class Api {
         this.context = _context;
         this.settings = _settings;
 
-        if (BuildConfig.DEBUG) {
-            this.api_url = context.getString(R.string.api_url_debug);
-        } else {
-            this.api_url = context.getString(R.string.api_url);
-        }
+//        if (BuildConfig.DEBUG) {
+//            this.api_url = context.getString(R.string.api_url_debug);
+//        } else {
+//            this.api_url = context.getString(R.string.api_url);
+//        }
         this.android_id = Tools.getDeviceID(this.context);
 
     }
@@ -118,6 +118,7 @@ public class Api {
             this.token = this.settings.getString("api_token", null);
             this.user = this.settings.getString("api_user", null);
             this.key = this.settings.getString("api_key", null);
+            this.api_url = this.settings.getString("server_uri", null);
             this.unread_sms = this.settings.getString("api_unread_sms", null);
         }
 

@@ -181,4 +181,27 @@
             />
     </LinearLayout>
 
+    <LinearLayout
+        style="@style/Block"
+        android:id="@+id/notification_warning"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        >
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:contentDescription="@string/main_sync"
+            android:src="@drawable/ic_warning_black_24dp"/>
+        <TextView
+            style="@style/ItemTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/main_enable_notification"
+            android:padding="7dp"
+
+            /><!--android:onClick="goToWebsite"-->
+    </LinearLayout>
+
 </LinearLayout>

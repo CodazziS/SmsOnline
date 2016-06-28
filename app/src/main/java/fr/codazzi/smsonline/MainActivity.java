@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -178,14 +180,22 @@ public class MainActivity extends AppCompatActivity {
         } else {
             sync.setText(getResources().getString(R.string.never_sync));
         }
+
+        if(!Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners").contains(getPackageName())) {
+            Log.d("LISTENER", "Pas acces");
+            LinearLayout notification_warning = (LinearLayout) findViewById(R.id.notification_warning);
+            notification_warning.setVisibility(View.VISIBLE);
+        }
     }
 
     /* On clicks */
     public void goToSettings(View view) {
         EditText email;
         EditText password;
+        EditText server_uri;
         Button saveBtn;
         CheckBox wifi_only;
+        String default_api_url;
 
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -197,6 +207,15 @@ public class MainActivity extends AppCompatActivity {
         password.setText(this.settings.getString("password", ""));
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
         wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
+
+        if (BuildConfig.DEBUG) {
+            default_api_url = getString(R.string.api_url_debug);
+        } else {
+            default_api_url = getString(R.string.api_url);
+        }
+
+        server_uri = (EditText) findViewById(R.id.config_uri);
+        server_uri.setText(this.settings.getString("server_uri", default_api_url));
 
         saveBtn = (Button) findViewById(R.id.saveSettings);
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -230,15 +249,18 @@ public class MainActivity extends AppCompatActivity {
     public void saveSettings(View view) {
         EditText email;
         EditText password;
+        EditText server_uri;
         CheckBox wifi_only;
 
         email = (EditText) findViewById(R.id.config_email);
         password = (EditText) findViewById(R.id.config_password);
+        server_uri = (EditText) findViewById(R.id.config_uri);
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
 
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putString("email", email.getText().toString());
         editor.putString("password", password.getText().toString());
+        editor.putString("server_uri", server_uri.getText().toString());
         editor.putBoolean("reset_api", true);
         editor.putBoolean("wifi_only", wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused());
         editor.apply();
