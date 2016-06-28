@@ -52,6 +52,18 @@
         android:layout_marginBottom="5dp"
         />
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textUri"
+            android:hint="@string/settings_api"
+            android:id="@+id/config_uri"
+            />
+    </android.support.design.widget.TextInputLayout>
+
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/saveSettings"
         android:layout_width="match_parent"
