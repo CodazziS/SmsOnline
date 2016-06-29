@@ -180,11 +180,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             sync.setText(getResources().getString(R.string.never_sync));
         }
-
-        if(!Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners").contains(getPackageName())) {
-            Log.d("LISTENER", "Pas acces");
-            LinearLayout notification_warning = (LinearLayout) findViewById(R.id.notification_warning);
-            notification_warning.setVisibility(View.VISIBLE);
+        try {
+            if (!Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners").contains(getPackageName())) {
+                LinearLayout notification_warning = (LinearLayout) findViewById(R.id.notification_warning);
+                notification_warning.setVisibility(View.VISIBLE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -195,24 +197,35 @@ public class MainActivity extends AppCompatActivity {
         EditText server_uri;
         Button saveBtn;
         CheckBox wifi_only;
-        String default_api_url;
 
-        setContentView(R.layout.activity_settings);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        c_activity = "settings";
-        email = (EditText) findViewById(R.id.config_email);
-        email.setText(this.settings.getString("email", ""));
-        password = (EditText) findViewById(R.id.config_password);
-        password.setText(this.settings.getString("password", ""));
-        wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
-        wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
+        String default_api_url;
+        String default_email = "";
+        String default_password = "";
 
         if (BuildConfig.DEBUG) {
             default_api_url = getString(R.string.api_url_debug);
         } else {
             default_api_url = getString(R.string.api_url);
         }
+
+        if (BuildConfig.VERSION_NAME.contains("alpha")) {
+            default_email = "alpha@example.com";
+            default_password = "@z3rtY";
+            default_api_url = getString(R.string.api_url_debug);
+        }
+
+        setContentView(R.layout.activity_settings);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        c_activity = "settings";
+        email = (EditText) findViewById(R.id.config_email);
+        email.setText(this.settings.getString("email", default_email));
+        password = (EditText) findViewById(R.id.config_password);
+        password.setText(this.settings.getString("password", default_password));
+        wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
+        wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
+
+
 
         server_uri = (EditText) findViewById(R.id.config_uri);
         server_uri.setText(this.settings.getString("server_uri", default_api_url));
