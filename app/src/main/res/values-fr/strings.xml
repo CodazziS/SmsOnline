@@ -56,4 +56,6 @@
     <string name="permissions_text">L\'application nécessites certains droits pour fonctionner.</string>
     <string name="permissions_ask">Autoriser l\'application</string>
     <string name="permission_cancel">Annuler</string>
+    <string name="main_enable_notification">Notification access is disabled</string>
+    <string name="settings_api">Server URL</string>
 </resources>
