@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.telephony.SmsManager;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +32,7 @@ class Messages {
         String selection = "date > " + this.lastDateSms + " " +
                 "OR (_id IN (" + this.unreadSmsList + ") AND read = 1)";
         JSONArray sms = this.getSms(context, selection);
-        //JSONArray mms = null;
+        JSONArray mms = null;
 
         /* TODO : Concat MMS + SMS */
         messages = sms;
@@ -42,7 +43,7 @@ class Messages {
 
         JSONArray messages = null;
         JSONArray sms = this.getSms(context, null);
-        //JSONArray mms = null;
+        JSONArray mms = this.getMms(context, null);
 
         /* TODO : Concat MMS + SMS */
         messages = sms;
@@ -62,21 +63,20 @@ class Messages {
         return obj;
     }
 
-    private JSONArray getMms(Context context) {
+    private JSONArray getMms(Context context, String selection) {
         JSONArray mms = null;
-        //Cursor mms_cursor;
+        Cursor mms_cursor;
         ContentResolver cr = context.getContentResolver();
+        String [] projection_mms = {"address", "date", "msg_box", "read", "_id"};
+        Uri mms_uri = Uri.parse("content://mms/");
 
-        /* MMS */
-        //String [] projection_mms = {"date", "msg_box", "read", "_id"};
-        //Uri mms_uri = Uri.parse("content://mms/");
-        //mms_cursor = cr.query(mms_uri, projection_mms, null, null, null);
-        /*
+        mms_cursor = cr.query(mms_uri, null, selection, null, null);
+
         if (mms_cursor != null) {
-                setMessages("mms", mms_cursor);
-                mms_cursor.close();
-            }
-         */
+            mms =  messagesToArray("mms", mms_cursor);
+            //setMessages("mms", mms_cursor);
+            mms_cursor.close();
+        }
         return mms;
     }
 
@@ -136,6 +136,8 @@ class Messages {
                         }
                     } else if (message_type.equals("mms")) {
                         /* @TODO MMS */
+                        //showCursorRow(c);
+                        //Log.d("MMS", c.getString(c.getColumnIndex("address")));
                     }
                     c.moveToNext();
                 }
@@ -144,6 +146,16 @@ class Messages {
             e.printStackTrace();
         }
         return messages;
+    }
+
+    private void showCursorRow(Cursor c) {
+        int nb_cols = c.getColumnCount();
+        int col = 0;
+        Log.w("MESSAGE", "-----------------------------------------------------");
+        for (col = 0; col < nb_cols; col++) {
+            Log.w("MESSAGE", c.getColumnName(col) + " => " + c.getString(col));
+        }
+        Log.w("MESSAGE", "-----------------------------------------------------");
     }
 
     static public void sendMessage(String address, String body, String type) {

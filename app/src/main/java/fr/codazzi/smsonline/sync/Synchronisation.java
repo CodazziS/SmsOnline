@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import fr.codazzi.smsonline.controllers.Api;
 
@@ -16,7 +15,10 @@ public class Synchronisation  extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("SYNC LOOP", "LOOP");
+        runApi(context);
+    }
+
+    private void runApi(final Context context) {
         SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
@@ -31,5 +33,6 @@ public class Synchronisation  extends BroadcastReceiver {
         }
 
         new Api(context, settings).Run();
+
     }
 }

@@ -1,5 +1,6 @@
 package fr.codazzi.smsonline;
 
+
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -32,10 +33,10 @@ public class Ajax {
     static private void execute(String method, String dataUrl, String dataPost, String callback, Api api) {
         URL url;
         HttpURLConnection connection = null;
-        Log.d("AJAX-METHOD", method);
-        Log.d("AJAX-URL", dataUrl);
+        //Log.d("AJAX-METHOD", method);
+        //Log.d("AJAX-URL", dataUrl);
         if (dataPost != null) {
-            Log.d("AJAX-DATA", dataPost);
+            Log.e("AJAX-DATA", dataPost);
         }
 
         try {
@@ -78,18 +79,13 @@ public class Ajax {
         String response = "";
 
         try {
-            /*
-            if (callback == null) {
-                return;
-            }
-            */
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
             while ((line = rd.readLine()) != null) {
                 response += line;
             }
             rd.close();
-            Log.d("AJAX-RESPONSE", response);
+            //Log.d("AJAX-RESPONSE", response);
 
             if (callback == null) {
                 return;

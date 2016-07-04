@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -20,7 +19,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.add(Calendar.SECOND, 1); // first time
-        long frequency = 120 * 1000; // in ms
+        long frequency = 120000; // in ms
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), frequency, pendingIntent);
     }
 
@@ -72,12 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /*int id;
-
-        id = item.getItemId();
-        if (id == R.id.main_settings) {
-            return true;
-        }*/
         return super.onOptionsItemSelected(item);
     }
 
@@ -208,11 +200,21 @@ public class MainActivity extends AppCompatActivity {
             default_api_url = getString(R.string.api_url);
         }
 
-        if (BuildConfig.VERSION_NAME.contains("alpha")) {
-            default_email = "alpha@example.com";
-            default_password = "@z3rtY";
-            default_api_url = getString(R.string.api_url_debug);
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            Snackbar.make(findViewById(android.R.id.content),
+                    pInfo.versionName,
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+            if (pInfo.versionName.contains("alpha")) {
+                default_email = "alpha@example.com";
+                default_password = "@z3rtY";
+                default_api_url = getString(R.string.api_url_debug);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
+
 
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -224,8 +226,6 @@ public class MainActivity extends AppCompatActivity {
         password.setText(this.settings.getString("password", default_password));
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
         wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
-
-
 
         server_uri = (EditText) findViewById(R.id.config_uri);
         server_uri.setText(this.settings.getString("server_uri", default_api_url));
@@ -288,7 +288,6 @@ public class MainActivity extends AppCompatActivity {
     private void logonLoop() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
-        Log.d("Logon Loop", "Passed");
         if ((this.settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = this.settings.edit();
