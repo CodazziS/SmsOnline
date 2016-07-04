@@ -3,7 +3,6 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import fr.codazzi.smsonline.*;
 
@@ -39,14 +38,7 @@ public class Api {
     public Api(Context _context, SharedPreferences _settings) {
         this.context = _context;
         this.settings = _settings;
-
-//        if (BuildConfig.DEBUG) {
-//            this.api_url = context.getString(R.string.api_url_debug);
-//        } else {
-//            this.api_url = context.getString(R.string.api_url);
-//        }
         this.android_id = Tools.getDeviceID(this.context);
-
     }
 
     public void Run() {
@@ -66,7 +58,6 @@ public class Api {
         editor.putLong("last_working", (new Date()).getTime());
         editor.apply();
 
-        //Log.d("api STATE", "State: " + this.state);
         switch (this.state) {
             case 0:
                 this.getVersion();
@@ -86,7 +77,6 @@ public class Api {
             default:
                 this.reset_api = true;
                 saveSettings();
-                //Log.e("STATE ERROR", "Unknown state action ("+state+")");
         }
     }
 
@@ -121,7 +111,6 @@ public class Api {
             this.api_url = this.settings.getString("server_uri", null);
             this.unread_sms = this.settings.getString("api_unread_sms", null);
         }
-
         return true;
     }
 
@@ -163,6 +152,7 @@ public class Api {
                     messages_arr = messages.getLastsMessages(context, this.last_sms, this.last_sms, this.unread_sms);
                     url = this.api_url + "Messages/Sync";
                 }
+
                 String data =
                         "user=" + URLEncoder.encode(this.user, "utf-8") +
                                 "&token=" + URLEncoder.encode(this.token, "utf-8") +
@@ -210,6 +200,7 @@ public class Api {
                                     "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
 
                             Ajax.post(url, smsdata, "sendMessage", this);
+
                         }
                     }
                 }
@@ -226,7 +217,6 @@ public class Api {
         try {
 
             res = new JSONObject(data);
-            Log.e("API-SEND", "SEND: " + res.getString("address") + "-" + res.getString("body"));
             Messages.sendMessage(
                     res.getString("address"),
                     res.getString("body"),
@@ -236,24 +226,6 @@ public class Api {
             this.error = -1;
         }
     }
-    /*
-    private void confirmSent(String message_id) {
-
-        try {
-            String url = api_url + "Messages/ConfirmSent";
-            String data =
-                    "user=" + URLEncoder.encode(user, "utf-8") +
-                            "&token=" + URLEncoder.encode(token, "utf-8") +
-                            "&android_id=" + URLEncoder.encode(android_id, "utf-8") +
-                            "&key=" + URLEncoder.encode(key, "utf-8") +
-                            "&message_id=" + URLEncoder.encode(message_id, "utf-8");
-
-            Ajax.post(url, data, null, this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    */
 
     private void syncContacts() {
         try {

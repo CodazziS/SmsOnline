@@ -6,18 +6,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 import fr.codazzi.smsonline.controllers.Api;
 
-/**
- * Created by azzod.fr on 28/06/2016.
- */
+
 public class NLService extends NotificationListenerService {
     Context context;
 
     private void runApi() {
-        Log.d("SYNC LOOP", "Listener");
         SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
@@ -32,6 +28,9 @@ public class NLService extends NotificationListenerService {
         }
 
         new Api(context, settings).Run();
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("fast_loop", 5);
+        editor.apply();
     }
 
     @Override
