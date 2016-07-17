@@ -4,6 +4,8 @@ import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -12,44 +14,184 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 
 class Messages {
+    public long lastDateMessage = 0;
+    public String unreadMessagesList = "";
 
-    private long lastDateSms = 0;
-    private long lastDateMms = 0;
-    private long maxSmsCurrentDate;
-    private long maxMmsCurrentDate;
-    private String unreadSmsList = "";
+    public JSONArray getLastsMessages(Context context, long _lastDateMessage, String _unreadMessagesList) {
+        this.lastDateMessage = _lastDateMessage;
+        this.unreadMessagesList = _unreadMessagesList;
 
+        JSONArray messages;
+        String selection = "date > " + this.lastDateMessage + " " +
+            "OR (_id IN (" + this.unreadMessagesList + ") AND read = 1)";
 
-    public JSONArray getLastsMessages(Context context, long _lastDateSms, long _lastDateMms, String _unreadSmsList) {
-
-        this.lastDateSms = _lastDateSms;
-        this.lastDateMms = _lastDateMms;
-        this.unreadSmsList = _unreadSmsList;
-        JSONArray messages = null;
-        String selection = "date > " + this.lastDateSms + " " +
-                "OR (_id IN (" + this.unreadSmsList + ") AND read = 1)";
-        JSONArray sms = this.getSms(context, selection);
-        JSONArray mms = null;
-
-        /* TODO : Concat MMS + SMS */
-        messages = sms;
+        messages = this.getSms(context, selection);
+        // SELECTION messages = this.getMms(context, null, messages);
         return messages;
     }
 
     public JSONArray getAllMessages(Context context) {
+        JSONArray messages;
+
+        messages = this.getSms(context, null);
+        messages = this.getMms(context, null, messages);
+        return messages;
+    }
+
+    private JSONArray getMms(Context context, String selection, JSONArray messages) {
+        JSONObject message;
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = Uri.parse("content://mms/");
+        Cursor query = contentResolver.query(uri, null, selection, null, null);
+        try {
+            if (query != null && query.moveToFirst()) {
+                do {
+                    String id = query.getString(query.getColumnIndex("_id"));
+                    Log.e("MMS ID", id);
+                } while (query.moveToNext());
+                query.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+
+    private JSONArray getSms(Context context, String selection) {
+        JSONArray messages = new JSONArray();
+        JSONObject message;
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = Uri.parse("content://sms");
+        Cursor query = contentResolver.query(uri, null, selection, null, null);
+        try {
+            if (query != null && query.moveToFirst()) {
+                do {
+                    message = new JSONObject();
+                    // SMS
+                    message.put("id", query.getString(query.getColumnIndex("_id")));
+                    message.put("mess_type", "sms");
+                    message.put("address", query.getString(query.getColumnIndex("address")));
+                    message.put("date_sent", query.getString(query.getColumnIndex("date_sent")));
+                    message.put("type", query.getString(query.getColumnIndex("type")));
+                    message.put("body", query.getString(query.getColumnIndex("body")));
+                    message.put("date", query.getString(query.getColumnIndex("date")));
+                    message.put("read", query.getString(query.getColumnIndex("read")));
+                    updateLastMessage(query.getLong(query.getColumnIndex("date")));
+                    messages.put(message);
+                } while (query.moveToNext());
+                query.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+
+    private String getAddressNumber(Context context, String id) {
+        String selectionAdd = "msg_id=" + id;
+        String uriStr = MessageFormat.format("content://mms/{0}/addr", id);
+        Uri uriAddress = Uri.parse(uriStr);
+        Cursor cAdd = context.getContentResolver().query(uriAddress, null,
+                selectionAdd, null, null);
+        String name = null;
+        if (cAdd != null && cAdd.moveToFirst()) {
+            do {
+                String number = cAdd.getString(cAdd.getColumnIndex("address"));
+                if (number != null) {
+                    try {
+                        Long.parseLong(number.replace("-", ""));
+                        name = number;
+                    } catch (NumberFormatException nfe) {
+                        if (name == null) {
+                            name = number;
+                        }
+                    }
+                }
+            } while (cAdd.moveToNext());
+        }
+        if (cAdd != null) {
+            cAdd.close();
+        }
+        return name;
+    }
+
+    private Bitmap getMmsImage(Context context, String _id) {
+        Uri partURI = Uri.parse("content://mms/part/" + _id);
+        InputStream is = null;
+        Bitmap bitmap = null;
+        try {
+            is = context.getContentResolver().openInputStream(partURI);
+            bitmap = BitmapFactory.decodeStream(is);
+        } catch (IOException e) {}
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {}
+            }
+        }
+        return bitmap;
+    }
+
+    private String getMmsText(Context context, String id) {
+        Uri partURI = Uri.parse("content://mms/part/" + id);
+        InputStream is = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            is = context.getContentResolver().openInputStream(partURI);
+            if (is != null) {
+                InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+                BufferedReader reader = new BufferedReader(isr);
+                String temp = reader.readLine();
+                while (temp != null) {
+                    sb.append(temp);
+                    temp = reader.readLine();
+                }
+            }
+        } catch (IOException e) {}
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {}
+            }
+        }
+        return sb.toString();
+    }
+
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /* **************************************************************************/
+    /*
+    public JSONArray getAllMessagesOLD(Context context) {
 
         JSONArray messages = null;
         JSONArray sms = this.getSms(context, null);
         JSONArray mms = this.getMms(context, null);
 
-        /* TODO : Concat MMS + SMS */
+
         messages = sms;
         return messages;
-    }
-
+    }*/
+/*
     public JSONObject confirmDates() {
         this.lastDateSms = this.maxSmsCurrentDate;
         JSONObject obj = new JSONObject();
@@ -62,7 +204,7 @@ class Messages {
         }
         return obj;
     }
-
+/*
     private JSONArray getMms(Context context, String selection) {
         JSONArray mms = null;
         Cursor mms_cursor;
@@ -94,60 +236,7 @@ class Messages {
         }
         return sms;
     }
-
-    private JSONArray messagesToArray(String message_type, Cursor c) {
-        JSONArray messages = new JSONArray();
-        JSONObject message;
-        int messagesNb;
-        String mess_id;
-        maxSmsCurrentDate = 0;
-
-        try {
-            if (c.moveToFirst()) {
-                for (messagesNb = 0; messagesNb < c.getCount(); messagesNb++) {
-                    if (message_type.equals("sms")) {
-                        mess_id = c.getString(c.getColumnIndex("_id"));
-                        message = new JSONObject();
-                        message.put("id", mess_id);
-                        message.put("address", c.getString(c.getColumnIndex("address")));
-                        message.put("date", c.getString(c.getColumnIndex("date")));
-                        message.put("date_sent", c.getString(c.getColumnIndex("date_sent")));
-                        message.put("read", c.getString(c.getColumnIndex("read")));
-                        message.put("type", c.getString(c.getColumnIndex("type")));
-                        message.put("body", c.getString(c.getColumnIndex("body")));
-                        messages.put(message);
-                        if (c.getLong(c.getColumnIndex("date")) > this.maxSmsCurrentDate) {
-                            this.maxSmsCurrentDate = c.getLong(c.getColumnIndex("date"));
-                        }
-                        if (c.getString(c.getColumnIndex("read")).equals("0")) {
-                            if (!this.unreadSmsList.equals("")) {
-                                this.unreadSmsList += ",";
-                            }
-                            this.unreadSmsList += mess_id;
-                        } else if (this.unreadSmsList.contains(mess_id)) {
-                            /* If the ID is in the string */
-                            this.unreadSmsList = this.unreadSmsList.replace(mess_id + ",", "");
-                            /* If the ID is the first ID of the String */
-                            this.unreadSmsList = this.unreadSmsList.replace("," + mess_id, "");
-                            /* If the ID is the unique ID of the string */
-                            if (this.unreadSmsList.equals(mess_id)) {
-                                this.unreadSmsList = "";
-                            }
-                        }
-                    } else if (message_type.equals("mms")) {
-                        /* @TODO MMS */
-                        //showCursorRow(c);
-                        //Log.d("MMS", c.getString(c.getColumnIndex("address")));
-                    }
-                    c.moveToNext();
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return messages;
-    }
-
+*/
     private void showCursorRow(Cursor c) {
         int nb_cols = c.getColumnCount();
         int col = 0;
@@ -156,6 +245,12 @@ class Messages {
             Log.w("MESSAGE", c.getColumnName(col) + " => " + c.getString(col));
         }
         Log.w("MESSAGE", "-----------------------------------------------------");
+    }
+
+    private void updateLastMessage(long date) {
+        if (this.lastDateMessage < date) {
+            this.lastDateMessage = date;
+        }
     }
 
     static public void sendMessage(String address, String body, String type) {

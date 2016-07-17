@@ -85,7 +85,6 @@ public class Ajax {
                 response += line;
             }
             rd.close();
-            //Log.d("AJAX-RESPONSE", response);
 
             if (callback == null) {
                 return;
