@@ -30,6 +30,16 @@
         <item>L\'email existe déjà</item>
     <!-- 06 -->
         <item>Identifiants erronés</item>
+        <!-- 07 --><item>Objet non trouvé</item>
+        <!-- 08 --><item>-</item>
+        <!-- 09 --><item>-</item>
+        <!-- 10 --><item>-</item>
+        <!-- 11 --><item>-</item>
+        <!-- 12 --><item>-</item>
+        <!-- 13 --><item>-</item>
+        <!-- 14 --><item>-</item>
+        <!-- 15 --><item>-</item>
+        <!-- 16 --><item>Les versions de l\'application et de l\'API diffèrent. Essayez de mettre l\'application à jour.</item>
     </string-array>
     <!-- VIEWS -->
     <!-- activity_main - main -->

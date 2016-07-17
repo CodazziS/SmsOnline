@@ -20,7 +20,7 @@
 
     <!-- Styles liste -->
     <style name="Block">
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
     </style>
     <style name="mainTitle">
         <item name="android:textStyle">bold</item>

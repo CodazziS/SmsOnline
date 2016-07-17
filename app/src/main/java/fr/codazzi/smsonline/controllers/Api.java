@@ -3,6 +3,7 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import fr.codazzi.smsonline.*;
 
@@ -15,7 +16,7 @@ import java.util.Date;
 
 public class Api {
     /* Vars */
-    private String android_id;
+    private String device_id;
     private String api_url = "";
     private Context context;
     private SharedPreferences settings = null;
@@ -26,19 +27,20 @@ public class Api {
     private int error;
     private int state;
     private long last_sync;
-    private long last_sms;
-    private long last_mms;
+    private long last_message;
+    //private long last_sms;
+    //private long last_mms;
     private long last_work;
     private String token;
     private String user;
     private String key;
-    private String unread_sms = "";
-
+    //private String unread_sms = "";
+    private String unread_messages = "";
 
     public Api(Context _context, SharedPreferences _settings) {
         this.context = _context;
         this.settings = _settings;
-        this.android_id = Tools.getDeviceID(this.context);
+        this.device_id = Tools.getDeviceID(this.context);
     }
 
     public void Run() {
@@ -88,13 +90,15 @@ public class Api {
             this.error = 0;
             this.state = 0;
             this.last_sync = 0;
-            this.last_sms = 0;
-            this.last_mms = 0;
+            //this.last_sms = 0;
+            //this.last_mms = 0;
+            this.last_message = 0;
             this.last_work = 0;
             this.token = null;
             this.user = null;
             this.key = null;
-            this.unread_sms = null;
+            //this.unread_sms = null;
+            this.unread_messages = null;
             this.saveSettings();
             return false;
         } else {
@@ -102,14 +106,16 @@ public class Api {
             this.error = this.settings.getInt("error", 0);
             this.state = this.settings.getInt("api_state", 0);
             this.last_sync = this.settings.getLong("last_sync", 0);
-            this.last_sms = this.settings.getLong("last_sms", 0);
-            this.last_mms = this.settings.getLong("last_mms", 0);
+            //this.last_sms = this.settings.getLong("last_sms", 0);
+            //this.last_mms = this.settings.getLong("last_mms", 0);
+            this.last_message = this.settings.getLong("last_message", 0);
             this.last_work = this.settings.getLong("last_work", 0);
             this.token = this.settings.getString("api_token", null);
             this.user = this.settings.getString("api_user", null);
             this.key = this.settings.getString("api_key", null);
             this.api_url = this.settings.getString("server_uri", null);
-            this.unread_sms = this.settings.getString("api_unread_sms", null);
+            //this.unread_sms = this.settings.getString("api_unread_sms", null);
+            this.unread_messages = this.settings.getString("unread_messages", null);
         }
         return true;
     }
@@ -127,13 +133,15 @@ public class Api {
         editor.putInt("error", this.error);
         editor.putInt("api_state", this.state);
         editor.putLong("last_sync", this.last_sync);
-        editor.putLong("last_sms", this.last_sms);
-        editor.putLong("last_mms", this.last_mms);
+        //editor.putLong("last_sms", this.last_sms);
+        //editor.putLong("last_mms", this.last_mms);
+        editor.putLong("last_message", this.last_message);
         editor.putLong("last_work", this.last_work);
         editor.putString("api_token", this.token);
         editor.putString("api_user", this.user);
         editor.putString("api_key", this.key);
-        editor.putString("api_unread_sms", this.unread_sms);
+        //editor.putString("api_unread_sms", this.unread_sms);
+        editor.putString("unread_messages", this.unread_messages);
         editor.apply();
     }
 
@@ -149,22 +157,24 @@ public class Api {
                     messages_arr = messages.getAllMessages(context);
                     url = this.api_url + "Messages/Resync";
                 } else {
-                    messages_arr = messages.getLastsMessages(context, this.last_sms, this.last_sms, this.unread_sms);
+                    messages_arr = messages.getLastsMessages(context, this.last_message, this.unread_messages);
                     url = this.api_url + "Messages/Sync";
                 }
 
                 String data =
                         "user=" + URLEncoder.encode(this.user, "utf-8") +
                                 "&token=" + URLEncoder.encode(this.token, "utf-8") +
-                                "&android_id=" + URLEncoder.encode(this.android_id, "utf-8") +
+                                "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
                                 "&key=" + URLEncoder.encode(this.key, "utf-8") +
                                 "&messages=" + URLEncoder.encode(messages_arr.toString(), "utf-8");
                 Ajax.post(url, data, "syncMessagesRes", this);
 
-                result_obj = messages.confirmDates();
+                this.last_message = messages.lastDateMessage;
+                this.unread_messages = messages.unreadMessagesList;
+                /*result_obj = messages.confirmDates();
                 this.last_sms = result_obj.getLong("lastDateSms");
                 this.last_mms = result_obj.getLong("lastDateMms");
-                this.unread_sms = result_obj.getString("unreadSmsList");
+                this.unread_sms = result_obj.getString("unreadSmsList");*/
                 this.last_sync = new Date().getTime();
             }
         } catch(Exception e){
@@ -195,7 +205,7 @@ public class Api {
                             String smsdata =
                                     "user=" + URLEncoder.encode(user, "utf-8") +
                                     "&token=" + URLEncoder.encode(token, "utf-8") +
-                                    "&android_id=" + URLEncoder.encode(android_id, "utf-8") +
+                                    "&device_id=" + URLEncoder.encode(device_id, "utf-8") +
                                     "&key=" + URLEncoder.encode(key, "utf-8") +
                                     "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
 
@@ -206,6 +216,7 @@ public class Api {
                 }
             }
         } catch (Exception e1) {
+            Log.e("Data:", data);
             e1.printStackTrace();
             this.error = -1;
         }
@@ -234,7 +245,7 @@ public class Api {
             String data =
                     "user=" + URLEncoder.encode(this.user, "utf-8") +
                             "&token=" + URLEncoder.encode(this.token, "utf-8") +
-                            "&android_id=" + URLEncoder.encode(this.android_id, "utf-8") +
+                            "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
                             "&key=" + URLEncoder.encode(this.key, "utf-8") +
                             "&contacts=" + URLEncoder.encode(contacts.toString(), "utf-8");
 
@@ -268,7 +279,7 @@ public class Api {
             String data =
                     "user=" + URLEncoder.encode(this.user, "utf-8") +
                     "&token=" + URLEncoder.encode(this.token, "utf-8") +
-                    "&android_id=" + URLEncoder.encode(this.android_id, "utf-8") +
+                    "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
                     "&model=" + URLEncoder.encode(android.os.Build.MODEL, "utf-8");
 
             Ajax.post(url, data, "addDeviceRes", this);
@@ -306,7 +317,7 @@ public class Api {
                 this.saveSettings();
                 return;
             }
-            String data = "email=" + email + "&password=" + password + "&type=" + URLEncoder.encode(this.android_id, "utf-8");
+            String data = "email=" + email + "&password=" + password + "&type=" + URLEncoder.encode(this.device_id, "utf-8");
             Ajax.get(url, data, "getTokenRes", this);
         } catch (Exception e) {
             e.printStackTrace();
@@ -364,6 +375,9 @@ public class Api {
                 api_version = res.getInt("api_version");
                 if (this.error == 0 && api_version == this.context.getResources().getInteger(R.integer.api_version)) {
                     this.getToken();
+                } else {
+                    this.error = 16;
+                    this.saveSettings();
                 }
             }
         } catch (JSONException e1) {

@@ -16,6 +16,16 @@
         <!-- 04 --><item>Password is too short</item>
         <!-- 05 --><item>Email already exist</item>
         <!-- 06 --><item>Bad credentials</item>
+        <!-- 07 --><item>Object not found</item>
+        <!-- 08 --><item>-</item>
+        <!-- 09 --><item>-</item>
+        <!-- 10 --><item>-</item>
+        <!-- 11 --><item>-</item>
+        <!-- 12 --><item>-</item>
+        <!-- 13 --><item>-</item>
+        <!-- 14 --><item>-</item>
+        <!-- 15 --><item>-</item>
+        <!-- 16 --><item>API version not match: maybe you should update your application</item>
     </string-array>
 
     <!-- VIEWS -->
