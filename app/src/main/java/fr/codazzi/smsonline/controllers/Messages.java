@@ -2,6 +2,7 @@ package fr.codazzi.smsonline.controllers;
 
 import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -21,6 +22,8 @@ import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
+import fr.codazzi.smsonline.Tools;
+
 class Messages {
     public long lastDateMessage = 0;
     public String unreadMessagesList = "";
@@ -34,7 +37,7 @@ class Messages {
             "OR (_id IN (" + this.unreadMessagesList + ") AND read = 1)";
 
         messages = this.getSms(context, selection);
-        // SELECTION messages = this.getMms(context, null, messages);
+        //messages = this.getMms(context, null, messages);
         return messages;
     }
 
@@ -55,7 +58,18 @@ class Messages {
             if (query != null && query.moveToFirst()) {
                 do {
                     String id = query.getString(query.getColumnIndex("_id"));
-                    Log.e("MMS ID", id);
+                    message = new JSONObject();
+                    // MMS
+                    message.put("id", id);
+                    message.put("mess_type", "mms");
+                    message.put("address", this.getAddressNumber(context, id));
+                    message.put("date_sent", query.getString(query.getColumnIndex("date")) + "000");
+                    message.put("type", query.getString(query.getColumnIndex("msg_box")));
+                    message.put("date", query.getString(query.getColumnIndex("date")) + "000");
+                    message.put("read", query.getString(query.getColumnIndex("read")));
+                    updateLastMessage(query.getLong(query.getColumnIndex("date")) * 1000);
+                    message = this.getMmsInfos(context, query.getString(query.getColumnIndex("_id")), message);
+                    messages.put(message);
                 } while (query.moveToNext());
                 query.close();
             }
@@ -95,12 +109,43 @@ class Messages {
         return messages;
     }
 
+    private JSONObject getMmsInfos(Context context, String mmsId, JSONObject message) throws JSONException {
+        String selectionPart = "mid=" + mmsId;
+        Uri uri = Uri.parse("content://mms/part");
+        Cursor cursor = context.getContentResolver().query(uri, null, selectionPart, null, null);
+        String body = "";
+        JSONArray parts = new JSONArray();
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String partId = cursor.getString(cursor.getColumnIndex("_id"));
+                String type = cursor.getString(cursor.getColumnIndex("ct"));
+                if ("text/plain".equals(type)) {
+                    String data = cursor.getString(cursor.getColumnIndex("_data"));
+                    if (data != null) {
+                        body += this.getMmsText(context, partId);
+                    } else {
+                        body += cursor.getString(cursor.getColumnIndex("text"));
+                    }
+                }
+                if ("image/jpeg".equals(type) || "image/bmp".equals(type) ||
+                        "image/gif".equals(type) || "image/jpg".equals(type) ||
+                        "image/png".equals(type)) {
+                    parts.put(Tools.bitmapToString64(this.getMmsImage(context, partId)));
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        message.put("body", body);
+        message.put("parts", parts);
+        return message;
+    }
+
     private String getAddressNumber(Context context, String id) {
         String selectionAdd = "msg_id=" + id;
         String uriStr = MessageFormat.format("content://mms/{0}/addr", id);
         Uri uriAddress = Uri.parse(uriStr);
-        Cursor cAdd = context.getContentResolver().query(uriAddress, null,
-                selectionAdd, null, null);
+        Cursor cAdd = context.getContentResolver().query(uriAddress, null, selectionAdd, null, null);
         String name = null;
         if (cAdd != null && cAdd.moveToFirst()) {
             do {
