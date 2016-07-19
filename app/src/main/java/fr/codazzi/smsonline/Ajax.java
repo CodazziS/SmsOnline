@@ -52,7 +52,9 @@ public class Ajax {
                     break;
                 case "POST":
                     connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Length","" + Integer.toString(dataPost.getBytes().length));
+                    if (dataPost != null) {
+                        connection.setRequestProperty("Content-Length", "" + Integer.toString(dataPost.getBytes().length));
+                    }
                     connection.setDoOutput(true);
                     DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
                     wr.writeBytes(dataPost);

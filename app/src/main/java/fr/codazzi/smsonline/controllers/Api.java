@@ -27,15 +27,14 @@ public class Api {
     private int error;
     private int state;
     private long last_sync;
-    private long last_message;
-    //private long last_sms;
-    //private long last_mms;
+    private long last_sms;
+    private long last_mms;
     private long last_work;
     private String token;
     private String user;
     private String key;
-    //private String unread_sms = "";
-    private String unread_messages = "";
+    private String unread_sms = "";
+    private String unread_mms = "";
 
     public Api(Context _context, SharedPreferences _settings) {
         this.context = _context;
@@ -90,15 +89,14 @@ public class Api {
             this.error = 0;
             this.state = 0;
             this.last_sync = 0;
-            //this.last_sms = 0;
-            //this.last_mms = 0;
-            this.last_message = 0;
+            this.last_sms = 0;
+            this.last_mms = 0;
             this.last_work = 0;
             this.token = null;
             this.user = null;
             this.key = null;
-            //this.unread_sms = null;
-            this.unread_messages = null;
+            this.unread_sms = null;
+            this.unread_mms = null;
             this.saveSettings();
             return false;
         } else {
@@ -106,16 +104,15 @@ public class Api {
             this.error = this.settings.getInt("error", 0);
             this.state = this.settings.getInt("api_state", 0);
             this.last_sync = this.settings.getLong("last_sync", 0);
-            //this.last_sms = this.settings.getLong("last_sms", 0);
-            //this.last_mms = this.settings.getLong("last_mms", 0);
-            this.last_message = this.settings.getLong("last_message", 0);
+            this.last_sms = this.settings.getLong("last_sms", 0);
+            this.last_mms = this.settings.getLong("last_mms", 0);
             this.last_work = this.settings.getLong("last_work", 0);
             this.token = this.settings.getString("api_token", null);
             this.user = this.settings.getString("api_user", null);
             this.key = this.settings.getString("api_key", null);
             this.api_url = this.settings.getString("server_uri", null);
-            //this.unread_sms = this.settings.getString("api_unread_sms", null);
-            this.unread_messages = this.settings.getString("unread_messages", null);
+            this.unread_sms = this.settings.getString("api_unread_sms", null);
+            this.unread_mms = this.settings.getString("api_unread_mms", null);
         }
         return true;
     }
@@ -133,15 +130,14 @@ public class Api {
         editor.putInt("error", this.error);
         editor.putInt("api_state", this.state);
         editor.putLong("last_sync", this.last_sync);
-        //editor.putLong("last_sms", this.last_sms);
-        //editor.putLong("last_mms", this.last_mms);
-        editor.putLong("last_message", this.last_message);
+        editor.putLong("last_sms", this.last_sms);
+        editor.putLong("last_mms", this.last_mms);
         editor.putLong("last_work", this.last_work);
         editor.putString("api_token", this.token);
         editor.putString("api_user", this.user);
         editor.putString("api_key", this.key);
-        //editor.putString("api_unread_sms", this.unread_sms);
-        editor.putString("unread_messages", this.unread_messages);
+        editor.putString("api_unread_sms", this.unread_sms);
+        editor.putString("api_unread_mms", this.unread_mms);
         editor.apply();
     }
 
@@ -150,14 +146,13 @@ public class Api {
             final Messages messages = new Messages();
             JSONArray messages_arr;
             String url;
-            JSONObject result_obj;
 
             if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
                 if (getAllMessages) {
                     messages_arr = messages.getAllMessages(context);
                     url = this.api_url + "Messages/Resync";
                 } else {
-                    messages_arr = messages.getLastsMessages(context, this.last_message, this.unread_messages);
+                    messages_arr = messages.getLastsMessages(context, this.last_sms, this.last_mms, this.unread_sms, this.unread_mms);
                     url = this.api_url + "Messages/Sync";
                 }
 
@@ -169,12 +164,10 @@ public class Api {
                                 "&messages=" + URLEncoder.encode(messages_arr.toString(), "utf-8");
                 Ajax.post(url, data, "syncMessagesRes", this);
 
-                this.last_message = messages.lastDateMessage;
-                this.unread_messages = messages.unreadMessagesList;
-                /*result_obj = messages.confirmDates();
-                this.last_sms = result_obj.getLong("lastDateSms");
-                this.last_mms = result_obj.getLong("lastDateMms");
-                this.unread_sms = result_obj.getString("unreadSmsList");*/
+                this.last_sms = messages.lastDateSms;
+                this.last_mms = messages.lastDateMms;
+                this.unread_sms = messages.unreadSmsList;
+                this.unread_mms = messages.unreadMmsList;
                 this.last_sync = new Date().getTime();
             }
         } catch(Exception e){

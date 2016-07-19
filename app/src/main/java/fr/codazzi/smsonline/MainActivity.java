@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -68,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onBackPressed() {
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* Ask Permissions */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String perm[], int[] grtRes) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String perm[], @NonNull int[] grtRes) {
         if (grtRes.length > 0) {
             this.loopPermissions();
         }
@@ -258,8 +259,12 @@ public class MainActivity extends AppCompatActivity {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.main_url)));
         startActivity(browserIntent);
     }
+    public void goToNotificationSettings(View view) {
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        startActivity(intent);
+    }
 
-    public void saveSettings(View view) {
+    private void saveSettings(View view) {
         EditText email;
         EditText password;
         EditText server_uri;

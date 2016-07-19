@@ -89,7 +89,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="7dp"
+            android:padding="7dp"
             >
             <TextView
                 style="@style/ItemTitle"
@@ -125,7 +125,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="7dp"
+            android:padding="7dp"
             >
             <TextView
                 style="@style/ItemTitle"
