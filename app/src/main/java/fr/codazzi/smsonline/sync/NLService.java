@@ -11,7 +11,7 @@ import fr.codazzi.smsonline.controllers.Api;
 
 
 public class NLService extends NotificationListenerService {
-    Context context;
+    private Context context;
 
     private void runApi() {
         SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
