@@ -162,16 +162,19 @@ class Messages {
     }
 
     private String getAddressNumber(Context context, String id) {
-        String selectionAdd = "msg_id=" + id;
+        String selectionAdd = "type=137 AND msg_id=" + id;
         String uriStr = MessageFormat.format("content://mms/{0}/addr", id);
         Uri uriAddress = Uri.parse(uriStr);
         Cursor cAdd = context.getContentResolver().query(uriAddress, null, selectionAdd, null, null);
         String name = null;
+
         if (cAdd != null && cAdd.moveToFirst()) {
             do {
-                String number = cAdd.getString(cAdd.getColumnIndex("address"));
-                if (number != null) {
-                    name = number;
+                String val = cAdd.getString(cAdd.getColumnIndex("address"));
+                if (val != null) {
+                    name = val;
+                    // Use the first one found if more than one
+                    break;
                 }
             } while (cAdd.moveToNext());
         }
@@ -220,17 +223,17 @@ class Messages {
 
         return sb.toString();
     }
-    /*
+
     private void showCursorRow(Cursor c) {
         int nb_cols = c.getColumnCount();
         int col;
-        Log.w("MESSAGE", "-----------------------------------------------------");
+        Tools.logDebug("-----------------------------------------------------");
         for (col = 0; col < nb_cols; col++) {
-            Log.w("MESSAGE", c.getColumnName(col) + " => " + c.getString(col));
+            Tools.logDebug(2, c.getColumnName(col) + " => " + c.getString(col));
         }
-        Log.w("MESSAGE", "-----------------------------------------------------");
+        Tools.logDebug("-----------------------------------------------------");
     }
-    */
+
 
     static public void sendMessage(String address, String body, String type) {
         if (type.equals("sms")) {
