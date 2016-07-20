@@ -65,6 +65,7 @@ class Messages {
         Cursor query = contentResolver.query(uri, null, selection, null, null);
         long date;
         String id;
+        String type;
 
         try {
             if (query != null && query.moveToFirst()) {
@@ -72,12 +73,13 @@ class Messages {
                     message = new JSONObject();
                     id = query.getString(query.getColumnIndex("_id"));
                     date = query.getLong(query.getColumnIndex("date"));
+                    type = query.getString(query.getColumnIndex("msg_box"));
                     // MMS
                     message.put("id", id);
                     message.put("mess_type", "mms");
-                    message.put("address", this.getAddressNumber(context, id));
+                    message.put("address", this.getAddressNumber(context, id, type));
                     message.put("date_sent", query.getString(query.getColumnIndex("date")) + "000");
-                    message.put("type", query.getString(query.getColumnIndex("msg_box")));
+                    message.put("type", type);
                     message.put("date", query.getString(query.getColumnIndex("date")) + "000");
                     message.put("read", query.getString(query.getColumnIndex("read")));
                     if (this.lastDateMms < date) {
@@ -161,8 +163,8 @@ class Messages {
         return message;
     }
 
-    private String getAddressNumber(Context context, String id) {
-        String selectionAdd = "type=137 AND msg_id=" + id;
+    private String getAddressNumber(Context context, String id, String type) {
+        String selectionAdd = "msg_id=" + id;
         String uriStr = MessageFormat.format("content://mms/{0}/addr", id);
         Uri uriAddress = Uri.parse(uriStr);
         Cursor cAdd = context.getContentResolver().query(uriAddress, null, selectionAdd, null, null);
@@ -171,10 +173,15 @@ class Messages {
         if (cAdd != null && cAdd.moveToFirst()) {
             do {
                 String val = cAdd.getString(cAdd.getColumnIndex("address"));
+                String c_type = cAdd.getString(cAdd.getColumnIndex("type"));
+
                 if (val != null) {
                     name = val;
-                    // Use the first one found if more than one
-                    break;
+                    if (type.equals("2") && c_type.equals("151") ||
+                            type.equals("1") && c_type.equals("137")) {
+                        //Tools.logDebug(3, type + " Type " + cAdd.getString(cAdd.getColumnIndex("type")) + " : " + val);
+                        break;
+                    }
                 }
             } while (cAdd.moveToNext());
         }
