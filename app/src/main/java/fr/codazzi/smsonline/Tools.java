@@ -56,6 +56,9 @@ public class Tools {
     }
 
     static public void logDebug(int type, String tag, String data) {
+        if (!BuildConfig.DEBUG) {
+            return;
+        }
         switch (type) {
             case 0:
                 Log.i(tag, data);
