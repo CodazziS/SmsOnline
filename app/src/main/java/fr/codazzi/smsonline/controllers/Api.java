@@ -60,14 +60,11 @@ public class Api {
                 Tools.logDebug(2, "Reset work: timeout");
                 this.reset_api = true;
                 this.saveSettings();
-            } else {
-                Tools.logDebug(1, "Run canceled : working state");
             }
             return;
         }
 
         this.startWork();
-        Tools.logDebug(0, "New Run");
         switch (this.state) {
             case 0:
                 this.getVersion();
@@ -138,7 +135,6 @@ public class Api {
             this.reset_api = true;
         }
         this.working = working;
-        Tools.logDebug("Save last work:" + String.valueOf(this.working));
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putBoolean("reset_api", this.reset_api);
         editor.putBoolean("working", this.working);
