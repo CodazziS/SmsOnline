@@ -28,29 +28,34 @@ class Messages {
     public String unreadSmsList = "";
     public String unreadMmsList = "";
 
-    public JSONArray getLastsMessages(Context context, long _lastDateSms, long _lastDateMms, String _unreadSmsList, String _unreadMmsList) {
+    public JSONArray getLastsSms(Context context, long _lastDateSms, String _unreadSmsList) {
         this.lastDateSms = _lastDateSms;
-        this.lastDateMms = _lastDateMms;
         this.unreadSmsList = _unreadSmsList;
-        this.unreadMmsList = _unreadMmsList;
 
-        JSONArray messages;
         String selection_sms = "date > " + this.lastDateSms + " " +
             "OR (_id IN (" + this.unreadSmsList + ") AND read = 1)";
 
+        return this.getSms(context, selection_sms);
+    }
+
+    public JSONArray getLastsMms(Context context, long _lastDateMms, String _unreadMmsList) {
+        this.lastDateMms = _lastDateMms;
+        this.unreadMmsList = _unreadMmsList;
+        JSONArray messages = new JSONArray();
+
         String selection_mms = "date > " + this.unreadSmsList + " " +
                 "OR (_id IN (" + this.unreadMmsList + ") AND read = 1)";
-        messages = this.getSms(context, selection_sms);
         messages = this.getMms(context, selection_mms, messages);
         return messages;
     }
 
-    public JSONArray getAllMessages(Context context) {
-        JSONArray messages;
+    public JSONArray getAllSms(Context context) {
+        return this.getSms(context, null);
+    }
 
-        messages = this.getSms(context, null);
-        messages = this.getMms(context, null, messages);
-        return messages;
+    public JSONArray getAllMms(Context context) {
+        JSONArray messages = new JSONArray();
+        return this.getMms(context, null, messages);
     }
 
     private JSONArray getMms(Context context, String selection, JSONArray messages) {
