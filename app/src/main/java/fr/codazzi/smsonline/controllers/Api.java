@@ -3,7 +3,6 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import fr.codazzi.smsonline.*;
 
@@ -13,7 +12,6 @@ import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.Date;
-import java.util.concurrent.Exchanger;
 
 public class Api {
     /* Vars */
@@ -45,9 +43,11 @@ public class Api {
     }
 
     public void startWork() {
+        this.last_work = (new Date()).getTime();
+
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean("working", true);
-        editor.putLong("last_working", (new Date()).getTime());
+        editor.putLong("last_working", this.last_work);
         editor.apply();
     }
 
@@ -56,15 +56,18 @@ public class Api {
             return;
         }
         if (this.working) {
-            if (this.last_work == 0 || this.last_work > ((new Date()).getTime() - 300000)) {
+            if (this.last_work == 0 || this.last_work < ((new Date()).getTime() - 300000)) {
+                Tools.logDebug(2, "Reset work: timeout");
                 this.reset_api = true;
                 this.saveSettings();
+            } else {
+                Tools.logDebug(1, "Run canceled : working state");
             }
             return;
         }
 
         this.startWork();
-
+        Tools.logDebug(0, "New Run");
         switch (this.state) {
             case 0:
                 this.getVersion();
@@ -124,27 +127,7 @@ public class Api {
     }
 
     private void saveSettings() {
-        if (this.error != 0) {
-            this.token = null;
-            this.user = null;
-            this.key = null;
-            this.reset_api = true;
-        }
-        SharedPreferences.Editor editor = this.settings.edit();
-        editor.putBoolean("reset_api", this.reset_api);
-        editor.putBoolean("working", false);
-        editor.putInt("error", this.error);
-        editor.putInt("api_state", this.state);
-        editor.putLong("last_sync", this.last_sync);
-        editor.putLong("last_sms", this.last_sms);
-        editor.putLong("last_mms", this.last_mms);
-        editor.putLong("last_work", this.last_work);
-        editor.putString("api_token", this.token);
-        editor.putString("api_user", this.user);
-        editor.putString("api_key", this.key);
-        editor.putString("api_unread_sms", this.unread_sms);
-        editor.putString("api_unread_mms", this.unread_mms);
-        editor.apply();
+        this.saveSettings(false);
     }
 
     private void saveSettings(boolean working) {
@@ -154,9 +137,11 @@ public class Api {
             this.key = null;
             this.reset_api = true;
         }
+        this.working = working;
+        Tools.logDebug("Save last work:" + String.valueOf(this.working));
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putBoolean("reset_api", this.reset_api);
-        editor.putBoolean("working", working);
+        editor.putBoolean("working", this.working);
         editor.putInt("error", this.error);
         editor.putInt("api_state", this.state);
         editor.putLong("last_sync", this.last_sync);
@@ -215,8 +200,8 @@ public class Api {
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                error = res.getInt("error");
-                if (error == 0) {
+                this.error = res.getInt("error");
+                if (this.error == 0) {
                     //this.state = 4;
                     if (res.has("messages_to_send")) {
                         messages_to_send = res.getJSONArray("messages_to_send");
@@ -236,7 +221,7 @@ public class Api {
                 }
             }
         } catch (Exception e1) {
-            Log.e("Data:", data);
+            Tools.logDebug(4, data);
             e1.printStackTrace();
             this.error = -1;
         }
@@ -270,7 +255,7 @@ public class Api {
             if (this.mms_sync < this.mms.length()) {
                 String url = this.api_url + "Messages/Sync";
                 this.startWork();
-                Log.d("MMS sync", (this.mms_sync + 1) + "/" + this.mms.length() + " mms");
+                Tools.logDebug((this.mms_sync + 1) + "/" + this.mms.length() + " mms");
                 JSONArray mms = new JSONArray();
                 mms.put(this.mms.get(this.mms_sync));
                 String data =
@@ -282,8 +267,9 @@ public class Api {
                 Ajax.post(url, data, "syncMmsRes", this);
                 this.mms_sync++;
             } else {
-                Log.d("MMS sync", "Synchronization ended");
+                Tools.logDebug("Synchronization ended");
                 this.state = 4;
+                this.error = 0;
                 this.saveSettings();
             }
         } catch (Exception e) {
@@ -301,17 +287,21 @@ public class Api {
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                error = res.getInt("error");
-                if (error == 0) {
+                this.error = res.getInt("error");
+                if (this.error == 0) {
                     this.syncMms();
+                } else {
+                    Tools.logDebug(4, data);
+                    this.error = -1;
+                    this.saveSettings();
                 }
             }
         } catch (Exception e1) {
-            Log.e("Data:", data);
+            Tools.logDebug(4, data);
             e1.printStackTrace();
             this.error = -1;
+            this.saveSettings();
         }
-        this.saveSettings(true);
     }
 
     public void sendMessage(String data) {

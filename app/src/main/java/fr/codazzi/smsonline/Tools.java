@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 
@@ -52,5 +53,36 @@ public class Tools {
             }
         }
         return true;
+    }
+
+    static public void logDebug(int type, String tag, String data) {
+        switch (type) {
+            case 0:
+                Log.i(tag, data);
+                break;
+            case 1:
+                Log.d(tag, data);
+                break;
+            case 2:
+                Log.w(tag, data);
+                break;
+            case 3:
+                Log.wtf(tag, data);
+                break;
+            case 4:
+                Log.e(tag, data);
+                break;
+            default:
+                Log.e(tag, data);
+                break;
+        }
+    }
+
+    static public void logDebug(int type, String data) {
+        Tools.logDebug(type, "SWB", data);
+    }
+
+    static public void logDebug(String data) {
+        Tools.logDebug(0, "SWB", data);
     }
 }
