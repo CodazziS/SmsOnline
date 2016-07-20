@@ -95,6 +95,9 @@ public class Ajax {
                 case "syncMessagesRes":
                     api.syncMessagesRes(response);
                     break;
+                case "syncMmsRes":
+                    api.syncMmsRes(response);
+                    break;
                 case "sendMessage":
                     api.sendMessage(response);
                     break;

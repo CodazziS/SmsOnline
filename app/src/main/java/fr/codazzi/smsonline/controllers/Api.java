@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.concurrent.Exchanger;
 
 public class Api {
     /* Vars */
@@ -20,6 +21,7 @@ public class Api {
     private String api_url = "";
     private Context context;
     private SharedPreferences settings = null;
+    private boolean getAllMessages = true;
 
     /* Settings */
     private boolean reset_api;
@@ -42,6 +44,13 @@ public class Api {
         this.device_id = Tools.getDeviceID(this.context);
     }
 
+    public void startWork() {
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("working", true);
+        editor.putLong("last_working", (new Date()).getTime());
+        editor.apply();
+    }
+
     public void Run() {
         if (!this.getSettings()) {
             return;
@@ -54,10 +63,7 @@ public class Api {
             return;
         }
 
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("working", true);
-        editor.putLong("last_working", (new Date()).getTime());
-        editor.apply();
+        this.startWork();
 
         switch (this.state) {
             case 0:
@@ -141,18 +147,43 @@ public class Api {
         editor.apply();
     }
 
-    private void syncMessages(boolean getAllMessages) {
+    private void saveSettings(boolean working) {
+        if (this.error != 0) {
+            this.token = null;
+            this.user = null;
+            this.key = null;
+            this.reset_api = true;
+        }
+        SharedPreferences.Editor editor = this.settings.edit();
+        editor.putBoolean("reset_api", this.reset_api);
+        editor.putBoolean("working", working);
+        editor.putInt("error", this.error);
+        editor.putInt("api_state", this.state);
+        editor.putLong("last_sync", this.last_sync);
+        editor.putLong("last_sms", this.last_sms);
+        editor.putLong("last_mms", this.last_mms);
+        editor.putLong("last_work", this.last_work);
+        editor.putString("api_token", this.token);
+        editor.putString("api_user", this.user);
+        editor.putString("api_key", this.key);
+        editor.putString("api_unread_sms", this.unread_sms);
+        editor.putString("api_unread_mms", this.unread_mms);
+        editor.apply();
+    }
+
+    private void syncMessages(boolean _getAllMessages) {
+        this.getAllMessages = _getAllMessages;
         try {
             final Messages messages = new Messages();
             JSONArray messages_arr;
             String url;
 
             if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
-                if (getAllMessages) {
-                    messages_arr = messages.getAllMessages(context);
+                if (this.getAllMessages) {
+                    messages_arr = messages.getAllSms(context);
                     url = this.api_url + "Messages/Resync";
                 } else {
-                    messages_arr = messages.getLastsMessages(context, this.last_sms, this.last_mms, this.unread_sms, this.unread_mms);
+                    messages_arr = messages.getLastsSms(context, this.last_sms, this.unread_sms);
                     url = this.api_url + "Messages/Sync";
                 }
 
@@ -165,17 +196,14 @@ public class Api {
                 Ajax.post(url, data, "syncMessagesRes", this);
 
                 this.last_sms = messages.lastDateSms;
-                this.last_mms = messages.lastDateMms;
                 this.unread_sms = messages.unreadSmsList;
-                this.unread_mms = messages.unreadMmsList;
                 this.last_sync = new Date().getTime();
             }
         } catch(Exception e){
             e.printStackTrace();
             this.error = 1;
-        } finally {
-            this.saveSettings();
         }
+        this.saveSettings(true);
     }
 
     public void syncMessagesRes(String data) {
@@ -189,7 +217,7 @@ public class Api {
                 res = new JSONObject(data);
                 error = res.getInt("error");
                 if (error == 0) {
-                    this.state = 4;
+                    //this.state = 4;
                     if (res.has("messages_to_send")) {
                         messages_to_send = res.getJSONArray("messages_to_send");
                         for (int i = 0; i < messages_to_send.length(); ++i) {
@@ -203,7 +231,6 @@ public class Api {
                                     "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
 
                             Ajax.post(url, smsdata, "sendMessage", this);
-
                         }
                     }
                 }
@@ -213,7 +240,78 @@ public class Api {
             e1.printStackTrace();
             this.error = -1;
         }
-        this.saveSettings();
+        this.saveSettings(true);
+        this.prepareMmsLoop();
+    }
+
+    private JSONArray mms;
+    private int mms_sync;
+
+    public void prepareMmsLoop() {
+        final Messages messages = new Messages();
+
+        if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
+            if (getAllMessages) {
+                this.mms = messages.getAllMms(context);
+            } else {
+                this.mms = messages.getLastsMms(context, this.last_mms, this.unread_mms);
+            }
+
+            this.mms_sync = 0;
+            this.last_mms = messages.lastDateMms;
+            this.unread_mms = messages.unreadMmsList;
+            this.last_sync = new Date().getTime();
+            syncMms();
+        }
+    }
+
+    public void syncMms() {
+        try {
+            if (this.mms_sync < this.mms.length()) {
+                String url = this.api_url + "Messages/Sync";
+                this.startWork();
+                Log.d("MMS sync", (this.mms_sync + 1) + "/" + this.mms.length() + " mms");
+                JSONArray mms = new JSONArray();
+                mms.put(this.mms.get(this.mms_sync));
+                String data =
+                        "user=" + URLEncoder.encode(this.user, "utf-8") +
+                                "&token=" + URLEncoder.encode(this.token, "utf-8") +
+                                "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
+                                "&key=" + URLEncoder.encode(this.key, "utf-8") +
+                                "&messages=" + URLEncoder.encode(mms.toString(), "utf-8");
+                Ajax.post(url, data, "syncMmsRes", this);
+                this.mms_sync++;
+            } else {
+                Log.d("MMS sync", "Synchronization ended");
+                this.state = 4;
+                this.saveSettings();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.error = 1;
+            this.saveSettings();
+        }
+
+    }
+
+    public void syncMmsRes(String data) {
+        JSONObject res;
+        this.error = -1;
+
+        try {
+            if (data != null && !data.equals("")) {
+                res = new JSONObject(data);
+                error = res.getInt("error");
+                if (error == 0) {
+                    this.syncMms();
+                }
+            }
+        } catch (Exception e1) {
+            Log.e("Data:", data);
+            e1.printStackTrace();
+            this.error = -1;
+        }
+        this.saveSettings(true);
     }
 
     public void sendMessage(String data) {
