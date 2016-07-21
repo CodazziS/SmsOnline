@@ -43,7 +43,7 @@ class Messages {
         this.unreadMmsList = _unreadMmsList;
         JSONArray messages = new JSONArray();
 
-        String selection_mms = "date > " + this.unreadSmsList + " " +
+        String selection_mms = "date > " + this.lastDateMms + " " +
                 "OR (_id IN (" + this.unreadMmsList + ") AND read = 1)";
         messages = this.getMms(context, selection_mms, messages);
         return messages;
