@@ -73,7 +73,7 @@ public class Api {
                 this.addDevice();
                 break;
             case 2:
-                this.syncContacts();
+                this.prepareContactsLoop();
                 break;
             case 3:
                 this.syncMessages(true);
@@ -273,7 +273,6 @@ public class Api {
             this.error = 1;
             this.saveSettings();
         }
-
     }
 
     public void syncMmsRes(String data) {
@@ -315,18 +314,43 @@ public class Api {
         }
     }
 
+    private JSONArray contacts;
+    private int contacts_sync;
+
+    private void prepareContactsLoop() {
+        try {
+            this.contacts = Contacts.getAllContacts(context);
+            this.contacts_sync = 0;
+            this.syncContacts();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void syncContacts() {
         try {
-            JSONArray contacts = Contacts.getAllContacts(context);
-            String url = this.api_url + "Contacts/Add";
-            String data =
-                    "user=" + URLEncoder.encode(this.user, "utf-8") +
-                            "&token=" + URLEncoder.encode(this.token, "utf-8") +
-                            "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
-                            "&key=" + URLEncoder.encode(this.key, "utf-8") +
-                            "&contacts=" + URLEncoder.encode(contacts.toString(), "utf-8");
-
-            Ajax.post(url, data, "syncContactsRes", this);
+            if (this.contacts_sync < this.contacts.length()) {
+                String url = this.api_url + "Contacts/Add";
+                this.startWork();
+                Tools.logDebug((this.contacts_sync + 1) + "/" + this.contacts.length() + " contacts");
+                JSONArray contacts = new JSONArray();
+                contacts.put(this.contacts.get(this.contacts_sync));
+                String delete = (this.contacts_sync == 0) ? "true" : "false";
+                String data =
+                        "user=" + URLEncoder.encode(this.user, "utf-8") +
+                                "&token=" + URLEncoder.encode(this.token, "utf-8") +
+                                "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
+                                "&key=" + URLEncoder.encode(this.key, "utf-8") +
+                                "&reset=" + delete +
+                                "&contacts=" + URLEncoder.encode(contacts.toString(), "utf-8");
+                Ajax.post(url, data, "syncContactsRes", this);
+                this.contacts_sync++;
+            } else {
+                Tools.logDebug("Contacts synchronization ended");
+                this.state = 3;
+                this.error = 0;
+                this.saveSettings();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             this.error = 1;
@@ -341,13 +365,20 @@ public class Api {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
                 this.error = res.getInt("error");
-                this.state = 3;
+                if (this.error == 0) {
+                    this.syncContacts();
+                } else {
+                    Tools.logDebug(4, data);
+                    this.error = -1;
+                    this.saveSettings();
+                }
             }
-        } catch (JSONException e1) {
+        } catch (Exception e1) {
+            Tools.logDebug(4, data);
             e1.printStackTrace();
-            error = -1;
+            this.error = -1;
+            this.saveSettings();
         }
-        this.saveSettings();
     }
 
     private void addDevice() {
