@@ -84,7 +84,7 @@ class Messages {
                     if (this.lastDateMms < date) {
                         this.lastDateMms = date;
                     }
-                    message = this.getMmsInfos(context, query.getString(query.getColumnIndex("_id")), message);
+                    //message = this.getMmsInfos(context, query.getString(query.getColumnIndex("_id")), message);
                     messages.put(message);
                 } while (query.moveToNext());
                 query.close();
@@ -130,7 +130,7 @@ class Messages {
         return messages;
     }
 
-    private JSONObject getMmsInfos(Context context, String mmsId, JSONObject message) throws JSONException {
+    static public JSONObject getMmsInfos(Context context, String mmsId, JSONObject message) throws JSONException {
         String selectionPart = "mid=" + mmsId;
         Uri uri = Uri.parse("content://mms/part");
         Cursor cursor = context.getContentResolver().query(uri, null, selectionPart, null, null);
@@ -144,7 +144,7 @@ class Messages {
                 if ("text/plain".equals(type)) {
                     String data = cursor.getString(cursor.getColumnIndex("_data"));
                     if (data != null) {
-                        body += this.getMmsText(context, partId);
+                        body += Messages.getMmsText(context, partId);
                     } else {
                         body += cursor.getString(cursor.getColumnIndex("text"));
                     }
@@ -152,7 +152,7 @@ class Messages {
                 if ("image/jpeg".equals(type) || "image/bmp".equals(type) ||
                         "image/gif".equals(type) || "image/jpg".equals(type) ||
                         "image/png".equals(type)) {
-                    parts.put(Tools.bitmapToString64(this.getMmsImage(context, partId)));
+                    parts.put(Tools.bitmapToString64(Messages.getMmsImage(context, partId)));
                 }
             } while (cursor.moveToNext());
             cursor.close();
@@ -190,7 +190,7 @@ class Messages {
         return name;
     }
 
-    private Bitmap getMmsImage(Context context, String _id) {
+    static public Bitmap getMmsImage(Context context, String _id) {
         Uri partURI = Uri.parse("content://mms/part/" + _id);
         InputStream is;
         Bitmap bitmap = null;
@@ -209,7 +209,7 @@ class Messages {
         return bitmap;
     }
 
-    private String getMmsText(Context context, String id) {
+    static public String getMmsText(Context context, String id) {
         Uri partURI = Uri.parse("content://mms/part/" + id);
         InputStream is;
         StringBuilder sb = new StringBuilder();
@@ -232,16 +232,15 @@ class Messages {
         return sb.toString();
     }
 
-    private void showCursorRow(Cursor c) {
-        int nb_cols = c.getColumnCount();
-        int col;
-        Tools.logDebug("-----------------------------------------------------");
-        for (col = 0; col < nb_cols; col++) {
-            Tools.logDebug(2, c.getColumnName(col) + " => " + c.getString(col));
-        }
-        Tools.logDebug("-----------------------------------------------------");
-    }
-
+//    private void showCursorRow(Cursor c) {
+//        int nb_cols = c.getColumnCount();
+//        int col;
+//        Tools.logDebug("-----------------------------------------------------");
+//        for (col = 0; col < nb_cols; col++) {
+//            Tools.logDebug(2, c.getColumnName(col) + " => " + c.getString(col));
+//        }
+//        Tools.logDebug("-----------------------------------------------------");
+//    }
 
     static public void sendMessage(String address, String body, String type) {
         if (type.equals("sms")) {

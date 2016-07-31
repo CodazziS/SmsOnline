@@ -3,7 +3,6 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 
 import fr.codazzi.smsonline.*;
 
@@ -36,6 +35,8 @@ public class Api {
     private String key;
     private String unread_sms = "";
     private String unread_mms = "";
+    private JSONArray contacts;
+    private int contacts_sync;
 
     public Api(Context _context, SharedPreferences _settings) {
         this.context = _context;
@@ -248,19 +249,22 @@ public class Api {
     }
 
     public void syncMms() {
+        String url = this.api_url + "Messages/Sync";
+        this.startWork();
+        JSONArray mms_arr = new JSONArray();
+
         try {
             if (this.mms_sync < this.mms.length()) {
-                String url = this.api_url + "Messages/Sync";
-                this.startWork();
                 Tools.logDebug((this.mms_sync + 1) + "/" + this.mms.length() + " mms");
-                JSONArray mms = new JSONArray();
-                mms.put(this.mms.get(this.mms_sync));
+                JSONObject mmsobj = this.mms.getJSONObject(this.mms_sync);
+                mmsobj = Messages.getMmsInfos(this.context, mmsobj.getString("id"), mmsobj);
+                mms_arr.put(mmsobj);
                 String data =
                         "user=" + URLEncoder.encode(this.user, "utf-8") +
                                 "&token=" + URLEncoder.encode(this.token, "utf-8") +
                                 "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
                                 "&key=" + URLEncoder.encode(this.key, "utf-8") +
-                                "&messages=" + URLEncoder.encode(mms.toString(), "utf-8");
+                                "&messages=" + URLEncoder.encode(mms_arr.toString(), "utf-8");
                 Ajax.post(url, data, "syncMmsRes", this);
                 this.mms_sync++;
             } else {
@@ -315,9 +319,6 @@ public class Api {
         }
     }
 
-    private JSONArray contacts;
-    private int contacts_sync;
-
     private void prepareContactsLoop() {
         try {
             this.contacts = Contacts.getAllContacts(context);
@@ -336,6 +337,7 @@ public class Api {
                 this.startWork();
                 JSONArray contacts;
 
+                // The first call syn all contacts without image
                 if (this.contacts_sync == 0) {
                     delete = "true";
                     contacts = this.contacts.getJSONArray(0);
@@ -359,6 +361,7 @@ public class Api {
                 Tools.logDebug("Contacts synchronization ended");
                 this.state = 3;
                 this.error = 0;
+                this.contacts = null;
                 this.saveSettings();
             }
         } catch (Exception e) {
@@ -369,28 +372,7 @@ public class Api {
     }
 
     public void syncContactsRes(String data) {
-        JSONObject res;
-        this.error = -1;
-
-        try {
-//            if (data != null && !data.equals("")) {
-//                res = new JSONObject(data);
-//                this.error = res.getInt("error");
-//                if (this.error == 0) {
-//
-                    this.syncContacts();
-//                } else {
-//                    Tools.logDebug(4, data);
-//                    this.error = -1;
-//                    this.saveSettings();
-//                }
-//            }
-        } catch (Exception e1) {
-            Tools.logDebug(4, data);
-            e1.printStackTrace();
-            this.error = -1;
-            this.saveSettings();
-        }
+        this.syncContacts();
     }
 
     private void addDevice() {
