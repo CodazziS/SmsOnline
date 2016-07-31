@@ -25,12 +25,37 @@ public class Tools {
     /*
         Convert a bitmap image to string (For web view for example)
      */
-    static public String bitmapToString64(Bitmap photo) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    public static String bitmapToString64(Bitmap image) {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp=null;
+        try{
+            System.gc();
+            temp=Base64.encodeToString(b, Base64.DEFAULT);
+        }catch(Exception e){
+            e.printStackTrace();
+        }catch(OutOfMemoryError e){
+            baos=new  ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.JPEG,50, baos);
+            b=baos.toByteArray();
+            temp=Base64.encodeToString(b, Base64.DEFAULT);
+            Log.e("EWN", "Out of memory error catched");
+        }
+        return temp;
     }
+//    static public String bitmapToString64(Bitmap photo) {
+//        try {
+//            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//            photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+//            byte[] byteArray = byteArrayOutputStream.toByteArray();
+//            return Base64.encodeToString(byteArray, Base64.DEFAULT);
+//        } catch (Exception e) {
+//            Tools.logDebug("Image too big");
+//        }
+//        return "";
+//    }
 
     /*
         Return true if the permission is granted, ask the permission on

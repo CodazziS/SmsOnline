@@ -197,7 +197,9 @@ class Messages {
         try {
             is = context.getContentResolver().openInputStream(partURI);
             if (is != null) {
-                bitmap = BitmapFactory.decodeStream(is);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.RGB_565;
+                bitmap = BitmapFactory.decodeStream(is, null, options);
                 is.close();
             }
         } catch (IOException e) {

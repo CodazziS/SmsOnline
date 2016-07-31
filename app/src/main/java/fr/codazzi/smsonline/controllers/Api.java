@@ -3,6 +3,7 @@ package fr.codazzi.smsonline.controllers;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
 
 import fr.codazzi.smsonline.*;
 
@@ -331,11 +332,20 @@ public class Api {
         try {
             if (this.contacts_sync < this.contacts.length()) {
                 String url = this.api_url + "Contacts/Add";
+                String delete = "false";
                 this.startWork();
+                JSONArray contacts;
+
+                if (this.contacts_sync == 0) {
+                    delete = "true";
+                    contacts = this.contacts.getJSONArray(0);
+                    this.contacts = this.contacts.getJSONArray(1);
+                } else {
+                    contacts = new JSONArray();
+                    contacts.put(this.contacts.get(this.contacts_sync - 1));
+                }
                 Tools.logDebug((this.contacts_sync + 1) + "/" + this.contacts.length() + " contacts");
-                JSONArray contacts = new JSONArray();
-                contacts.put(this.contacts.get(this.contacts_sync));
-                String delete = (this.contacts_sync == 0) ? "true" : "false";
+
                 String data =
                         "user=" + URLEncoder.encode(this.user, "utf-8") +
                                 "&token=" + URLEncoder.encode(this.token, "utf-8") +
@@ -361,18 +371,20 @@ public class Api {
     public void syncContactsRes(String data) {
         JSONObject res;
         this.error = -1;
+
         try {
-            if (data != null && !data.equals("")) {
-                res = new JSONObject(data);
-                this.error = res.getInt("error");
-                if (this.error == 0) {
+//            if (data != null && !data.equals("")) {
+//                res = new JSONObject(data);
+//                this.error = res.getInt("error");
+//                if (this.error == 0) {
+//
                     this.syncContacts();
-                } else {
-                    Tools.logDebug(4, data);
-                    this.error = -1;
-                    this.saveSettings();
-                }
-            }
+//                } else {
+//                    Tools.logDebug(4, data);
+//                    this.error = -1;
+//                    this.saveSettings();
+//                }
+//            }
         } catch (Exception e1) {
             Tools.logDebug(4, data);
             e1.printStackTrace();

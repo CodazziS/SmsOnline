@@ -81,6 +81,8 @@ public class Ajax {
         String response = "";
 
         try {
+            int status = connection.getResponseCode();
+            Tools.logDebug("Status : " + status);
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
             while ((line = rd.readLine()) != null) {

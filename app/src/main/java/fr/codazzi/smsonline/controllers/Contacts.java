@@ -17,8 +17,11 @@ import fr.codazzi.smsonline.Tools;
 class Contacts {
 
     public static JSONArray getAllContacts (Context c) throws JSONException {
-        JSONArray contactsJSON = new JSONArray();
+        JSONArray contactsAll = new JSONArray();
+        JSONArray contacts_without_img = new JSONArray();
+        JSONArray contacts_with_img = new JSONArray();
         JSONObject contact;
+
         String photo_uri;
 
         ContentResolver contentResolver = c.getContentResolver();
@@ -50,11 +53,18 @@ class Contacts {
                         }
                     }
                 } catch (Exception e) { e.printStackTrace(); }
-                contactsJSON.put(contact);
+                if (photo_uri == null) {
+                    contacts_without_img.put(contact);
+                } else {
+                    contacts_with_img.put(contact);
+                }
+                //contactsJSON.put(contact);
                 cursor.moveToNext();
             }
             cursor.close();
         }
-        return contactsJSON;
+        contactsAll.put(0, contacts_without_img);
+        contactsAll.put(1, contacts_with_img);
+        return contactsAll;
     }
 }
