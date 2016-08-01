@@ -331,13 +331,13 @@ public class Api {
 
     private void syncContacts() {
         try {
-            if (this.contacts_sync < this.contacts.length()) {
+            if (this.contacts_sync - 1 < this.contacts.length()) {
                 String url = this.api_url + "Contacts/Add";
                 String delete = "false";
                 this.startWork();
                 JSONArray contacts;
 
-                // The first call syn all contacts without image
+                // The first call sync all contacts without image
                 if (this.contacts_sync == 0) {
                     delete = "true";
                     contacts = this.contacts.getJSONArray(0);

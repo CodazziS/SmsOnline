@@ -30,8 +30,8 @@
 
     <!-- VIEWS -->
         <!-- activity_main - main -->
-    <string name="main_title">SWB Online</string>
-    <string name="main_url">https://online.swb.ovh</string>
+    <string name="main_title">SmsOnline</string>
+    <string name="main_url">https://smsonline.fr</string>
     <string name="main_settings">Settings</string>
     <string name="main_status">Status</string>
     <string name="main_sync">Last synchronisation</string>
