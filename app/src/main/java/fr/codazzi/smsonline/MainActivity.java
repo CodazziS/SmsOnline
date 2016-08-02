@@ -21,7 +21,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -50,6 +49,28 @@ public class MainActivity extends AppCompatActivity {
         this.settings = this.getSharedPreferences("swb_infos", 0);
         putMain();
         this.setAlarm();
+        this.refresh_loop();
+    }
+
+    private void refresh_loop() {
+        try {
+            TextView status;
+            int status_int;
+            status = (TextView) findViewById(R.id.status_str);
+            status_int = this.settings.getInt("status", 20);
+            Tools.logDebug("Status = " + status_int);
+            status.setText(getResources().getStringArray(R.array.status_str)[status_int]);
+        } catch (Exception e) {
+
+        }
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        refresh_loop();
+                    }
+                },
+                2000);
     }
 
     private void setAlarm() {
@@ -142,8 +163,7 @@ public class MainActivity extends AppCompatActivity {
         TextView sync;
         Toolbar toolbar;
         Date last_sync_date;
-        int error;
-        int state;
+        int status_int;
         long last_sync;
 
         c_activity = "main";
@@ -152,17 +172,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         status = (TextView) findViewById(R.id.status_str);
-        error = this.settings.getInt("error", 0);
-        state = this.settings.getInt("api_state", 0);
-        if (error != 0) {
-            if (error == -1) {
-                status.setText(getResources().getStringArray(R.array.errors_str)[0]);
-            } else {
-                status.setText(getResources().getStringArray(R.array.errors_str)[error]);
-            }
-        } else {
-            status.setText(getResources().getStringArray(R.array.actions_str)[state]);
-        }
+        status_int = this.settings.getInt("status", 20);
+        Tools.logDebug("str = " + status_int);
+        status.setText(getResources().getStringArray(R.array.status_str)[status_int]);
         sync = (TextView) findViewById(R.id.sync_str);
         last_sync = settings.getLong("last_sync", 0);
         if (last_sync != 0) {
@@ -215,8 +227,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-
-
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -229,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
 
         server_uri = (EditText) findViewById(R.id.config_uri);
-        server_uri.setText(this.settings.getString("server_uri", default_api_url));
+        server_uri.setText(this.settings.getString("server_uri2", default_api_url));
 
         saveBtn = (Button) findViewById(R.id.saveSettings);
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -278,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putString("email", email.getText().toString());
         editor.putString("password", password.getText().toString());
-        editor.putString("server_uri", server_uri.getText().toString());
+        editor.putString("server_uri2", server_uri.getText().toString());
         editor.putBoolean("reset_api", true);
         editor.putBoolean("wifi_only", wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused());
         editor.apply();
@@ -296,13 +306,14 @@ public class MainActivity extends AppCompatActivity {
         if ((this.settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = this.settings.edit();
-            editor.putInt("error", 2);
+            editor.putInt("status", 20);
             editor.apply();
             return;
         }
 
         new Api(this, this.settings).Run();
-        if (this.settings.getInt("error", -1) == 0 && this.settings.getInt("api_state", 4) != 4) {
+        int status = this.settings.getInt("status", -1);
+        if (status != 26 && (status >= 20 || status == 0)) {
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override

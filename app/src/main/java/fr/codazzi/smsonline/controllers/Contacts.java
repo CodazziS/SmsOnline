@@ -58,7 +58,6 @@ class Contacts {
                 } else {
                     contacts_with_img.put(contact);
                 }
-                //contactsJSON.put(contact);
                 cursor.moveToNext();
             }
             cursor.close();

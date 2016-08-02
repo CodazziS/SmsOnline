@@ -3,44 +3,37 @@
 
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
-    <string-array name="actions_str">
-    <!-- 00 -->
-        <item>Initialisation</item>
-    <!-- 01 -->
-        <item>Connexion</item>
-    <!-- 02 -->
-        <item>Synchronisation des contacts</item>
-    <!-- 03 -->
-        <item>Synchronisation des contacts</item>
-    <!-- 04 -->
-        <item>Synchronisé</item>
-    </string-array>
-    <string-array name="errors_str">
-    <!-- 00 -->
-        <item>Erreur inconnue</item>
-    <!-- 01 -->
-        <item>Identifiants manquants</item>
-    <!-- 02 -->
-        <item>Erreur réseau</item>
-    <!-- 03 -->
-        <item>L\'email n\'est pas valide</item>
-    <!-- 04 -->
-        <item>Le mot de passe est trop court</item>
-    <!-- 05 -->
-        <item>L\'email existe déjà</item>
-    <!-- 06 -->
-        <item>Identifiants erronés</item>
+
+    <string-array name="status_str">
+        <!-- 00 --><item>Initialisation</item>
+        <!-- 01 --><item>Identifiants manquants</item>
+        <!-- 02 --><item>Erreur réseau</item>
+        <!-- 03 --><item>Adresse email non valide</item>
+        <!-- 04 --><item>Le mot de passe est trop court</item>
+        <!-- 05 --><item>L\'email existe déjà</item>
+        <!-- 06 --><item>Identifiants erronés</item>
         <!-- 07 --><item>Objet non trouvé</item>
-        <!-- 08 --><item>-</item>
-        <!-- 09 --><item>-</item>
-        <!-- 10 --><item>-</item>
-        <!-- 11 --><item>-</item>
-        <!-- 12 --><item>-</item>
-        <!-- 13 --><item>-</item>
-        <!-- 14 --><item>-</item>
-        <!-- 15 --><item>-</item>
+        <!-- 08 --><item>Erreur inconnue</item>
+        <!-- 09 --><item>Erreur inconnue</item>
+        <!-- 10 --><item>Erreur inconnue</item>
+        <!-- 11 --><item>Erreur inconnue</item>
+        <!-- 12 --><item>Erreur inconnue</item>
+        <!-- 13 --><item>Erreur inconnue</item>
+        <!-- 14 --><item>Erreur inconnue</item>
+        <!-- 15 --><item>Erreur inconnue</item>
         <!-- 16 --><item>Les versions de l\'application et de l\'API diffèrent. Essayez de mettre l\'application à jour.</item>
+        <!-- 17 --><item>Erreur inconnue</item>
+        <!-- 18 --><item>Erreur inconnue</item>
+        <!-- 19 --><item>Erreur inconnue</item>
+        <!-- 20 --><item>Initialisation</item>
+        <!-- 21 --><item>Connexion</item>
+        <!-- 22 --><item>Synchronisation de l\appareil</item>
+        <!-- 23 --><item>Synchronisation des contacts</item>
+        <!-- 24 --><item>Synchronisation des sms</item>
+        <!-- 25 --><item>Synchronisation des mms</item>
+        <!-- 26 --><item>Appareil synchronisé</item>
     </string-array>
+
     <!-- VIEWS -->
     <!-- activity_main - main -->
     <string name="main_title">SmsOnline</string>

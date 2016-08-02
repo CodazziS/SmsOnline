@@ -84,7 +84,6 @@ class Messages {
                     if (this.lastDateMms < date) {
                         this.lastDateMms = date;
                     }
-                    //message = this.getMmsInfos(context, query.getString(query.getColumnIndex("_id")), message);
                     messages.put(message);
                 } while (query.moveToNext());
                 query.close();
@@ -178,7 +177,6 @@ class Messages {
                     name = val;
                     if (type.equals("2") && c_type.equals("151") ||
                             type.equals("1") && c_type.equals("137")) {
-                        //Tools.logDebug(3, type + " Type " + cAdd.getString(cAdd.getColumnIndex("type")) + " : " + val);
                         break;
                     }
                 }

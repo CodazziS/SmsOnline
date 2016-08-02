@@ -45,17 +45,6 @@ public class Tools {
         }
         return temp;
     }
-//    static public String bitmapToString64(Bitmap photo) {
-//        try {
-//            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//            photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//            byte[] byteArray = byteArrayOutputStream.toByteArray();
-//            return Base64.encodeToString(byteArray, Base64.DEFAULT);
-//        } catch (Exception e) {
-//            Tools.logDebug("Image too big");
-//        }
-//        return "";
-//    }
 
     /*
         Return true if the permission is granted, ask the permission on

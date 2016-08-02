@@ -24,8 +24,10 @@ public class Api {
     /* Settings */
     private boolean reset_api;
     private boolean working;
-    private int error;
-    private int state;
+
+    private int step;
+    private int status;
+
     private long last_sync;
     private long last_sms;
     private long last_mms;
@@ -67,7 +69,7 @@ public class Api {
         }
 
         this.startWork();
-        switch (this.state) {
+        switch (this.step) {
             case 0:
                 this.getVersion();
                 break;
@@ -94,8 +96,8 @@ public class Api {
         if (this.reset_api) {
             this.reset_api = false;
             this.working = false;
-            this.error = 0;
-            this.state = 0;
+            this.step = 0;
+            //this.status = 0; //Don't change status
             this.last_sync = 0;
             this.last_sms = 0;
             this.last_mms = 0;
@@ -109,8 +111,8 @@ public class Api {
             return false;
         } else {
             this.working = this.settings.getBoolean("working", false);
-            this.error = this.settings.getInt("error", 0);
-            this.state = this.settings.getInt("api_state", 0);
+            this.step = this.settings.getInt("step", 0);
+            this.status = this.settings.getInt("status", 20);
             this.last_sync = this.settings.getLong("last_sync", 0);
             this.last_sms = this.settings.getLong("last_sms", 0);
             this.last_mms = this.settings.getLong("last_mms", 0);
@@ -118,7 +120,7 @@ public class Api {
             this.token = this.settings.getString("api_token", null);
             this.user = this.settings.getString("api_user", null);
             this.key = this.settings.getString("api_key", null);
-            this.api_url = this.settings.getString("server_uri", null);
+            this.api_url = this.settings.getString("server_uri2", null);
             this.unread_sms = this.settings.getString("api_unread_sms", null);
             this.unread_mms = this.settings.getString("api_unread_mms", null);
         }
@@ -129,19 +131,25 @@ public class Api {
         this.saveSettings(false);
     }
 
-    private void saveSettings(boolean working) {
-        if (this.error != 0) {
+    private boolean check_error(int error) {
+        if (error != 0) {
             this.token = null;
             this.user = null;
             this.key = null;
             this.reset_api = true;
+            return true;
         }
+        return false;
+    }
+
+    private void saveSettings(boolean working) {
+
         this.working = working;
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putBoolean("reset_api", this.reset_api);
         editor.putBoolean("working", this.working);
-        editor.putInt("error", this.error);
-        editor.putInt("api_state", this.state);
+        editor.putInt("status", this.status);
+        editor.putInt("step", this.step);
         editor.putLong("last_sync", this.last_sync);
         editor.putLong("last_sms", this.last_sms);
         editor.putLong("last_mms", this.last_mms);
@@ -184,23 +192,22 @@ public class Api {
             }
         } catch(Exception e){
             e.printStackTrace();
-            this.error = 1;
+            this.check_error(1);
         }
         this.saveSettings(true);
     }
 
     public void syncMessagesRes(String data) {
         JSONObject res;
-        this.error = -1;
+        int error = -1;
         JSONObject message_to_send;
         JSONArray messages_to_send;
 
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                this.error = res.getInt("error");
-                if (this.error == 0) {
-                    //this.state = 4;
+                error = res.getInt("error");
+                if (error == 0) {
                     if (res.has("messages_to_send")) {
                         messages_to_send = res.getJSONArray("messages_to_send");
                         for (int i = 0; i < messages_to_send.length(); ++i) {
@@ -220,9 +227,9 @@ public class Api {
             }
         } catch (Exception e1) {
             Tools.logDebug(4, data);
-            e1.printStackTrace();
-            this.error = -1;
+            this.check_error(-1);
         }
+        this.status = 25;
         this.saveSettings(true);
         this.prepareMmsLoop();
     }
@@ -269,37 +276,36 @@ public class Api {
                 this.mms_sync++;
             } else {
                 Tools.logDebug("Synchronization ended");
-                this.state = 4;
-                this.error = 0;
+                this.step = 4;
+                this.status = 26;
                 this.saveSettings();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            this.error = 1;
+            this.check_error(1);
             this.saveSettings();
         }
     }
 
     public void syncMmsRes(String data) {
         JSONObject res;
-        this.error = -1;
+        int error = -1;
 
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                this.error = res.getInt("error");
-                if (this.error == 0) {
+                error = res.getInt("error");
+                if (error == 0) {
                     this.syncMms();
                 } else {
                     Tools.logDebug(4, data);
-                    this.error = -1;
+                    this.check_error(-1);
                     this.saveSettings();
                 }
             }
         } catch (Exception e1) {
             Tools.logDebug(4, data);
-            e1.printStackTrace();
-            this.error = -1;
+            this.check_error(-1);
             this.saveSettings();
         }
     }
@@ -315,7 +321,7 @@ public class Api {
                     "sms");
         } catch (JSONException e1) {
             e1.printStackTrace();
-            this.error = -1;
+            this.check_error(-1);
         }
     }
 
@@ -359,14 +365,14 @@ public class Api {
                 this.contacts_sync++;
             } else {
                 Tools.logDebug("Contacts synchronization ended");
-                this.state = 3;
-                this.error = 0;
+                this.step = 3;
+                this.status = 24;
                 this.contacts = null;
                 this.saveSettings();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            this.error = 1;
+            this.check_error(1);
             this.saveSettings();
         }
     }
@@ -387,25 +393,30 @@ public class Api {
             Ajax.post(url, data, "addDeviceRes", this);
         } catch (Exception e) {
             e.printStackTrace();
-            this.error = 1;
+            this.check_error(1);
             this.saveSettings();
         }
     }
 
     public void addDeviceRes(String data) {
         JSONObject res;
-        this.error = -1;
+        int error = -1;
 
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                this.error = res.getInt("error");
-                this.state = 2;
+                error = res.getInt("error");
+                if (error == 0) {
+                    this.step = 2;
+                    this.status = 23;
+                } else {
+                    this.check_error(error);
+                }
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
-            this.error = -1;
         }
+        this.check_error(error);
         this.saveSettings();
     }
 
@@ -415,7 +426,7 @@ public class Api {
             String email = URLEncoder.encode(this.settings.getString("email", ""), "utf-8");
             String password = URLEncoder.encode(this.settings.getString("password", ""), "utf-8");
             if (email.length() <= 4 || password.length() <= 4) {
-                this.error = 1;
+                this.check_error(1);
                 this.saveSettings();
                 return;
             }
@@ -423,28 +434,30 @@ public class Api {
             Ajax.get(url, data, "getTokenRes", this);
         } catch (Exception e) {
             e.printStackTrace();
-            this.error = 1;
+            this.check_error(1);
             this.saveSettings();
         }
     }
     public void getTokenRes(String data) {
         JSONObject res;
-        this.error = -1;
+        int error = -1;
 
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                this.error = res.getInt("error");
-                if (this.error == 0) {
+                error = res.getInt("error");
+                if (error == 0) {
                     this.token = res.getString("token");
                     this.key = res.getString("key");
                     this.user = res.getString("user");
-                    this.state = 1;
+                    this.step = 1;
+                    this.status = 22;
                 }
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
+        this.check_error(error);
         this.saveSettings();
     }
 
@@ -454,31 +467,33 @@ public class Api {
             String email = URLEncoder.encode(this.settings.getString("email", ""), "utf-8");
             String password = URLEncoder.encode(this.settings.getString("password", ""), "utf-8");
             if (email.length() <= 4 || password.length() <= 4) {
-                this.error = 1;
+                this.check_error(1);
                 this.saveSettings();
                 return;
             }
             Ajax.get(url, "", "getVersionRes", this);
         } catch (Exception e) {
             e.printStackTrace();
-            this.error = 1;
+            this.check_error(1);
             this.saveSettings();
         }
     }
     public void getVersionRes(String data) {
         JSONObject res;
-        this.error = -1;
         int api_version;
+        int error = -1;
 
         try {
             if (data != null && !data.equals("")) {
                 res = new JSONObject(data);
-                this.error = res.getInt("error");
+                error = res.getInt("error");
                 api_version = res.getInt("api_version");
-                if (this.error == 0 && api_version == this.context.getResources().getInteger(R.integer.api_version)) {
+                if (error == 0 && api_version == this.context.getResources().getInteger(R.integer.api_version)) {
+                    this.status = 21;
+                    this.saveSettings(true);
                     this.getToken();
                 } else {
-                    this.error = 16;
+                    this.check_error(16);
                     this.saveSettings();
                 }
             }

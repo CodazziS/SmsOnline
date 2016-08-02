@@ -1,15 +1,8 @@
 <resources>
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
-    <string-array name="actions_str">
+    <string-array name="status_str">
         <!-- 00 --><item>Initialisation</item>
-        <!-- 01 --><item>Login</item>
-        <!-- 02 --><item>Contacts synchronization</item>
-        <!-- 03 --><item>Messages synchronization</item>
-        <!-- 04 --><item>Synchronized</item>
-    </string-array>
-    <string-array name="errors_str">
-        <!-- 00 --><item>Unknown error</item>
         <!-- 01 --><item>Missing credentials</item>
         <!-- 02 --><item>Network error</item>
         <!-- 03 --><item>Email is not valid</item>
@@ -17,15 +10,25 @@
         <!-- 05 --><item>Email already exist</item>
         <!-- 06 --><item>Bad credentials</item>
         <!-- 07 --><item>Object not found</item>
-        <!-- 08 --><item>-</item>
-        <!-- 09 --><item>-</item>
-        <!-- 10 --><item>-</item>
-        <!-- 11 --><item>-</item>
-        <!-- 12 --><item>-</item>
-        <!-- 13 --><item>-</item>
-        <!-- 14 --><item>-</item>
-        <!-- 15 --><item>-</item>
+        <!-- 08 --><item>Unknown error</item>
+        <!-- 09 --><item>Unknown error</item>
+        <!-- 10 --><item>Unknown error</item>
+        <!-- 11 --><item>Unknown error</item>
+        <!-- 12 --><item>Unknown error</item>
+        <!-- 13 --><item>Unknown error</item>
+        <!-- 14 --><item>Unknown error</item>
+        <!-- 15 --><item>Unknown error</item>
         <!-- 16 --><item>API version not match: maybe you should update your application</item>
+        <!-- 17 --><item>Unknown error</item>
+        <!-- 18 --><item>Unknown error</item>
+        <!-- 19 --><item>Unknown error</item>
+        <!-- 20 --><item>Initialisation</item>
+        <!-- 21 --><item>Login</item>
+        <!-- 22 --><item>Sync device configuration</item>
+        <!-- 23 --><item>Contacts synchronization</item>
+        <!-- 24 --><item>SMS synchronization</item>
+        <!-- 25 --><item>MMS synchronization</item>
+        <!-- 26 --><item>Synchronized</item>
     </string-array>
 
     <!-- VIEWS -->
