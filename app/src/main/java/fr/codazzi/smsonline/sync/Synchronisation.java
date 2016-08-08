@@ -31,8 +31,6 @@ public class Synchronisation  extends BroadcastReceiver {
             editor.apply();
             return;
         }
-
         new Api(context, settings).Run();
-
     }
 }

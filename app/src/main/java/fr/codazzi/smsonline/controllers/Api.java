@@ -61,7 +61,7 @@ public class Api {
         }
         if (this.working) {
             if (this.last_work == 0 || this.last_work < ((new Date()).getTime() - 300000)) {
-                Tools.logDebug(2, "Reset work: timeout");
+                Tools.storeLog(context, "Timeout - Api.java L64");
                 this.reset_api = true;
                 this.saveSettings();
             }
@@ -86,6 +86,7 @@ public class Api {
                 this.syncMessages(false);
                 break;
             default:
+                Tools.storeLog(context, "Error ?! - Api.java L89");
                 this.reset_api = true;
                 saveSettings();
         }
@@ -94,6 +95,7 @@ public class Api {
     private boolean getSettings() {
         this.reset_api = this.settings.getBoolean("reset_api", false);
         if (this.reset_api) {
+            Tools.storeLog(context, "reset api");
             this.reset_api = false;
             this.working = false;
             this.step = 0;
@@ -137,6 +139,7 @@ public class Api {
             this.user = null;
             this.key = null;
             this.reset_api = true;
+            Tools.storeLog(context, "Error : " + String.valueOf(error) + " Step : " + this.step + " - Api.java L143");
             return true;
         }
         return false;

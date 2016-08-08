@@ -2,6 +2,7 @@ package fr.codazzi.smsonline;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -10,6 +11,8 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Tools {
 
@@ -101,5 +104,29 @@ public class Tools {
 
     static public void logDebug(String data) {
         Tools.logDebug(0, "SWB", data);
+    }
+
+    static public void storeLog(Context context, String logs) {
+        SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
+        String old_logs = settings.getString("logs", "");
+        SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        logs = simpleDate.format(new Date()) + ": " + logs + "\n" + old_logs;
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("logs", logs);
+        editor.apply();
+    }
+
+    static public void resetLogs(Context context) {
+        SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
+        SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        String logs = simpleDate.format(new Date()) + ": Reset logs \n";
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("logs", logs);
+        editor.apply();
+    }
+
+    static public String getStoreLog(Context context) {
+        SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
+        return settings.getString("logs", "");
     }
 }

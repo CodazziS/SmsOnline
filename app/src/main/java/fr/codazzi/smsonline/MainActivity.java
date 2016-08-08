@@ -29,6 +29,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -200,25 +202,21 @@ public class MainActivity extends AppCompatActivity {
         EditText email;
         EditText password;
         EditText server_uri;
+        TextView settings_logs;
         Button saveBtn;
         CheckBox wifi_only;
 
-        String default_api_url;
+        String default_api_url = getString(R.string.api_url);
         String default_email = "";
         String default_password = "";
+        this.c_activity = "settings";
 
-        if (BuildConfig.DEBUG) {
-            default_api_url = getString(R.string.api_url_debug);
-        } else {
-            default_api_url = getString(R.string.api_url);
-        }
-
+        /* Get defaults values */
         try {
+            if (BuildConfig.DEBUG) {
+                default_api_url = getString(R.string.api_url_debug);
+            }
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            Snackbar.make(findViewById(android.R.id.content),
-                    pInfo.versionName,
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
             if (pInfo.versionName.contains("alpha")) {
                 default_email = "alpha@example.com";
                 default_password = "@z3rtY";
@@ -227,21 +225,28 @@ public class MainActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
+        /* Set view */
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        c_activity = "settings";
+
+        /* Find all components */
         email = (EditText) findViewById(R.id.config_email);
-        email.setText(this.settings.getString("email", default_email));
         password = (EditText) findViewById(R.id.config_password);
-        password.setText(this.settings.getString("password", default_password));
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
-        wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
-
         server_uri = (EditText) findViewById(R.id.config_uri);
-        server_uri.setText(this.settings.getString("server_uri2", default_api_url));
-
         saveBtn = (Button) findViewById(R.id.saveSettings);
+        settings_logs = (TextView) findViewById(R.id.settingsLogs);
+
+        /* set values */
+        email.setText(this.settings.getString("email", default_email));
+        password.setText(this.settings.getString("password", default_password));
+        wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
+        server_uri.setText(this.settings.getString("server_uri2", default_api_url));
+        settings_logs.setText(Tools.getStoreLog(this.getApplicationContext()));
+
+        /* Submit form */
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -274,6 +279,34 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void resetLogs(View view) {
+        Tools.resetLogs(this.getApplicationContext());
+        TextView settings_logs = (TextView) findViewById(R.id.settingsLogs);
+        settings_logs.setText(Tools.getStoreLog(this.getApplicationContext()));
+    }
+
+    public void showFullSettings(View view) {
+        CheckBox checkbox_display;
+        EditText server_api;
+        TextView settings_logs;
+        Button clear_logs;
+
+        settings_logs = (TextView) findViewById(R.id.settingsLogs);
+        server_api = (EditText) findViewById(R.id.config_uri);
+        checkbox_display = (CheckBox) findViewById(R.id.displayFullSettings);
+        clear_logs = (Button) findViewById(R.id.settingsResetLogs);
+
+        if (checkbox_display.isChecked()) {
+            settings_logs.setVisibility(View.VISIBLE);
+            server_api.setVisibility(View.VISIBLE);
+            clear_logs.setVisibility(View.VISIBLE);
+        } else {
+            settings_logs.setVisibility(View.GONE);
+            server_api.setVisibility(View.GONE);
+            clear_logs.setVisibility(View.GONE);
+        }
+    }
+
     private void saveSettings(View view) {
         EditText email;
         EditText password;
@@ -293,10 +326,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("wifi_only", wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused());
         editor.apply();
 
-        this.askPermissions();
         putMain();
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+        this.askPermissions();
         this.logonLoop();
     }
 

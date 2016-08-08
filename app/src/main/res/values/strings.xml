@@ -49,6 +49,8 @@
     <string name="settings_only_wifi">Sync only on Wifi network</string>
     <string name="settings_api">Server URL</string>
     <string name="settings_save">Save settings</string>
+    <string name="settings_show_full_settings">Show advanced settings</string>
+    <string name="settings_reset_logs">Clear logs</string>
 
     <!-- JAVA -->
         <!-- MainActivity -->

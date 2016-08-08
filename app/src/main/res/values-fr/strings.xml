@@ -49,6 +49,8 @@
     <string name="settings_password">Mot de passe</string>
     <string name="settings_only_wifi">Synchroniser seulement en Wifi</string>
     <string name="settings_save">Sauvegarder les paramètres</string>
+    <string name="settings_show_full_settings">Voir les paramètres avancés</string>
+    <string name="settings_reset_logs">Vider les logs</string>
     <!-- JAVA -->
     <!-- MainActivity -->
     <string name="home_back_to_quit">Appuyez une seconde fois pour quitter</string>
