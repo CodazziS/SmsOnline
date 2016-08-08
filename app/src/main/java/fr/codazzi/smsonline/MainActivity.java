@@ -204,7 +204,9 @@ public class MainActivity extends AppCompatActivity {
         EditText server_uri;
         TextView settings_logs;
         Button saveBtn;
+        Button clear_logs;
         CheckBox wifi_only;
+        CheckBox show_full;
 
         String default_api_url = getString(R.string.api_url);
         String default_email = "";
@@ -235,8 +237,10 @@ public class MainActivity extends AppCompatActivity {
         email = (EditText) findViewById(R.id.config_email);
         password = (EditText) findViewById(R.id.config_password);
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
+        show_full = (CheckBox) findViewById(R.id.displayFullSettings);
         server_uri = (EditText) findViewById(R.id.config_uri);
         saveBtn = (Button) findViewById(R.id.saveSettings);
+        clear_logs = (Button) findViewById(R.id.settingsResetLogs);
         settings_logs = (TextView) findViewById(R.id.settingsLogs);
 
         /* set values */
@@ -251,6 +255,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 saveSettings(v);
+            }
+        });
+        clear_logs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetLogs(v);
+            }
+        });
+        show_full.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFullSettings(v);
             }
         });
     }
@@ -279,13 +295,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void resetLogs(View view) {
+    private void resetLogs(View view) {
         Tools.resetLogs(this.getApplicationContext());
         TextView settings_logs = (TextView) findViewById(R.id.settingsLogs);
         settings_logs.setText(Tools.getStoreLog(this.getApplicationContext()));
     }
 
-    public void showFullSettings(View view) {
+    private void showFullSettings(View view) {
         CheckBox checkbox_display;
         EditText server_api;
         TextView settings_logs;
