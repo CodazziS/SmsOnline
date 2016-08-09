@@ -61,6 +61,7 @@ public class Ajax {
             }
             Ajax.getResponse(connection, callback, api);
         } catch (Exception e) {
+            Tools.storeLog(new MainActivity(), "Error network - Ajax.java L64");
             e.printStackTrace();
         } finally {
             if (connection != null) {
