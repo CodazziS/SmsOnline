@@ -40,6 +40,13 @@ public class Api {
     private JSONArray contacts;
     private int contacts_sync;
 
+    /* Vars used for confirm good network request */
+    private long save_last_sms;
+    private String save_unread_sms;
+    private long save_last_mms;
+    private String save_unread_mms;
+    private long save_last_sync;
+
     public Api(Context _context, SharedPreferences _settings) {
         this.context = _context;
         this.settings = _settings;
@@ -99,7 +106,6 @@ public class Api {
             this.reset_api = false;
             this.working = false;
             this.step = 0;
-            //this.status = 0; //Don't change status
             this.last_sync = 0;
             this.last_sms = 0;
             this.last_mms = 0;
@@ -189,9 +195,9 @@ public class Api {
                                 "&messages=" + URLEncoder.encode(messages_arr.toString(), "utf-8");
                 Ajax.post(url, data, "syncMessagesRes", this);
 
-                this.last_sms = messages.lastDateSms;
-                this.unread_sms = messages.unreadSmsList;
-                this.last_sync = new Date().getTime();
+                this.save_last_sms = messages.lastDateSms;
+                this.save_unread_sms = messages.unreadSmsList;
+                this.save_last_sync = new Date().getTime();
             }
         } catch(Exception e){
             e.printStackTrace();
@@ -227,11 +233,18 @@ public class Api {
                         }
                     }
                 }
+            } else {
+                Tools.storeLog(context, "Network timeout without reseting api");
+                this.saveSettings();
+                return;
             }
         } catch (Exception e1) {
             Tools.logDebug(4, data);
             this.check_error(-1);
         }
+        this.last_sms = this.save_last_sms;
+        this.unread_sms = this.save_unread_sms;
+
         this.status = 25;
         this.saveSettings(true);
         this.prepareMmsLoop();
@@ -251,9 +264,8 @@ public class Api {
             }
 
             this.mms_sync = 0;
-            this.last_mms = messages.lastDateMms;
-            this.unread_mms = messages.unreadMmsList;
-            this.last_sync = new Date().getTime();
+            this.save_last_mms = messages.lastDateMms;
+            this.save_unread_mms = messages.unreadMmsList;
             syncMms();
         }
     }
@@ -278,6 +290,9 @@ public class Api {
                 Ajax.post(url, data, "syncMmsRes", this);
                 this.mms_sync++;
             } else {
+                this.last_mms = this.save_last_mms;
+                this.unread_mms = this.save_unread_mms;
+                this.last_sync = this.save_last_sync;
                 Tools.logDebug("Synchronization ended");
                 this.step = 4;
                 this.status = 26;
@@ -305,6 +320,9 @@ public class Api {
                     this.check_error(-1);
                     this.saveSettings();
                 }
+            } else {
+                Tools.storeLog(context, "Network timeout without reseting api");
+                this.saveSettings();
             }
         } catch (Exception e1) {
             Tools.logDebug(4, data);
@@ -412,9 +430,10 @@ public class Api {
                 if (error == 0) {
                     this.step = 2;
                     this.status = 23;
-                } else {
-                    this.check_error(error);
                 }
+            } else {
+                // Prevent timeout
+                error = 0;
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
@@ -484,7 +503,7 @@ public class Api {
     public void getVersionRes(String data) {
         JSONObject res;
         int api_version;
-        int error = -1;
+        int error;
 
         try {
             if (data != null && !data.equals("")) {
@@ -499,6 +518,8 @@ public class Api {
                     this.check_error(16);
                     this.saveSettings();
                 }
+            } else {
+                this.saveSettings();
             }
         } catch (JSONException e1) {
             e1.printStackTrace();

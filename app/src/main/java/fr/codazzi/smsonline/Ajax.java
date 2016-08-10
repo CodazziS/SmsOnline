@@ -61,7 +61,7 @@ public class Ajax {
             }
             Ajax.getResponse(connection, callback, api);
         } catch (Exception e) {
-            Tools.storeLog(new MainActivity(), "Error network - Ajax.java L64");
+            callCallback(api, callback, null);
             e.printStackTrace();
         } finally {
             if (connection != null) {
@@ -74,7 +74,7 @@ public class Ajax {
         InputStream is;
         BufferedReader rd;
         String line;
-        String response = "";
+        String res = "";
 
         try {
             int status = connection.getResponseCode();
@@ -82,38 +82,41 @@ public class Ajax {
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
             while ((line = rd.readLine()) != null) {
-                response += line;
+                res += line;
             }
             rd.close();
-
-            if (callback == null) {
-                return;
-            }
-            switch(callback) {
-                case "syncMessagesRes":
-                    api.syncMessagesRes(response);
-                    break;
-                case "syncMmsRes":
-                    api.syncMmsRes(response);
-                    break;
-                case "sendMessage":
-                    api.sendMessage(response);
-                    break;
-                case "syncContactsRes":
-                    api.syncContactsRes(response);
-                    break;
-                case "addDeviceRes":
-                    api.addDeviceRes(response);
-                    break;
-                case "getTokenRes":
-                    api.getTokenRes(response);
-                    break;
-                case "getVersionRes":
-                    api.getVersionRes(response);
-                    break;
-        }
+            callCallback(api, callback, res);
         } catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    static private void callCallback(Api api, String callback, String res) {
+        if (callback == null) {
+            return;
+        }
+        switch(callback) {
+            case "syncMessagesRes":
+                api.syncMessagesRes(res);
+                break;
+            case "syncMmsRes":
+                api.syncMmsRes(res);
+                break;
+            case "sendMessage":
+                api.sendMessage(res);
+                break;
+            case "syncContactsRes":
+                api.syncContactsRes(res);
+                break;
+            case "addDeviceRes":
+                api.addDeviceRes(res);
+                break;
+            case "getTokenRes":
+                api.getTokenRes(res);
+                break;
+            case "getVersionRes":
+                api.getVersionRes(res);
+                break;
         }
     }
 }
