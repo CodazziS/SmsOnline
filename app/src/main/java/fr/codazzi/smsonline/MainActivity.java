@@ -60,12 +60,10 @@ public class MainActivity extends AppCompatActivity {
             int status_int;
             status = (TextView) findViewById(R.id.status_str);
             status_int = this.settings.getInt("status", 20);
-            Tools.logDebug("Status = " + status_int);
             status.setText(getResources().getStringArray(R.array.status_str)[status_int]);
         } catch (Exception e) {
 
         }
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -207,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         Button clear_logs;
         CheckBox wifi_only;
         CheckBox show_full;
+        CheckBox sync_mms;
 
         String default_api_url = getString(R.string.api_url);
         String default_email = "";
@@ -238,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.config_password);
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
         show_full = (CheckBox) findViewById(R.id.displayFullSettings);
+        sync_mms = (CheckBox) findViewById(R.id.settingsSyncMms);
         server_uri = (EditText) findViewById(R.id.config_uri);
         saveBtn = (Button) findViewById(R.id.saveSettings);
         clear_logs = (Button) findViewById(R.id.settingsResetLogs);
@@ -247,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         email.setText(this.settings.getString("email", default_email));
         password.setText(this.settings.getString("password", default_password));
         wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
+        sync_mms.setChecked(this.settings.getBoolean("sync_mms", true));
         server_uri.setText(this.settings.getString("server_uri2", default_api_url));
         settings_logs.setText(Tools.getStoreLog(this.getApplicationContext()));
 
@@ -303,6 +304,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showFullSettings(View view) {
         CheckBox checkbox_display;
+        CheckBox checkbox_sync_mms;
         EditText server_api;
         TextView settings_logs;
         Button clear_logs;
@@ -310,13 +312,16 @@ public class MainActivity extends AppCompatActivity {
         settings_logs = (TextView) findViewById(R.id.settingsLogs);
         server_api = (EditText) findViewById(R.id.config_uri);
         checkbox_display = (CheckBox) findViewById(R.id.displayFullSettings);
+        checkbox_sync_mms = (CheckBox) findViewById(R.id.settingsSyncMms);
         clear_logs = (Button) findViewById(R.id.settingsResetLogs);
 
-        if (checkbox_display.isChecked()) {
+        if (checkbox_display.isChecked() || checkbox_display.isActivated() || checkbox_display.isFocused()) {
+            checkbox_sync_mms.setVisibility(View.VISIBLE);
             settings_logs.setVisibility(View.VISIBLE);
             server_api.setVisibility(View.VISIBLE);
             clear_logs.setVisibility(View.VISIBLE);
         } else {
+            checkbox_sync_mms.setVisibility(View.GONE);
             settings_logs.setVisibility(View.GONE);
             server_api.setVisibility(View.GONE);
             clear_logs.setVisibility(View.GONE);
@@ -328,11 +333,13 @@ public class MainActivity extends AppCompatActivity {
         EditText password;
         EditText server_uri;
         CheckBox wifi_only;
+        CheckBox checkbox_sync_mms;
 
         email = (EditText) findViewById(R.id.config_email);
         password = (EditText) findViewById(R.id.config_password);
         server_uri = (EditText) findViewById(R.id.config_uri);
         wifi_only = (CheckBox) findViewById(R.id.config_wifi_only);
+        checkbox_sync_mms = (CheckBox) findViewById(R.id.settingsSyncMms);
 
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putString("email", email.getText().toString());
@@ -340,6 +347,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("server_uri2", server_uri.getText().toString());
         editor.putBoolean("reset_api", true);
         editor.putBoolean("wifi_only", wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused());
+        editor.putBoolean("sync_mms", checkbox_sync_mms.isChecked() || checkbox_sync_mms.isActivated() || checkbox_sync_mms.isFocused());
         editor.apply();
 
         putMain();
@@ -361,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         new Api(this, this.settings).Run();
+
         int status = this.settings.getInt("status", -1);
         if (status != 26 && (status >= 20 || status == 0)) {
             final Handler handler = new Handler();

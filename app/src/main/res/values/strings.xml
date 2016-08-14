@@ -51,6 +51,7 @@
     <string name="settings_save">Save settings</string>
     <string name="settings_show_full_settings">Show advanced settings</string>
     <string name="settings_reset_logs">Clear logs</string>
+    <string name="settings_sync_mms">Sync MMS (Uncheck if you have mms sync problems)</string>
 
     <!-- JAVA -->
         <!-- MainActivity -->

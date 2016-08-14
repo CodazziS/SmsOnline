@@ -68,9 +68,14 @@ public class Api {
         }
         if (this.working) {
             if (this.last_work == 0 || this.last_work < ((new Date()).getTime() - 300000)) {
-                Tools.storeLog(context, "Timeout - Api.java L64");
-                this.reset_api = true;
-                this.saveSettings();
+                if (this.step == 4) {
+                    Tools.storeLog(context, "Timeout - Force continue L72");
+                    this.saveSettings();
+                } else {
+                    Tools.storeLog(context, "Timeout - Api.java L74");
+                    this.reset_api = true;
+                    this.saveSettings();
+                }
             }
             return;
         }
@@ -257,10 +262,15 @@ public class Api {
         final Messages messages = new Messages();
 
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
-            if (getAllMessages) {
-                this.mms = messages.getAllMms(context);
+            if (this.settings.getBoolean("sync_mms", true)) {
+                if (getAllMessages) {
+                    this.mms = messages.getAllMms(context);
+                } else {
+                    this.mms = messages.getLastsMms(context, this.last_mms, this.unread_mms);
+                }
             } else {
-                this.mms = messages.getLastsMms(context, this.last_mms, this.unread_mms);
+                Tools.logDebug(3, "no sync MMS");
+                this.mms = new JSONArray();
             }
 
             this.mms_sync = 0;
