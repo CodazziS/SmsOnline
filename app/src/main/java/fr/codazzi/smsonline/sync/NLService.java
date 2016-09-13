@@ -18,7 +18,7 @@ public class NLService extends NotificationListenerService {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
 
-        if (        network == null
+        if (network == null
                 || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = settings.edit();

@@ -359,7 +359,10 @@ public class MainActivity extends AppCompatActivity {
     private void logonLoop() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
-        if ((this.settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
+        boolean wifi_only = this.settings.getBoolean("wifi_only", true);
+
+        if (network == null
+                || (wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {
             SharedPreferences.Editor editor = this.settings.edit();
             editor.putInt("status", 20);
