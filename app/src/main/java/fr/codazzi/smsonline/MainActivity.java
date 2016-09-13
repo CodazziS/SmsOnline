@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
         status = (TextView) findViewById(R.id.status_str);
         status_int = this.settings.getInt("status", 20);
-        Tools.logDebug("str = " + status_int);
         status.setText(getResources().getStringArray(R.array.status_str)[status_int]);
         sync = (TextView) findViewById(R.id.sync_str);
         last_sync = settings.getLong("last_sync", 0);

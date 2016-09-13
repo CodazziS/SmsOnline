@@ -107,6 +107,7 @@ public class Tools {
     }
 
     static public void storeLog(Context context, String logs) {
+        Tools.logDebug(logs);
         SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
         String old_logs = settings.getString("logs", "");
         SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");

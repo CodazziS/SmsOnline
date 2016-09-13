@@ -8,6 +8,8 @@ import android.content.Intent;
 
 import java.util.Calendar;
 
+import fr.codazzi.smsonline.Tools;
+
 public class SyncReceiver extends BroadcastReceiver {
 
     @Override
@@ -15,6 +17,7 @@ public class SyncReceiver extends BroadcastReceiver {
         if (intent.getAction().equals("EXIT")) {
             return;
         }
+        Tools.logDebug("New notification");
         Intent myIntent = new Intent(context, Synchronisation.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context,  0, myIntent, 0);
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
