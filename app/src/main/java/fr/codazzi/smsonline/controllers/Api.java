@@ -205,6 +205,7 @@ public class Api {
                 this.save_last_sync = new Date().getTime();
             }
         } catch(Exception e){
+            Tools.storeLog(context, "Sync Message Error - L208");
             e.printStackTrace();
             this.check_error(1);
         }
@@ -244,6 +245,7 @@ public class Api {
                 return;
             }
         } catch (Exception e1) {
+            Tools.storeLog(context, "Sync MessageRes Error - L248");
             Tools.logDebug(4, data);
             this.check_error(-1);
         }
@@ -309,6 +311,7 @@ public class Api {
                 this.saveSettings();
             }
         } catch (Exception e) {
+            Tools.storeLog(context, "Sync MMS Error - L314");
             e.printStackTrace();
             this.check_error(1);
             this.saveSettings();
@@ -335,6 +338,7 @@ public class Api {
                 this.saveSettings();
             }
         } catch (Exception e1) {
+            Tools.storeLog(context, "Sync MMSRes Error - L208");
             Tools.logDebug(4, data);
             this.check_error(-1);
             this.saveSettings();
