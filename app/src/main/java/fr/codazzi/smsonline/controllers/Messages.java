@@ -116,7 +116,7 @@ class Messages {
                     message.put("body", query.getString(query.getColumnIndex("body")));
                     message.put("date", query.getString(query.getColumnIndex("date")));
                     message.put("read", query.getString(query.getColumnIndex("read")));
-                    if (this.lastDateSms < date) {
+                    if (date > this.lastDateSms) {
                         this.lastDateSms = date;
                     }
                     messages.put(message);

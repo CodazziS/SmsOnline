@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import fr.codazzi.smsonline.Tools;
 import fr.codazzi.smsonline.controllers.Api;
 
 
@@ -22,7 +23,7 @@ public class Synchronisation  extends BroadcastReceiver {
         SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
-
+        Tools.logDebug("Sync");
         if (network == null
                 || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
                 || !network.isConnectedOrConnecting()) {

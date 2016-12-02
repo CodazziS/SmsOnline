@@ -96,8 +96,8 @@ public class Ajax {
             return;
         }
         switch(callback) {
-            case "syncMessagesRes":
-                api.syncMessagesRes(res);
+            case "syncSmsRes":
+                api.syncSmsRes(res);
                 break;
             case "syncMmsRes":
                 api.syncMmsRes(res);
@@ -106,7 +106,7 @@ public class Ajax {
                 api.sendMessage(res);
                 break;
             case "syncContactsRes":
-                api.syncContactsRes(res);
+                api.syncContactsRes();
                 break;
             case "addDeviceRes":
                 api.addDeviceRes(res);

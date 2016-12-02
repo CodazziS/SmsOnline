@@ -40,6 +40,11 @@ public class Api {
     private JSONArray contacts;
     private int contacts_sync;
 
+    private JSONArray sms;
+    private int sms_sync;
+    private JSONArray mms;
+    private int mms_sync;
+
     /* Vars used for confirm good network request */
     private long save_last_sms;
     private String save_unread_sms;
@@ -53,7 +58,7 @@ public class Api {
         this.device_id = Tools.getDeviceID(this.context);
     }
 
-    public void startWork() {
+    private void startWork() {
         this.last_work = (new Date()).getTime();
 
         SharedPreferences.Editor editor = settings.edit();
@@ -67,7 +72,7 @@ public class Api {
             return;
         }
         if (this.working) {
-            if (this.last_work == 0 || this.last_work < ((new Date()).getTime() - 300000)) {
+            if (this.last_work == 0 || this.last_work < ((new Date()).getTime() - 1000000)) {
                 if (this.step == 4) {
                     Tools.storeLog(context, "Timeout - Force continue L72");
                     this.saveSettings();
@@ -92,10 +97,10 @@ public class Api {
                 this.prepareContactsLoop();
                 break;
             case 3:
-                this.syncMessages(true);
+                this.prepareSmsLoop(true);
                 break;
             case 4:
-                this.syncMessages(false);
+                this.prepareSmsLoop(false);
                 break;
             default:
                 Tools.storeLog(context, "Error ?! - Api.java L89");
@@ -176,47 +181,90 @@ public class Api {
         editor.apply();
     }
 
-    private void syncMessages(boolean _getAllMessages) {
+    private void prepareSmsLoop(boolean _getAllMessages) {
         this.getAllMessages = _getAllMessages;
-        try {
-            final Messages messages = new Messages();
-            JSONArray messages_arr;
-            String url;
+        final Messages messages = new Messages();
+        JSONArray messages_arr;
+        JSONArray messages_tmp;
+        int item = 0;
 
+        try {
             if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
+                this.sms = new JSONArray();
                 if (this.getAllMessages) {
                     messages_arr = messages.getAllSms(context);
-                    url = this.api_url + "Messages/Resync";
                 } else {
                     messages_arr = messages.getLastsSms(context, this.last_sms, this.unread_sms);
-                    url = this.api_url + "Messages/Sync";
                 }
 
-                String data =
-                        "user=" + URLEncoder.encode(this.user, "utf-8") +
-                                "&token=" + URLEncoder.encode(this.token, "utf-8") +
-                                "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
-                                "&key=" + URLEncoder.encode(this.key, "utf-8") +
-                                "&messages=" + URLEncoder.encode(messages_arr.toString(), "utf-8");
-                Ajax.post(url, data, "syncMessagesRes", this);
-
+                messages_tmp = new JSONArray();
+                for (int i = 0; i < messages_arr.length(); i++) {
+                    if (item >= 1000) {
+                        this.sms.put(messages_tmp);
+                        messages_tmp = new JSONArray();
+                        item = 0;
+                    }
+                    messages_tmp.put(messages_arr.getJSONObject(i));
+                    item++;
+                }
+                this.sms.put(messages_tmp);
+                this.sms_sync = 0;
                 this.save_last_sms = messages.lastDateSms;
                 this.save_unread_sms = messages.unreadSmsList;
                 this.save_last_sync = new Date().getTime();
+                syncSms();
             }
-        } catch(Exception e){
-            Tools.storeLog(context, "Sync Message Error - L208");
+        } catch (Exception e) {
+            Tools.storeLog(context, "Sync SMS Error - L226");
             e.printStackTrace();
             this.check_error(1);
+            this.saveSettings();
         }
-        this.saveSettings(true);
     }
 
-    public void syncMessagesRes(String data) {
+    private void syncSms() {
+        String url;
+        this.startWork();
+
+        if (this.getAllMessages && this.sms_sync == 0) {
+            url = this.api_url + "Messages/Resync";
+        } else {
+            url = this.api_url + "Messages/Sync";
+        }
+
+        try {
+            if (this.sms_sync < this.sms.length()) {
+                Tools.logDebug((this.sms_sync + 1) + "/" + this.sms.length() + " sms");
+                JSONArray sms_arr = this.sms.getJSONArray(this.sms_sync);
+                String data =
+                    "user=" + URLEncoder.encode(this.user, "utf-8") +
+                            "&token=" + URLEncoder.encode(this.token, "utf-8") +
+                            "&device_id=" + URLEncoder.encode(this.device_id, "utf-8") +
+                            "&key=" + URLEncoder.encode(this.key, "utf-8") +
+                            "&messages=" + URLEncoder.encode(sms_arr.toString(), "utf-8");
+                Ajax.post(url, data, "syncSmsRes", this);
+                this.sms_sync++;
+            } else {
+                this.last_sms = this.save_last_sms;
+                this.unread_sms = this.save_unread_sms;
+
+                this.status = 25;
+                this.saveSettings(true);
+                this.prepareMmsLoop();
+            }
+        } catch (Exception e) {
+            Tools.storeLog(context, "Sync SMS Error - L314");
+            e.printStackTrace();
+            this.check_error(1);
+            this.saveSettings();
+        }
+    }
+
+    public void syncSmsRes(String data) {
         JSONObject res;
-        int error = -1;
         JSONObject message_to_send;
         JSONArray messages_to_send;
+        int error;
 
         try {
             if (data != null && !data.equals("")) {
@@ -230,37 +278,33 @@ public class Api {
                             String url = api_url + "Messages/ConfirmSent";
                             String smsdata =
                                     "user=" + URLEncoder.encode(user, "utf-8") +
-                                    "&token=" + URLEncoder.encode(token, "utf-8") +
-                                    "&device_id=" + URLEncoder.encode(device_id, "utf-8") +
-                                    "&key=" + URLEncoder.encode(key, "utf-8") +
-                                    "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
+                                            "&token=" + URLEncoder.encode(token, "utf-8") +
+                                            "&device_id=" + URLEncoder.encode(device_id, "utf-8") +
+                                            "&key=" + URLEncoder.encode(key, "utf-8") +
+                                            "&message_id=" + URLEncoder.encode(message_to_send.getString("id"), "utf-8");
 
                             Ajax.post(url, smsdata, "sendMessage", this);
                         }
                     }
+                    this.syncSms();
+                } else {
+                    Tools.logDebug(4, data);
+                    this.check_error(-1);
+                    this.saveSettings();
                 }
             } else {
-                Tools.storeLog(context, "Network timeout without reseting api");
+                Tools.storeLog(context, "Network timeout without reseting api - SMS");
                 this.saveSettings();
-                return;
             }
         } catch (Exception e1) {
-            Tools.storeLog(context, "Sync MessageRes Error - L248");
+            Tools.storeLog(context, "Sync SMSRes Error - L208");
             Tools.logDebug(4, data);
             this.check_error(-1);
+            this.saveSettings();
         }
-        this.last_sms = this.save_last_sms;
-        this.unread_sms = this.save_unread_sms;
-
-        this.status = 25;
-        this.saveSettings(true);
-        this.prepareMmsLoop();
     }
 
-    private JSONArray mms;
-    private int mms_sync;
-
-    public void prepareMmsLoop() {
+    private void prepareMmsLoop() {
         final Messages messages = new Messages();
 
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
@@ -282,7 +326,7 @@ public class Api {
         }
     }
 
-    public void syncMms() {
+    private void syncMms() {
         String url = this.api_url + "Messages/Sync";
         this.startWork();
         JSONArray mms_arr = new JSONArray();
@@ -320,7 +364,7 @@ public class Api {
 
     public void syncMmsRes(String data) {
         JSONObject res;
-        int error = -1;
+        int error;
 
         try {
             if (data != null && !data.equals("")) {
@@ -348,7 +392,6 @@ public class Api {
     public void sendMessage(String data) {
         JSONObject res;
         try {
-
             res = new JSONObject(data);
             Messages.sendMessage(
                     res.getString("address"),
@@ -387,7 +430,7 @@ public class Api {
                     contacts = new JSONArray();
                     contacts.put(this.contacts.get(this.contacts_sync - 1));
                 }
-                Tools.logDebug((this.contacts_sync + 1) + "/" + this.contacts.length() + " contacts");
+                Tools.logDebug((this.contacts_sync + 1) + "/" + (this.contacts.length() + 1) + " contacts");
 
                 String data =
                         "user=" + URLEncoder.encode(this.user, "utf-8") +
@@ -412,7 +455,7 @@ public class Api {
         }
     }
 
-    public void syncContactsRes(String data) {
+    public void syncContactsRes() {
         this.syncContacts();
     }
 
