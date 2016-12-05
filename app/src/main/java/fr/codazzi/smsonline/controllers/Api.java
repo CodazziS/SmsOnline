@@ -199,7 +199,7 @@ public class Api {
 
                 messages_tmp = new JSONArray();
                 for (int i = 0; i < messages_arr.length(); i++) {
-                    if (item >= 1000) {
+                    if (item >= 300) {
                         this.sms.put(messages_tmp);
                         messages_tmp = new JSONArray();
                         item = 0;
@@ -216,6 +216,7 @@ public class Api {
             }
         } catch (Exception e) {
             Tools.storeLog(context, "Sync SMS Error - L226");
+            Tools.storeLog(context, e.getMessage());
             e.printStackTrace();
             this.check_error(1);
             this.saveSettings();
@@ -254,6 +255,7 @@ public class Api {
             }
         } catch (Exception e) {
             Tools.storeLog(context, "Sync SMS Error - L314");
+            Tools.storeLog(context, e.getMessage());
             e.printStackTrace();
             this.check_error(1);
             this.saveSettings();
