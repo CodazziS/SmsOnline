@@ -74,10 +74,10 @@ public class Api {
         if (this.working) {
             if (this.last_work == 0 || this.last_work < ((new Date()).getTime() - 1000000)) {
                 if (this.step == 4) {
-                    Tools.storeLog(context, "Timeout - Force continue L72");
+                    Tools.storeLog(context, "Timeout - Force continue L77 Step 4");
                     this.saveSettings();
                 } else {
-                    Tools.storeLog(context, "Timeout - Api.java L74");
+                    Tools.storeLog(context, "Timeout - Api.java L80 Step:" + this.step);
                     this.reset_api = true;
                     this.saveSettings();
                 }
@@ -103,7 +103,7 @@ public class Api {
                 this.prepareSmsLoop(false);
                 break;
             default:
-                Tools.storeLog(context, "Error ?! - Api.java L89");
+                Tools.storeLog(context, "Error ?! - Api.java L106 - Not normal !");
                 this.reset_api = true;
                 saveSettings();
         }
@@ -112,7 +112,6 @@ public class Api {
     private boolean getSettings() {
         this.reset_api = this.settings.getBoolean("reset_api", false);
         if (this.reset_api) {
-            Tools.storeLog(context, "reset api");
             this.reset_api = false;
             this.working = false;
             this.step = 0;
@@ -155,7 +154,7 @@ public class Api {
             this.user = null;
             this.key = null;
             this.reset_api = true;
-            Tools.storeLog(context, "Error : " + String.valueOf(error) + " Step : " + this.step + " - Api.java L143");
+            Tools.storeLog(context, "Error : " + String.valueOf(error) + " Step : " + this.step + " - Api.java L157");
             return true;
         }
         return false;
@@ -215,9 +214,9 @@ public class Api {
                 syncSms();
             }
         } catch (Exception e) {
-            Tools.storeLog(context, "Sync SMS Error - L226");
+            Tools.storeLog(context, "Sync SMS Error - L217");
             Tools.storeLog(context, e.getMessage());
-            e.printStackTrace();
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -254,9 +253,9 @@ public class Api {
                 this.prepareMmsLoop();
             }
         } catch (Exception e) {
-            Tools.storeLog(context, "Sync SMS Error - L314");
+            Tools.storeLog(context, "Sync SMS Error - L256");
             Tools.storeLog(context, e.getMessage());
-            e.printStackTrace();
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -291,16 +290,17 @@ public class Api {
                     this.syncSms();
                 } else {
                     Tools.logDebug(4, data);
-                    this.check_error(-1);
+                    this.check_error(error);
                     this.saveSettings();
                 }
             } else {
                 Tools.storeLog(context, "Network timeout without reseting api - SMS");
                 this.saveSettings();
             }
-        } catch (Exception e1) {
-            Tools.storeLog(context, "Sync SMSRes Error - L208");
-            Tools.logDebug(4, data);
+        } catch (Exception e) {
+            Tools.storeLog(context, "Sync SMSRes Error - L301");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(-1);
             this.saveSettings();
         }
@@ -357,8 +357,9 @@ public class Api {
                 this.saveSettings();
             }
         } catch (Exception e) {
-            Tools.storeLog(context, "Sync MMS Error - L314");
-            e.printStackTrace();
+            Tools.storeLog(context, "syncMms Error - L360");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -380,12 +381,13 @@ public class Api {
                     this.saveSettings();
                 }
             } else {
-                Tools.storeLog(context, "Network timeout without reseting api");
+                Tools.storeLog(context, "Network timeout without reseting api - MMS");
                 this.saveSettings();
             }
-        } catch (Exception e1) {
-            Tools.storeLog(context, "Sync MMSRes Error - L208");
-            Tools.logDebug(4, data);
+        } catch (Exception e) {
+            Tools.storeLog(context, "syncMmsRes - L388");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(-1);
             this.saveSettings();
         }
@@ -451,7 +453,9 @@ public class Api {
                 this.saveSettings();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Tools.storeLog(context, "syncContacts - L456");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -472,7 +476,9 @@ public class Api {
 
             Ajax.post(url, data, "addDeviceRes", this);
         } catch (Exception e) {
-            e.printStackTrace();
+            Tools.storeLog(context, "addDevice - L479");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -514,7 +520,9 @@ public class Api {
             String data = "email=" + email + "&password=" + password + "&type=" + URLEncoder.encode(this.device_id, "utf-8");
             Ajax.get(url, data, "getTokenRes", this);
         } catch (Exception e) {
-            e.printStackTrace();
+            Tools.storeLog(context, "getToken - L523");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -535,8 +543,10 @@ public class Api {
                     this.status = 22;
                 }
             }
-        } catch (JSONException e1) {
-            e1.printStackTrace();
+        } catch (JSONException e) {
+            Tools.storeLog(context, "GetTokenRes - L547");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
         }
         this.check_error(error);
         this.saveSettings();
@@ -554,7 +564,9 @@ public class Api {
             }
             Ajax.get(url, "", "getVersionRes", this);
         } catch (Exception e) {
-            e.printStackTrace();
+            Tools.storeLog(context, "L567: GetVersion");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
             this.check_error(1);
             this.saveSettings();
         }
@@ -580,8 +592,10 @@ public class Api {
             } else {
                 this.saveSettings();
             }
-        } catch (JSONException e1) {
-            e1.printStackTrace();
+        } catch (JSONException e) {
+            Tools.storeLog(context, "GetVersionRes - L596");
+            Tools.storeLog(context, e.getMessage());
+            Tools.storeLog(context, "Unexpected Exception due at line" + e.getStackTrace()[0].getLineNumber());
         }
     }
 }
