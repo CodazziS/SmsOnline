@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import fr.codazzi.smsonline.controllers.Api;
+import fr.codazzi.smsonline.controllers.Updater;
 import fr.codazzi.smsonline.sync.Synchronisation;
 
 public class MainActivity extends AppCompatActivity {
@@ -89,11 +90,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @Override
     public void onBackPressed() {
@@ -272,11 +268,15 @@ public class MainActivity extends AppCompatActivity {
     }
     public void goToMain(View view) {
         putMain();
+        this.askPermissions();
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_refreshed), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
     public void putInfos(View view) {
         try {
+
+            Updater up = new Updater(this, this.settings);
+            up.run();
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             Snackbar.make(findViewById(android.R.id.content),
                     getString(R.string.app_name) + " - V" + pInfo.versionName + " (" + pInfo.versionCode + ")",
@@ -357,30 +357,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logonLoop() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo network = cm.getActiveNetworkInfo();
-        boolean wifi_only = this.settings.getBoolean("wifi_only", true);
-
-        if (network == null
-                || (wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI)
-                || !network.isConnectedOrConnecting()) {
-            SharedPreferences.Editor editor = this.settings.edit();
-            editor.putInt("status", 20);
-            editor.apply();
-            return;
-        }
-
-        new Api(this, this.settings).Run();
-
-        int status = this.settings.getInt("status", -1);
-        if (status != 26 && (status >= 20 || status == 0)) {
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    logonLoop();
-                }
-            }, 5000);
-        }
+//        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo network = cm.getActiveNetworkInfo();
+//        boolean wifi_only = this.settings.getBoolean("wifi_only", true);
+//
+//        if (network == null
+//                || (wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI)
+//                || !network.isConnectedOrConnecting()) {
+//            SharedPreferences.Editor editor = this.settings.edit();
+//            editor.putInt("status", 20);
+//            editor.apply();
+//            return;
+//        }
+//
+//        new Api(this, this.settings).Run();
+//
+//        int status = this.settings.getInt("status", -1);
+//        if (status != 26 && (status >= 20 || status == 0)) {
+//            final Handler handler = new Handler();
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    logonLoop();
+//                }
+//            }, 5000);
+//        }
     }
 }

@@ -20,18 +20,18 @@ public class Synchronisation  extends BroadcastReceiver {
     }
 
     private void runApi(final Context context) {
-        SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo network = cm.getActiveNetworkInfo();
-        Tools.logDebug("Sync");
-        if (network == null
-                || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
-                || !network.isConnectedOrConnecting()) {
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putInt("error", 2);
-            editor.apply();
-            return;
-        }
-        new Api(context, settings).Run();
+//        SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
+//        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo network = cm.getActiveNetworkInfo();
+//        Tools.logDebug("Sync");
+//        if (network == null
+//                || (settings.getBoolean("wifi_only", true) && network.getType() != ConnectivityManager.TYPE_WIFI)
+//                || !network.isConnectedOrConnecting()) {
+//            SharedPreferences.Editor editor = settings.edit();
+//            editor.putInt("error", 2);
+//            editor.apply();
+//            return;
+//        }
+//        new Api(context, settings).Run();
     }
 }

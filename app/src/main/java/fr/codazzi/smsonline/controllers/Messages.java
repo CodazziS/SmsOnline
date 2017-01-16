@@ -52,6 +52,10 @@ class Messages {
         return this.getSms(context, null);
     }
 
+    public JSONArray getAllSmsId(Context context) {
+        return this.getSmsId(context, null);
+    }
+
     public JSONArray getAllMms(Context context) {
         JSONArray messages = new JSONArray();
         return this.getMms(context, null, messages);
@@ -127,6 +131,32 @@ class Messages {
             e.printStackTrace();
         }
         return messages;
+    }
+
+    private JSONArray getSmsId(Context context, String selection) {
+        JSONArray sms_ids = new JSONArray();
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = Uri.parse("content://sms");
+        Cursor c = contentResolver.query(uri, null, selection, null, null);
+        long date;
+        int id;
+
+        try {
+            if (c != null && c.moveToFirst()) {
+                do {
+                    date = c.getLong(c.getColumnIndex("date"));
+                    id = c.getInt(c.getColumnIndex("_id"));
+                    if (date > this.lastDateSms) {
+                        this.lastDateSms = date;
+                    }
+                    sms_ids.put(id);
+                } while (c.moveToNext());
+                c.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sms_ids;
     }
 
     static public JSONObject getMmsInfos(Context context, String mmsId, JSONObject message) throws JSONException {
@@ -230,15 +260,15 @@ class Messages {
         return sb.toString();
     }
 
-//    private void showCursorRow(Cursor c) {
-//        int nb_cols = c.getColumnCount();
-//        int col;
-//        Tools.logDebug("-----------------------------------------------------");
-//        for (col = 0; col < nb_cols; col++) {
-//            Tools.logDebug(2, c.getColumnName(col) + " => " + c.getString(col));
-//        }
-//        Tools.logDebug("-----------------------------------------------------");
-//    }
+    private void showCursorRow(Cursor c) {
+        int nb_cols = c.getColumnCount();
+        int col;
+        Tools.logDebug("-----------------------------------------------------");
+        for (col = 0; col < nb_cols; col++) {
+            Tools.logDebug(2, c.getColumnName(col) + " => " + c.getString(col));
+        }
+        Tools.logDebug("-----------------------------------------------------");
+    }
 
     static public void sendMessage(String address, String body, String type) {
         if (type.equals("sms")) {
