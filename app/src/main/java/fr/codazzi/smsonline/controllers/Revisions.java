@@ -35,10 +35,15 @@ public class Revisions {
         try {
             this.storage = new JSONObject();
             this.storage.put("revisions", new JSONArray());
-            this.storage.put("date_last_search", null);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void save() {
+        SharedPreferences.Editor editor = this.settings.edit();
+        editor.putString("revisions", this.storage.toString());
+        editor.apply();
     }
 
     public JSONObject getRevision(int id) {
@@ -64,6 +69,7 @@ public class Revisions {
             revisions.put(revision);
             this.storage.put("date_last_sms", date_sms);
             this.storage.put("date_last_mms", date_mms);
+            this.save();
         } catch (Exception e) {
             e.printStackTrace();
         }

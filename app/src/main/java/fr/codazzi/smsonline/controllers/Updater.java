@@ -6,6 +6,10 @@ import android.content.SharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
+
+import fr.codazzi.smsonline.Ajax;
+
 public class Updater {
     SharedPreferences settings;
     Context context;
@@ -40,14 +44,29 @@ public class Updater {
     }
 
     private boolean connexion() {
+//        String url = this.api_url + "Index/GetVersion";
+//        String email = URLEncoder.encode(this.settings.getString("email", ""), "utf-8");
+//        String password = URLEncoder.encode(this.settings.getString("password", ""), "utf-8");
+//        if (email.length() <= 4 || password.length() <= 4) {
+//            this.check_error(1);
+//            this.saveSettings();
+//            return;
+//        }
+//        Ajax.get(url, "", "getVersionRes", this);
         // Check version
 
-        // Check credentials
-
-        // Add device
-
-        // Get revision id
-
         return false;
+    }
+
+    private checkCredentials() {
+
+    }
+
+    private addDevice() {
+
+    }
+
+    private getRemoteRevision () {
+
     }
 }
