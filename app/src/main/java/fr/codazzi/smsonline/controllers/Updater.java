@@ -58,15 +58,15 @@ public class Updater {
         return false;
     }
 
-    private checkCredentials() {
+    private void checkCredentials() {
 
     }
 
-    private addDevice() {
+    private void addDevice() {
 
     }
 
-    private getRemoteRevision () {
+    private void getRemoteRevision () {
 
     }
 }

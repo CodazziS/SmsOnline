@@ -10,6 +10,8 @@ import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
+import org.json.JSONArray;
+
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -129,5 +131,18 @@ public class Tools {
     static public String getStoreLog(Context context) {
         SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
         return settings.getString("logs", "");
+    }
+
+    static public boolean isInJSONArray(JSONArray arr, int value) {
+        try {
+            for (int i = 0; i < arr.length(); i++) {
+                if (arr.getInt(i) == value) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

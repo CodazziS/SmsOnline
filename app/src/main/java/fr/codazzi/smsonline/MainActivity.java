@@ -39,6 +39,8 @@ import java.util.Locale;
 
 import fr.codazzi.smsonline.controllers.Api;
 import fr.codazzi.smsonline.controllers.Updater;
+import fr.codazzi.smsonline.listeners.RevisionsEvent;
+import fr.codazzi.smsonline.listeners.SyncEvent;
 import fr.codazzi.smsonline.sync.Synchronisation;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         putMain();
         this.setAlarm();
         this.refresh_loop();
+        // TODO REMOVE PERM HERE
+        askPermissions();
     }
 
     private void refresh_loop() {
@@ -75,14 +79,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAlarm() {
-        Intent myIntent = new Intent(this, Synchronisation.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,  0, myIntent, 0);
+        /* START REVISION TIMER every 5 min */
+        Intent myIntent = new Intent(this, RevisionsEvent.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                myIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(Calendar.SECOND, 1); // first time
-        long frequency = 120000; // in ms
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), frequency, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 1000,
+                60000, //300000, // 5 min in ms
+                pendingIntent);
+
+        /* START SYNC TIMER every 1 min */
+        Intent myIntent2 = new Intent(this, SyncEvent.class);
+        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
+                this,
+                0,
+                myIntent2,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager2 = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager2.setRepeating(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 1000,
+                60000, //120000, // 1 min in ms
+                pendingIntent2);
     }
 
     @Override
@@ -180,14 +201,16 @@ public class MainActivity extends AppCompatActivity {
         } else {
             sync.setText(getResources().getString(R.string.never_sync));
         }
+        /*
         try {
+            TODO: Reactive
             if (!Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners").contains(getPackageName())) {
                 LinearLayout notification_warning = (LinearLayout) findViewById(R.id.notification_warning);
                 notification_warning.setVisibility(View.VISIBLE);
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     /* On clicks */
