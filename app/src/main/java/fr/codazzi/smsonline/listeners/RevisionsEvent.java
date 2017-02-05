@@ -12,7 +12,7 @@ public class RevisionsEvent extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences settings = context.getSharedPreferences("swb_rev", 0);
+        SharedPreferences settings = context.getSharedPreferences("smsonline", 0);
 
         Log.d("DEBUGSTR", "START REVISIONEVENT");
         RevisionsManager revman = new RevisionsManager(context, settings);
