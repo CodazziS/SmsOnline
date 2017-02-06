@@ -1,5 +1,7 @@
 package fr.codazzi.smsonline.objects;
 
+import android.os.storage.StorageManager;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -83,14 +85,13 @@ class Api implements Callable<String> {
         String res = "";
 
         try {
-            int status = connection.getResponseCode();
-            Tools.logDebug("Status : " + status);
             is = connection.getInputStream();
             rd = new BufferedReader(new InputStreamReader(is));
             while ((line = rd.readLine()) != null) {
                 res += line;
             }
             rd.close();
+            Tools.logDebug(res);
             return res;
         } catch (Exception e) {
             e.printStackTrace();

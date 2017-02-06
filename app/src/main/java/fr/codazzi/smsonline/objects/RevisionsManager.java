@@ -72,7 +72,7 @@ public class RevisionsManager {
 
     public JSONObject getRevision(int id) {
         try {
-            return this.revisions.getJSONObject(id);
+            return this.revisions.getJSONObject(id - 1);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

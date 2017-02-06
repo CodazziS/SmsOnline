@@ -3,5 +3,5 @@
     <!-- DEFINES -->
     <string translatable="false" name="api_url">https://smsonline.fr/Api/</string>
     <string translatable="false" name="api_url_debug">https://dev.smsonline.fr/Api/</string>
-    <integer translatable="false" name="api_version">2</integer>
+    <integer translatable="false" name="api_version">3</integer>
 </resources>
