@@ -154,14 +154,8 @@ public class SyncManager {
         JSONArray sms_ids_array;
         JSONArray mms_ids_array;
         JSONArray contacts_ids_array;
-        JSONArray sms_array;
         Log.d("Sync", "SendRevision");
-        /*
-        revisions = JSONObject(
-        JSONArray new_sms_ids,
-        JSONArray new_mms_ids,
-        JSONArray new_contacts_ids);
-        */
+
         try {
             if (max_revision == this.api_revision) {
                 this.getActionsQueue();
@@ -174,13 +168,23 @@ public class SyncManager {
                 mms_ids_array = revision.getJSONArray("new_mms_ids");
                 contacts_ids_array = revision.getJSONArray("new_contacts_ids");
 
+                /* CONTACTS */
+                if (!this.syncContacts(contacts_ids_array)) {
+                    stopWork(true);
+                }
+
+                /* SMS */
                 if (!this.syncSms(sms_ids_array)) {
                     stopWork(true);
                 }
-                // TODO
-                // MMS
-                // CONTACTS
-                // SEND REVISION CONFIRMATION
+
+                /* MMS */
+                if (!this.syncMms(mms_ids_array)) {
+                    stopWork(true);
+                }
+
+                this.validRevision(this.api_revision + 1);
+                stopWork();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -189,6 +193,35 @@ public class SyncManager {
         }
     }
 
+    private boolean syncContacts(JSONArray contacts_ids_array) throws Exception {
+        JSONArray contacts = ContactsManager.getContactsValues(this.context, contacts_ids_array);
+        for (int i = 0; i < contacts.length(); i++) {
+            String result_str;
+            JSONObject result;
+            int error;
+            Log.d("SYNC", "syncContacts");
+
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            String url = this.api_url + "Contacts/Add";
+            String data = "user=" + this.api_user +
+                    "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
+                    "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
+                    "&reset=" + false +
+                    "&contacts=" + URLEncoder.encode(contacts.getJSONArray(i).toString(), "utf-8") +
+                    "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
+
+            Callable<String> worker = new Api("POST", url, data);
+            Future<String> future = executor.submit(worker);
+            result_str = future.get();
+            result = new JSONObject(result_str);
+            error = result.getInt("error");
+            if (error != 0) {
+                Tools.storeLog(this.context, "syncContacts Error : E" + error);
+                return false;
+            }
+        }
+        return true;
+    }
 
     private boolean syncSms(JSONArray sms_ids_array) throws Exception {
         for (int i = 0; i < sms_ids_array.length(); i++) {
@@ -217,6 +250,66 @@ public class SyncManager {
             }
         }
         return true;
+    }
+
+    private boolean syncMms(JSONArray mms_ids_array) throws Exception {
+        JSONArray list = MmsManager.getMmsValues(this.context, mms_ids_array);
+
+        for (int i = 0; i < list.length(); i++) {
+            String result_str;
+            JSONObject result;
+            int error;
+            Log.d("SYNC", "syncSms");
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            String url = this.api_url + "Messages/addMmsList";
+            String data = "user=" + this.api_user +
+                    "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
+                    "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
+                    "&messages=" + URLEncoder.encode(list.toString(), "utf-8") +
+                    "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
+
+            Callable<String> worker = new Api("POST", url, data);
+            Future<String> future = executor.submit(worker);
+            result_str = future.get();
+            result = new JSONObject(result_str);
+            error = result.getInt("error");
+            if (error != 0) {
+                Tools.storeLog(this.context, "syncMms Error : E" + error);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void validRevision(int rev) {
+        String result_str;
+        JSONObject result;
+        int error;
+        Log.d("SYNC", "validRevision");
+
+        try {
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            String url = this.api_url + "Users/validRevision";
+            String data = "user=" + this.api_user +
+                    "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
+                    "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
+                    "&device_model=" + URLEncoder.encode(android.os.Build.MODEL, "utf-8") +
+                    "&revision=" + rev +
+                    "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
+
+            Callable<String> worker = new Api("POST", url, data);
+            Future<String> future = executor.submit(worker);
+            result_str = future.get();
+            result = new JSONObject(result_str);
+            error = result.getInt("error");
+            if (error != 0) {
+                Tools.storeLog(this.context, "validRevision Error : E" + error);
+                this.stopWork(true);
+            }
+        } catch (Exception e) {
+            Tools.storeLog(this.context, e.getMessage());
+            this.stopWork(true);
+        }
     }
 
     private void getActionsQueue() {
