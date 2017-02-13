@@ -84,7 +84,7 @@ public class SyncManager {
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
-            String url = this.api_url + "Users/GetToken2";
+            String url = this.api_url + "Users/GetToken";
             String email = "test@smsonline.fr";
             String password = "azerty";
             String data = "email=" + URLEncoder.encode(email, "utf-8") +
@@ -138,7 +138,7 @@ public class SyncManager {
                 this.api_revision = result.getInt("revision");
                 this.sendRevision();
             } else {
-                Tools.storeLog(this.context, "GetToken Error : E" + error);
+                Tools.storeLog(this.context, "getRevisionId Error : E" + error);
                 this.stopWork(true);
             }
         } catch (Exception e) {

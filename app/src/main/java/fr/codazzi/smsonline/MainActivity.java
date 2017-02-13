@@ -9,12 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -25,23 +21,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import fr.codazzi.smsonline.controllers.Api;
-import fr.codazzi.smsonline.controllers.Updater;
 import fr.codazzi.smsonline.listeners.RevisionsEvent;
 import fr.codazzi.smsonline.listeners.SyncEvent;
-import fr.codazzi.smsonline.sync.Synchronisation;
 
 public class MainActivity extends AppCompatActivity {
     private String c_activity;
@@ -297,9 +286,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void putInfos(View view) {
         try {
-
-            Updater up = new Updater(this, this.settings);
-            up.run();
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             Snackbar.make(findViewById(android.R.id.content),
                     getString(R.string.app_name) + " - V" + pInfo.versionName + " (" + pInfo.versionCode + ")",

@@ -87,8 +87,6 @@ class ContactsManager {
             cursor.close();
         }
         contactsAll.put(contacts_without_img);
-        //contactsAll.put(0, contacts_without_img);
-        //contactsAll.put(1, contacts_with_img);
         return contactsAll;
     }
 }
