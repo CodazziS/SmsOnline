@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +36,7 @@ public class SyncManager {
         this.api_token = this.settings.getString("api_token", null);
         this.api_key = this.settings.getString("api_key", null);
         this.api_user = this.settings.getInt("api_user", 0);
-        this.api_url = "https://dev.smsonline.fr/api/";
+        this.api_url = this.settings.getString("server_uri2", null);
     }
 
     private void startWork() {
@@ -66,7 +65,7 @@ public class SyncManager {
     public void startSynchronization() {
         if (this.settings.getBoolean("SyncManagerWorking", false)) {
             Tools.storeLog(this.context, "SyncManager Is already working ...");
-            // @TODO RETURN
+            return;
         }
         this.startWork();
         if (this.api_token == null) {
@@ -85,8 +84,12 @@ public class SyncManager {
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
             String url = this.api_url + "Users/GetToken";
-            String email = "test@smsonline.fr";
-            String password = "azerty";
+            String email = this.settings.getString("email", null);
+            String password = this.settings.getString("password", null);
+            if (this.api_url == null || email == null || password == null) {
+                this.stopWork(true);
+                return;
+            }
             String data = "email=" + URLEncoder.encode(email, "utf-8") +
                     "&password=" + URLEncoder.encode(password, "utf-8") +
                     "&type=android" +
@@ -122,7 +125,7 @@ public class SyncManager {
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
-            String url = this.api_url + "Users/getRevisionId";
+            String url = this.api_url + "Devices/getRevisionId";
             String data = "user=" + this.api_user +
                     "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
                     "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
@@ -161,6 +164,7 @@ public class SyncManager {
                 this.getActionsQueue();
             } else if (max_revision < this.api_revision) {
                 Tools.storeLog(this.context, "Remote revision is higher than device revision");
+                this.deleteDevice();
                 stopWork(true);
             } else {
                 revision = revman.getRevision(this.api_revision + 1);
@@ -190,6 +194,35 @@ public class SyncManager {
             e.printStackTrace();
             Tools.storeLog(this.context, e.getMessage());
             stopWork(true);
+        }
+    }
+
+    private void deleteDevice() {
+        String result_str;
+        JSONObject result;
+        int error;
+        Log.d("SYNC", "deleteDevice");
+
+        try {
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            String url = this.api_url + "Devices/remove";
+            String data = "user=" + this.api_user +
+                    "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
+                    "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
+                    "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
+
+            Callable<String> worker = new Api("POST", url, data);
+            Future<String> future = executor.submit(worker);
+            result_str = future.get();
+            result = new JSONObject(result_str);
+            Log.d("deleteDevice", result_str);
+            error = result.getInt("error");
+            if (error != 0) {
+                Tools.storeLog(this.context, "Error to delete Device");
+            }
+        } catch (Exception e) {
+            Tools.storeLog(this.context, e.getMessage());
+            this.stopWork(true);
         }
     }
 
@@ -289,7 +322,7 @@ public class SyncManager {
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
-            String url = this.api_url + "Users/validRevision";
+            String url = this.api_url + "Devices/validRevision";
             String data = "user=" + this.api_user +
                     "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
                     "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
@@ -313,21 +346,91 @@ public class SyncManager {
     }
 
     private void getActionsQueue() {
-        Log.d("Sync", "GetActionQueue");
-        this.stopWork();
+        String result_str;
+        JSONObject result;
+        int error;
+        Log.d("SYNC", "getActionsQueue");
+
+        try {
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            String url = this.api_url + "Messages/getQueue";
+            String data = "user=" + this.api_user +
+                    "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
+                    "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
+                    "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
+
+            Callable<String> worker = new Api("GET", url, data);
+            Future<String> future = executor.submit(worker);
+            result_str = future.get();
+            result = new JSONObject(result_str);
+            error = result.getInt("error");
+            if (error != 0) {
+                Tools.storeLog(this.context, "getActionsQueue Error : E" + error);
+                this.stopWork(true);
+            } else {
+                JSONArray queue = result.getJSONArray("queue");
+                for (int i = 0; i < queue.length(); i++) {
+                    JSONObject message = queue.getJSONObject(i);
+                    if (message.getString("type").equals("sms")) {
+                        SmsManager.sendMessage(
+                            message.getString("address"),
+                            message.getString("body")
+                        );
+                        this.validQueue(message.getInt("id"));
+                    }
+                }
+                this.stopWork();
+            }
+        } catch (Exception e) {
+            Tools.storeLog(this.context, e.getMessage());
+            this.stopWork(true);
+        }
+    }
+
+    private void validQueue(int id) {
+        String result_str;
+        JSONObject result;
+        int error;
+        Log.d("SYNC", "validQueue");
+
+        try {
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            String url = this.api_url + "Messages/validQueue";
+            String data = "user=" + this.api_user +
+                    "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
+                    "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
+                    "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8") +
+                    "&id=" + URLEncoder.encode(String.valueOf(id), "utf-8");
+
+            Callable<String> worker = new Api("GET", url, data);
+            Future<String> future = executor.submit(worker);
+            result_str = future.get();
+            result = new JSONObject(result_str);
+            error = result.getInt("error");
+            if (error != 0) {
+                Tools.storeLog(this.context, "validQueue Error : E" + error);
+                this.stopWork(true);
+            }
+        } catch (Exception e) {
+            Tools.storeLog(this.context, e.getMessage());
+            this.stopWork(true);
+        }
     }
 
     private JSONArray splitter(JSONArray array) throws JSONException {
-        JSONArray final_array = new JSONArray();
-        JSONArray current_array = new JSONArray();
+        int i;
+        int y = 0;
         int count = array.length();
-        for (int i = 0; i < count; i++) {
-            current_array.put(array.getInt(i));
-            if (i % 100 == 0) {
-                final_array.put(current_array);
-                current_array = new JSONArray();
+        JSONArray final_array = new JSONArray();
+        final_array.put(y, new JSONArray());
+
+        for (i = 0; i < count; i++) {
+            final_array.getJSONArray(y).put(array.getInt(i));
+            if (i % 100 == 0 && i != 0) {
+                final_array.put(++y, new JSONArray());
             }
         }
+
         return final_array;
     }
 }

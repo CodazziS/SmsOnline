@@ -1,5 +1,6 @@
 package fr.codazzi.smsonline.objects;
 
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +10,8 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 class SmsManager {
 
@@ -56,5 +59,16 @@ class SmsManager {
             }
         }
         return sms_list;
+    }
+
+    static public void sendMessage(String address, String body) {
+        android.telephony.SmsManager sms = android.telephony.SmsManager.getDefault();
+        ArrayList<String> mSMSMessage = sms.divideMessage(body);
+        ArrayList<PendingIntent> deliveredIntents;
+        deliveredIntents = new ArrayList<>();
+        for (int i = 0; i < mSMSMessage.size(); i++) {
+            deliveredIntents.add(i, null);
+        }
+        sms.sendMultipartTextMessage(address, null, mSMSMessage, null, deliveredIntents);
     }
 }

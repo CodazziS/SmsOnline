@@ -49,7 +49,7 @@ public class MmsManager {
             ids_str = ids_str.replace("[", "(");
             ids_str = ids_str.replace("]", ")");
             String selection = "_id IN " + ids_str;
-            Log.d("smsManagerIDS", selection);
+            Log.d("mmsManagerIDS", selection);
             Cursor query = contentResolver.query(uri, null, selection, null, null);
             if (query != null && query.moveToFirst()) {
                 do {
