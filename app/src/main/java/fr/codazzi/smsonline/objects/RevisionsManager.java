@@ -46,9 +46,11 @@ public class RevisionsManager {
             }
         }
         /* DEBUG */
+        Log.d("REVISION", "* ***** START REVISION LIST ***** *");
         for (int i = 0; i < this.countRevisions(); i++) {
-            Log.d("REVISION", this.getRevision(i + 1).toString());
+            Log.d("REVISION_" + i, this.getRevision(i + 1).toString());
         }
+        Log.d("REVISION", "* ***** END  REVISION  LIST ***** *");
     }
 
     private void InitialiseRevisionsManager() {
