@@ -13,8 +13,10 @@ import android.util.Log;
 import org.json.JSONArray;
 
 import java.io.ByteArrayOutputStream;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 public class Tools {
 
@@ -144,5 +146,34 @@ public class Tools {
             e.printStackTrace();
         }
         return false;
+    }
+
+    static public String getRandomString(int size) {
+        String alpha = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder(size);
+        SecureRandom rnd = new SecureRandom();
+
+        for( int i = 0; i < size; i++ ) {
+            sb.append(alpha.charAt(rnd.nextInt(alpha.length())));
+        }
+        return sb.toString();
+    }
+
+//    static public String getRandomString(int size) {
+//        Random generator = new Random();
+//        SecureRandom rnd = new SecureRandom();
+//
+//        StringBuilder randomStringBuilder = new StringBuilder();
+//        int randomLength = generator.nextInt(size);
+//        char tempChar;
+//        for (int i = 0; i < randomLength; i++) {
+//            tempChar = (char) (generator.nextInt(96) + 32);
+//            randomStringBuilder.append(tempChar);
+//        }
+//        return randomStringBuilder.toString();
+//    }
+
+    static public int getApiError(int error) {
+        return R.string.sta_unknow;
     }
 }

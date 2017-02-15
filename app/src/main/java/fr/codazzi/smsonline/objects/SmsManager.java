@@ -61,7 +61,7 @@ class SmsManager {
         return sms_list;
     }
 
-    static public void sendMessage(String address, String body) {
+    static void sendMessage(String address, String body) {
         android.telephony.SmsManager sms = android.telephony.SmsManager.getDefault();
         ArrayList<String> mSMSMessage = sms.divideMessage(body);
         ArrayList<PendingIntent> deliveredIntents;

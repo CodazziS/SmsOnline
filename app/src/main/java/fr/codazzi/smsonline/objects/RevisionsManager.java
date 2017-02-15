@@ -17,6 +17,7 @@ public class RevisionsManager {
     private JSONArray mms_list_ids = null;
     private JSONArray contact_list_ids = null;
     private JSONArray revisions = null;
+    private String name = null;
     /*
         revisions = JSONObject(
             JSONArray new_sms_ids,
@@ -40,6 +41,7 @@ public class RevisionsManager {
                 mms_list_ids = revision_manager_object.getJSONArray("mms_list_ids");
                 contact_list_ids = revision_manager_object.getJSONArray("contact_list_ids");
                 revisions = revision_manager_object.getJSONArray("revisions");
+                name = revision_manager_object.getString("name");
             } catch (Exception e) {
                 e.printStackTrace();
                 InitialiseRevisionsManager();
@@ -58,6 +60,7 @@ public class RevisionsManager {
         mms_list_ids = new JSONArray();
         contact_list_ids = new JSONArray();
         revisions = new JSONArray();
+        name = Tools.getRandomString(20);
     }
 
     void SaveRevisionsManager() {
@@ -68,12 +71,18 @@ public class RevisionsManager {
             revision_manager_object.put("mms_list_ids", mms_list_ids);
             revision_manager_object.put("contact_list_ids", contact_list_ids);
             revision_manager_object.put("revisions", revisions);
+            revision_manager_object.put("name", name);
 
             editor.putString("RevisionsManager", revision_manager_object.toString());
             editor.apply();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void resetRevisions() {
+        this.InitialiseRevisionsManager();
+        this.SaveRevisionsManager();
     }
 
     public JSONObject getRevision(int id) {
@@ -87,6 +96,10 @@ public class RevisionsManager {
 
     public void addRevision(JSONObject revision) {
         this.revisions.put(revision);
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public int countRevisions() {

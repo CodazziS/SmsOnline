@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import fr.codazzi.smsonline.R;
 import fr.codazzi.smsonline.Tools;
 
 public class SyncManager {
@@ -42,6 +43,7 @@ public class SyncManager {
     private void startWork() {
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putBoolean("SyncManagerWorking", true);
+        editor.putInt("SyncManagerWorkingRetry", 0);
         editor.apply();
     }
 
@@ -64,7 +66,17 @@ public class SyncManager {
 
     public void startSynchronization() {
         if (this.settings.getBoolean("SyncManagerWorking", false)) {
-            Tools.storeLog(this.context, "SyncManager Is already working ...");
+            int retry = this.settings.getInt("SyncManagerWorkingRetry", 0);
+            if (retry > 2) {
+                this.stopWork(true);
+                Tools.storeLog(this.context, "Force stop Working");
+            } else {
+                SharedPreferences.Editor editor = this.settings.edit();
+                editor.putBoolean("SyncManagerWorking", true);
+                editor.putInt("SyncManagerWorkingRetry", retry + 1);
+                editor.apply();
+                Tools.storeLog(this.context, "SyncManager Is already working ... ("+retry+")");
+            }
             return;
         }
         this.startWork();
@@ -79,6 +91,7 @@ public class SyncManager {
         String result_str;
         JSONObject result;
         int error;
+        RevisionsManager revman = new RevisionsManager(this.context, this.settings);
         Log.d("SYNC", "getToken");
 
         try {
@@ -87,6 +100,7 @@ public class SyncManager {
             String email = this.settings.getString("email", null);
             String password = this.settings.getString("password", null);
             if (this.api_url == null || email == null || password == null) {
+                this.setStatus(R.string.sta_no_infos);
                 this.stopWork(true);
                 return;
             }
@@ -94,6 +108,7 @@ public class SyncManager {
                     "&password=" + URLEncoder.encode(password, "utf-8") +
                     "&type=android" +
                     "&device_model=" + URLEncoder.encode(android.os.Build.MODEL, "utf-8") +
+                    "&rev_name=" + URLEncoder.encode(revman.getName(), "utf-8") +
                     "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
 
             Callable<String> worker = new Api("GET", url, data);
@@ -102,12 +117,21 @@ public class SyncManager {
             result = new JSONObject(result_str);
             error = result.getInt("error");
             if (error == 0) {
+                if (result.getString("rev_name").equals(revman.getName())) {
+                    this.setStatus(R.string.sta_bad_revision);
+                    revman.resetRevisions();
+                    this.deleteDevice();
+                    this.stopWork(true);
+                    return;
+                }
+                this.setStatus(R.string.sta_connected);
                 this.api_token = result.getString("token");
                 this.api_key = result.getString("key");
                 this.api_user = result.getInt("user");
                 this.api_revision = result.getInt("revision");
                 this.sendRevision();
             } else {
+                this.setStatus(Tools.getApiError(error));
                 Tools.storeLog(this.context, "GetToken Error : E" + error);
                 this.stopWork(true);
             }
@@ -121,6 +145,7 @@ public class SyncManager {
         String result_str;
         JSONObject result;
         int error;
+        RevisionsManager revman = new RevisionsManager(this.context, this.settings);
         Log.d("SYNC", "getLastRevision");
 
         try {
@@ -130,6 +155,7 @@ public class SyncManager {
                     "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
                     "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
                     "&device_model=" + URLEncoder.encode(android.os.Build.MODEL, "utf-8") +
+                    "&rev_name=" + URLEncoder.encode(revman.getName(), "utf-8") +
                     "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
 
             Callable<String> worker = new Api("GET", url, data);
@@ -138,9 +164,18 @@ public class SyncManager {
             result = new JSONObject(result_str);
             error = result.getInt("error");
             if (error == 0) {
+                if (result.getString("rev_name").equals(revman.getName())) {
+                    this.setStatus(R.string.sta_bad_revision);
+                    revman.resetRevisions();
+                    this.deleteDevice();
+                    this.stopWork(true);
+                    return;
+                }
+                this.setStatus(R.string.sta_connected);
                 this.api_revision = result.getInt("revision");
                 this.sendRevision();
             } else {
+                this.setStatus(Tools.getApiError(error));
                 Tools.storeLog(this.context, "getRevisionId Error : E" + error);
                 this.stopWork(true);
             }
@@ -161,8 +196,10 @@ public class SyncManager {
 
         try {
             if (max_revision == this.api_revision) {
+                this.setStatus(R.string.sta_synchronized);
                 this.getActionsQueue();
             } else if (max_revision < this.api_revision) {
+                this.setStatus(R.string.sta_rev_error);
                 Tools.storeLog(this.context, "Remote revision is higher than device revision");
                 this.deleteDevice();
                 stopWork(true);
@@ -173,21 +210,29 @@ public class SyncManager {
                 contacts_ids_array = revision.getJSONArray("new_contacts_ids");
 
                 /* CONTACTS */
+                this.resetRetry();
+                this.setStatus(R.string.sta_sync_contacts);
                 if (!this.syncContacts(contacts_ids_array)) {
                     stopWork(true);
                 }
 
                 /* SMS */
+                this.resetRetry();
+                this.setStatus(R.string.sta_sync_sms);
                 if (!this.syncSms(sms_ids_array)) {
                     stopWork(true);
                 }
 
                 /* MMS */
+                this.resetRetry();
+                this.setStatus(R.string.sta_sync_mms);
                 if (!this.syncMms(mms_ids_array)) {
                     stopWork(true);
                 }
 
+                this.resetRetry();
                 this.validRevision(this.api_revision + 1);
+                this.setStatus(R.string.sta_synced);
                 stopWork();
             }
         } catch (Exception e) {
@@ -263,6 +308,7 @@ public class SyncManager {
             int error;
             Log.d("SYNC", "syncSms");
 
+            this.resetRetry();
             JSONArray list = SmsManager.getSmsValues(this.context, sms_ids_array.getJSONArray(i));
             ExecutorService executor = Executors.newFixedThreadPool(1);
             String url = this.api_url + "Messages/addSmsList";
@@ -293,6 +339,7 @@ public class SyncManager {
             JSONObject result;
             int error;
             Log.d("SYNC", "syncSms");
+            this.resetRetry();
             ExecutorService executor = Executors.newFixedThreadPool(1);
             String url = this.api_url + "Messages/addMmsList";
             String data = "user=" + this.api_user +
@@ -417,6 +464,12 @@ public class SyncManager {
         }
     }
 
+    private void setStatus(int status) {
+        SharedPreferences.Editor editor = this.settings.edit();
+        editor.putInt("SyncManagerStatus", status);
+        editor.apply();
+    }
+
     private JSONArray splitter(JSONArray array) throws JSONException {
         int i;
         int y = 0;
@@ -432,5 +485,11 @@ public class SyncManager {
         }
 
         return final_array;
+    }
+
+    private void resetRetry() {
+        SharedPreferences.Editor editor = this.settings.edit();
+        editor.putInt("SyncManagerWorkingRetry", 0);
+        editor.apply();
     }
 }

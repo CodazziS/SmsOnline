@@ -1,9 +1,6 @@
 package fr.codazzi.smsonline;
 
 import android.Manifest;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -21,16 +19,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import fr.codazzi.smsonline.listeners.RevisionsEvent;
-import fr.codazzi.smsonline.listeners.SyncEvent;
+import fr.codazzi.smsonline.listeners.LaunchEvent;
 
 public class MainActivity extends AppCompatActivity {
     private String c_activity;
@@ -42,10 +35,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.settings = this.getSharedPreferences("swb_infos", 0);
         putMain();
-        this.setAlarm();
+        LaunchEvent.setAlarm(this);
         this.refresh_loop();
-        // TODO REMOVE PERM HERE
-        askPermissions();
     }
 
     private void refresh_loop() {
@@ -53,10 +44,10 @@ public class MainActivity extends AppCompatActivity {
             TextView status;
             int status_int;
             status = (TextView) findViewById(R.id.status_str);
-            status_int = this.settings.getInt("status", 20);
-            status.setText(getResources().getStringArray(R.array.status_str)[status_int]);
+            status_int = this.settings.getInt("SyncManagerStatus", R.string.sta_unknow);
+            status.setText(getResources().getString(status_int));
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -65,34 +56,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 },
                 2000);
-    }
-
-    private void setAlarm() {
-        /* START REVISION TIMER every 5 min */
-        Intent myIntent = new Intent(this, RevisionsEvent.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this,
-                0,
-                myIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + 1000,
-                60000, //300000, // 5 min in ms
-                pendingIntent);
-
-        /* START SYNC TIMER every 1 min */
-        Intent myIntent2 = new Intent(this, SyncEvent.class);
-        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
-                this,
-                0,
-                myIntent2,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager2 = (AlarmManager)this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager2.setRepeating(AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + 1000,
-                60000, //120000, // 1 min in ms
-                pendingIntent2);
     }
 
     @Override
@@ -109,13 +72,20 @@ public class MainActivity extends AppCompatActivity {
             if (diff <= 2000) {
                 finish();
             } else {
-                Toast.makeText(getApplicationContext(), getString(R.string.home_back_to_quit), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        getApplicationContext(),
+                        getString(R.string.home_back_to_quit),
+                        Toast.LENGTH_SHORT
+                ).show();
             }
             lastPressTime = pressTime;
         } else {
             putMain();
-            Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_not_saved), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            Snackbar.make(
+                    findViewById(android.R.id.content),
+                    getString(R.string.home_change_not_saved),
+                    Snackbar.LENGTH_LONG
+            ).setAction("Action", null).show();
         }
     }
 
@@ -166,11 +136,8 @@ public class MainActivity extends AppCompatActivity {
     /* Navigation */
     private void putMain() {
         TextView status;
-        TextView sync;
         Toolbar toolbar;
-        Date last_sync_date;
         int status_int;
-        long last_sync;
 
         c_activity = "main";
         setContentView(R.layout.activity_main);
@@ -178,28 +145,17 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         status = (TextView) findViewById(R.id.status_str);
-        status_int = this.settings.getInt("status", 20);
-        status.setText(getResources().getStringArray(R.array.status_str)[status_int]);
-        sync = (TextView) findViewById(R.id.sync_str);
-        last_sync = settings.getLong("last_sync", 0);
-        if (last_sync != 0) {
-            last_sync_date = new Date(last_sync);
-            DateFormat dateFormat = DateFormat.getDateInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            sync.setText(String.valueOf(dateFormat.format(last_sync_date) + " " + sdf.format(last_sync_date)));
-        } else {
-            sync.setText(getResources().getString(R.string.never_sync));
-        }
-        /*
+        status_int = this.settings.getInt("SyncManagerStatus", R.string.sta_unknow);
+        status.setText(getResources().getString(status_int));
+
         try {
-            TODO: Reactive
             if (!Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners").contains(getPackageName())) {
                 LinearLayout notification_warning = (LinearLayout) findViewById(R.id.notification_warning);
                 notification_warning.setVisibility(View.VISIBLE);
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     /* On clicks */
@@ -214,25 +170,7 @@ public class MainActivity extends AppCompatActivity {
         CheckBox show_full;
         CheckBox sync_mms;
 
-        String default_api_url = getString(R.string.api_url);
-        String default_email = "";
-        String default_password = "";
         this.c_activity = "settings";
-
-        /* Get defaults values */
-        try {
-            if (BuildConfig.DEBUG) {
-                default_api_url = getString(R.string.api_url_debug);
-            }
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            if (pInfo.versionName.contains("alpha")) {
-                default_email = "alpha@example.com";
-                default_password = "@z3rtY";
-                default_api_url = getString(R.string.api_url_debug);
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
 
         /* Set view */
         setContentView(R.layout.activity_settings);
@@ -251,11 +189,11 @@ public class MainActivity extends AppCompatActivity {
         settings_logs = (TextView) findViewById(R.id.settingsLogs);
 
         /* set values */
-        email.setText(this.settings.getString("email", default_email));
-        password.setText(this.settings.getString("password", default_password));
+        email.setText(this.settings.getString("email", ""));
+        password.setText(this.settings.getString("password", ""));
         wifi_only.setChecked(this.settings.getBoolean("wifi_only", true));
         sync_mms.setChecked(this.settings.getBoolean("sync_mms", true));
-        server_uri.setText(this.settings.getString("server_uri2", default_api_url));
+        server_uri.setText(this.settings.getString("server_uri2", getString(R.string.api_url)));
         settings_logs.setText(Tools.getStoreLog(this.getApplicationContext()));
 
         /* Submit form */
@@ -353,43 +291,16 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("email", email.getText().toString());
         editor.putString("password", password.getText().toString());
         editor.putString("server_uri2", server_uri.getText().toString());
-        editor.putBoolean("reset_api", true);
         editor.putBoolean("wifi_only", wifi_only.isChecked() || wifi_only.isActivated() || wifi_only.isFocused());
         editor.putBoolean("sync_mms", checkbox_sync_mms.isChecked() || checkbox_sync_mms.isActivated() || checkbox_sync_mms.isFocused());
         editor.apply();
 
         putMain();
-        Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_change_saved), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
+        Snackbar.make(
+            findViewById(android.R.id.content),
+            getString(R.string.home_change_saved),
+            Snackbar.LENGTH_LONG
+        ).setAction("Action", null).show();
         this.askPermissions();
-        this.logonLoop();
-    }
-
-    private void logonLoop() {
-//        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo network = cm.getActiveNetworkInfo();
-//        boolean wifi_only = this.settings.getBoolean("wifi_only", true);
-//
-//        if (network == null
-//                || (wifi_only && network.getType() != ConnectivityManager.TYPE_WIFI)
-//                || !network.isConnectedOrConnecting()) {
-//            SharedPreferences.Editor editor = this.settings.edit();
-//            editor.putInt("status", 20);
-//            editor.apply();
-//            return;
-//        }
-//
-//        new Api(this, this.settings).Run();
-//
-//        int status = this.settings.getInt("status", -1);
-//        if (status != 26 && (status >= 20 || status == 0)) {
-//            final Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    logonLoop();
-//                }
-//            }, 5000);
-//        }
     }
 }

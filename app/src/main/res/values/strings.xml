@@ -1,35 +1,6 @@
 <resources>
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
-    <string-array name="status_str">
-        <!-- 00 --><item>Initialisation</item>
-        <!-- 01 --><item>Missing credentials</item>
-        <!-- 02 --><item>Network error</item>
-        <!-- 03 --><item>Email is not valid</item>
-        <!-- 04 --><item>Password is too short</item>
-        <!-- 05 --><item>Email already exist</item>
-        <!-- 06 --><item>Bad credentials</item>
-        <!-- 07 --><item>Object not found</item>
-        <!-- 08 --><item>Unknown error</item>
-        <!-- 09 --><item>Unknown error</item>
-        <!-- 10 --><item>Unknown error</item>
-        <!-- 11 --><item>Unknown error</item>
-        <!-- 12 --><item>Unknown error</item>
-        <!-- 13 --><item>Unknown error</item>
-        <!-- 14 --><item>Unknown error</item>
-        <!-- 15 --><item>Unknown error</item>
-        <!-- 16 --><item>API version not match: maybe you should update your application</item>
-        <!-- 17 --><item>Unknown error</item>
-        <!-- 18 --><item>Unknown error</item>
-        <!-- 19 --><item>Unknown error</item>
-        <!-- 20 --><item>Initialisation</item>
-        <!-- 21 --><item>Login</item>
-        <!-- 22 --><item>Sync device configuration</item>
-        <!-- 23 --><item>Contacts synchronization</item>
-        <!-- 24 --><item>SMS synchronization</item>
-        <!-- 25 --><item>MMS synchronization</item>
-        <!-- 26 --><item>Synchronized</item>
-    </string-array>
 
     <!-- VIEWS -->
         <!-- activity_main - main -->
@@ -63,4 +34,17 @@
     <string name="permissions_text">The application need permissions for run.</string>
     <string name="permissions_ask">Ask Permissions</string>
     <string name="permission_cancel">Cancel</string>
+
+    <!-- STATUS -->
+    <string name="sta_no_infos">No credentials</string>
+    <string name="sta_connected">sta_connected</string>
+    <string name="sta_bad_revision">sta_bad_revision</string>
+    <string name="sta_synchronized">sta_synchronized</string>
+    <string name="sta_rev_error">sta_rev_error</string>
+    <string name="sta_sync_contacts">sta_sync_contacts</string>
+    <string name="sta_sync_sms">sta_sync_sms</string>
+    <string name="sta_sync_mms">sta_sync_mms</string>
+    <string name="sta_synced">sta_synced</string>
+    <!-- API -->
+    <string name="sta_unknow">sta_unknow</string>
 </resources>

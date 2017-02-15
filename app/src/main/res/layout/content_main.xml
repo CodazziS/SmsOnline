@@ -108,42 +108,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Last sync -->
-    <LinearLayout
-        style="@style/Block"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
-        <ImageView
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:contentDescription="@string/main_sync"
-            android:src="@drawable/ic_schedule_black_24dp"/>
-        <LinearLayout
-            style="@style/Block"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="7dp"
-            >
-            <TextView
-                style="@style/ItemTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/main_sync"
-                />
-
-            <TextView
-                style="@style/ItemValue"
-                android:id="@+id/sync_str"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                />
-        </LinearLayout>
-    </LinearLayout>
-
     <LinearLayout
         style="@style/Block"
         android:orientation="horizontal"
