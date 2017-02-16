@@ -159,21 +159,20 @@ public class Tools {
         return sb.toString();
     }
 
-//    static public String getRandomString(int size) {
-//        Random generator = new Random();
-//        SecureRandom rnd = new SecureRandom();
-//
-//        StringBuilder randomStringBuilder = new StringBuilder();
-//        int randomLength = generator.nextInt(size);
-//        char tempChar;
-//        for (int i = 0; i < randomLength; i++) {
-//            tempChar = (char) (generator.nextInt(96) + 32);
-//            randomStringBuilder.append(tempChar);
-//        }
-//        return randomStringBuilder.toString();
-//    }
-
     static public int getApiError(int error) {
-        return R.string.sta_unknow;
+        switch (error) {
+            case 1:
+                return R.string.sta_bad_method;
+            case 2:
+                return R.string.sta_missing_arg;
+            case 3:
+                return R.string.sta_invalid_mail;
+            case 4:
+                return R.string.sta_short_password;
+            case 6:
+                return R.string.sta_bad_credential;
+            default:
+                return R.string.sta_unknow;
+        }
     }
 }

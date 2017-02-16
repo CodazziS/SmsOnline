@@ -1,5 +1,6 @@
 package fr.codazzi.smsonline.objects;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -108,14 +109,16 @@ public class RevisionsManager {
 
     public void searchNewRevision() {
         JSONObject revision = new JSONObject();
-        boolean new_rev;
+        boolean new_rev = false;
 
-        new_rev = this.searchNewSms(revision);
-        new_rev = this.searchNewMms(revision) || new_rev;
-        new_rev = this.searchNewContacts(revision) || new_rev;
-
+        if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
+            new_rev = this.searchNewSms(revision);
+            new_rev = this.searchNewMms(revision) || new_rev;
+        }
+        if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
+            new_rev = this.searchNewContacts(revision) || new_rev;
+        }
         if(new_rev) {
-            Log.d("NEW_REV", revision.toString());
             this.revisions.put(revision);
             SaveRevisionsManager();
         }

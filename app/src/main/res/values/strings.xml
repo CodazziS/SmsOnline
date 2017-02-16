@@ -5,7 +5,6 @@
     <!-- VIEWS -->
         <!-- activity_main - main -->
     <string name="main_title">SmsOnline</string>
-    <string name="main_url">https://smsonline.fr</string>
     <string name="main_settings">Settings</string>
     <string name="main_status">Status</string>
     <string name="main_sync">Last synchronisation</string>
@@ -37,14 +36,19 @@
 
     <!-- STATUS -->
     <string name="sta_no_infos">No credentials</string>
-    <string name="sta_connected">sta_connected</string>
-    <string name="sta_bad_revision">sta_bad_revision</string>
-    <string name="sta_synchronized">sta_synchronized</string>
-    <string name="sta_rev_error">sta_rev_error</string>
-    <string name="sta_sync_contacts">sta_sync_contacts</string>
-    <string name="sta_sync_sms">sta_sync_sms</string>
-    <string name="sta_sync_mms">sta_sync_mms</string>
-    <string name="sta_synced">sta_synced</string>
+    <string name="sta_connected">Connected</string>
+    <string name="sta_bad_revision">Revision error</string>
+    <string name="sta_synchronized">Synchronized</string>
+    <string name="sta_rev_error">Revision error</string>
+    <string name="sta_sync_contacts">Contact synchronized</string>
+    <string name="sta_sync_sms">Sms synchronized</string>
+    <string name="sta_sync_mms">Mms synchronized</string>
+    <string name="sta_synced">Synchronized</string>
     <!-- API -->
-    <string name="sta_unknow">sta_unknow</string>
+    <string name="sta_unknow">Unknow Error</string>
+    <string name="sta_bad_method">API method error</string>
+    <string name="sta_missing_arg">API arg error</string>
+    <string name="sta_invalid_mail">Mail invalid</string>
+    <string name="sta_short_password">Password invalid (too short)</string>
+    <string name="sta_bad_credential">Bad credentials</string>
 </resources>

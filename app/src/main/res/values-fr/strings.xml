@@ -4,40 +4,9 @@
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
 
-    <string-array name="status_str">
-        <!-- 00 --><item>Initialisation</item>
-        <!-- 01 --><item>Identifiants manquants</item>
-        <!-- 02 --><item>Erreur réseau</item>
-        <!-- 03 --><item>Adresse email non valide</item>
-        <!-- 04 --><item>Le mot de passe est trop court</item>
-        <!-- 05 --><item>L\'email existe déjà</item>
-        <!-- 06 --><item>Identifiants erronés</item>
-        <!-- 07 --><item>Objet non trouvé</item>
-        <!-- 08 --><item>Erreur inconnue</item>
-        <!-- 09 --><item>Erreur inconnue</item>
-        <!-- 10 --><item>Erreur inconnue</item>
-        <!-- 11 --><item>Erreur inconnue</item>
-        <!-- 12 --><item>Erreur inconnue</item>
-        <!-- 13 --><item>Erreur inconnue</item>
-        <!-- 14 --><item>Erreur inconnue</item>
-        <!-- 15 --><item>Erreur inconnue</item>
-        <!-- 16 --><item>Les versions de l\'application et de l\'API diffèrent. Essayez de mettre l\'application à jour.</item>
-        <!-- 17 --><item>Erreur inconnue</item>
-        <!-- 18 --><item>Erreur inconnue</item>
-        <!-- 19 --><item>Erreur inconnue</item>
-        <!-- 20 --><item>Initialisation</item>
-        <!-- 21 --><item>Connexion</item>
-        <!-- 22 --><item>Synchronisation de l\'appareil</item>
-        <!-- 23 --><item>Synchronisation des contacts</item>
-        <!-- 24 --><item>Synchronisation des sms</item>
-        <!-- 25 --><item>Synchronisation des mms</item>
-        <!-- 26 --><item>Appareil synchronisé</item>
-    </string-array>
-
     <!-- VIEWS -->
     <!-- activity_main - main -->
     <string name="main_title">SmsOnline</string>
-    <string name="main_url">https://smsonline.fr</string>
     <string name="main_settings">Paramètres</string>
     <string name="main_status">Etat</string>
     <string name="main_sync">Dernière synchronisation</string>
@@ -64,4 +33,19 @@
     <string name="permission_cancel">Annuler</string>
     <string name="main_enable_notification">Notification access is disabled</string>
     <string name="settings_api">Server URL</string>
+    <string name="sta_bad_credential">Identifiants incorrects</string>
+    <string name="sta_bad_method">Erreur API methode</string>
+    <string name="sta_bad_revision">Erreur de révision</string>
+    <string name="sta_connected">Connecté</string>
+    <string name="sta_invalid_mail">Email invalide</string>
+    <string name="sta_missing_arg">Erreur API arg</string>
+    <string name="sta_no_infos">Identifiants manquants</string>
+    <string name="sta_rev_error">Erreur de révision</string>
+    <string name="sta_short_password">Mot de passe trop court</string>
+    <string name="sta_sync_contacts">Contact synchronisés</string>
+    <string name="sta_sync_mms">Mms synchronisés</string>
+    <string name="sta_sync_sms">Sms synchronisés</string>
+    <string name="sta_synced">Synchronisé</string>
+    <string name="sta_synchronized">Synchronisé</string>
+    <string name="sta_unknow">Erreur inconnue</string>
 </resources>

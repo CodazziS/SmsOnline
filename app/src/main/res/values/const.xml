@@ -2,6 +2,6 @@
 <resources>
     <!-- DEFINES -->
     <string translatable="false" name="api_url">https://smsonline.fr/Api/</string>
-    <string translatable="false" name="api_url_debug">https://dev.smsonline.fr/Api/</string>
     <integer translatable="false" name="api_version">3</integer>
+    <string translatable="false" name="main_url">https://smsonline.fr</string>
 </resources>

@@ -117,7 +117,7 @@ public class SyncManager {
             result = new JSONObject(result_str);
             error = result.getInt("error");
             if (error == 0) {
-                if (result.getString("rev_name").equals(revman.getName())) {
+                if (!result.getString("rev_name").equals(revman.getName())) {
                     this.setStatus(R.string.sta_bad_revision);
                     revman.resetRevisions();
                     this.deleteDevice();
@@ -164,7 +164,7 @@ public class SyncManager {
             result = new JSONObject(result_str);
             error = result.getInt("error");
             if (error == 0) {
-                if (result.getString("rev_name").equals(revman.getName())) {
+                if (!result.getString("rev_name").equals(revman.getName())) {
                     this.setStatus(R.string.sta_bad_revision);
                     revman.resetRevisions();
                     this.deleteDevice();
@@ -217,19 +217,20 @@ public class SyncManager {
                 }
 
                 /* SMS */
-                this.resetRetry();
+                Log.d("SYNCMAN", "Start SMS");
                 this.setStatus(R.string.sta_sync_sms);
                 if (!this.syncSms(sms_ids_array)) {
                     stopWork(true);
                 }
 
                 /* MMS */
-                this.resetRetry();
+                Log.d("SYNCMAN", "Start MMS");
                 this.setStatus(R.string.sta_sync_mms);
                 if (!this.syncMms(mms_ids_array)) {
                     stopWork(true);
                 }
 
+                Log.d("SYNCMAN", "END SMS");
                 this.resetRetry();
                 this.validRevision(this.api_revision + 1);
                 this.setStatus(R.string.sta_synced);
@@ -303,6 +304,7 @@ public class SyncManager {
 
     private boolean syncSms(JSONArray sms_ids_array) throws Exception {
         for (int i = 0; i < sms_ids_array.length(); i++) {
+            Log.d("SYNCMAN", "Start SMS_" + i + "/" + sms_ids_array.length());
             String result_str;
             JSONObject result;
             int error;
@@ -335,17 +337,19 @@ public class SyncManager {
         JSONArray list = MmsManager.getMmsValues(this.context, mms_ids_array);
 
         for (int i = 0; i < list.length(); i++) {
+            Log.d("SYNCMAN", "Start MMS_" + i + "/" + list.length());
             String result_str;
             JSONObject result;
+            JSONArray mms = new JSONArray();
+            mms.put(list.get(i));
             int error;
-            Log.d("SYNC", "syncSms");
             this.resetRetry();
             ExecutorService executor = Executors.newFixedThreadPool(1);
             String url = this.api_url + "Messages/addMmsList";
             String data = "user=" + this.api_user +
                     "&token=" + URLEncoder.encode(this.api_token, "utf-8") +
                     "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
-                    "&messages=" + URLEncoder.encode(list.toString(), "utf-8") +
+                    "&messages=" + URLEncoder.encode(mms.toString(), "utf-8") +
                     "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
 
             Callable<String> worker = new Api("POST", url, data);

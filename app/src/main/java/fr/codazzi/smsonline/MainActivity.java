@@ -93,44 +93,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String perm[], @NonNull int[] grtRes) {
         if (grtRes.length > 0) {
-            this.loopPermissions();
+            Perm.loopPermissions(this);
         }
-    }
-
-    private void loopPermissions() {
-        if (!Tools.checkPermission(this, Manifest.permission.READ_CONTACTS)) {
-            Tools.getPermission(this, Manifest.permission.READ_CONTACTS);
-        }
-        if (!Tools.checkPermission(this, Manifest.permission.READ_SMS)) {
-            Tools.getPermission(this, Manifest.permission.READ_SMS);
-        }
-        if (!Tools.checkPermission(this, Manifest.permission.SEND_SMS)) {
-            Tools.getPermission(this, Manifest.permission.SEND_SMS);
-        }
-    }
-
-    private void askPermissions() {
-        final MainActivity main = this;
-        if (Tools.checkPermission(main, Manifest.permission.READ_CONTACTS) &&
-                Tools.checkPermission(main, Manifest.permission.READ_SMS) &&
-                Tools.checkPermission(main, Manifest.permission.SEND_SMS)) {
-            return;
-        }
-        new AlertDialog.Builder(this)
-            .setTitle(getString(R.string.permissions_title))
-            .setMessage(getString(R.string.permissions_text))
-            .setPositiveButton(getString(R.string.permissions_ask), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    main.loopPermissions();
-                    dialog.dismiss();
-                }
-            })
-            .setNegativeButton(getString(R.string.permission_cancel), new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            })
-            .show();
     }
 
     /* Navigation */
@@ -218,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void goToMain(View view) {
         putMain();
-        this.askPermissions();
+        Perm.askPermissions(this);
         Snackbar.make(findViewById(android.R.id.content), getString(R.string.home_refreshed), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
@@ -301,6 +265,6 @@ public class MainActivity extends AppCompatActivity {
             getString(R.string.home_change_saved),
             Snackbar.LENGTH_LONG
         ).setAction("Action", null).show();
-        this.askPermissions();
+        Perm.askPermissions(this);
     }
 }
