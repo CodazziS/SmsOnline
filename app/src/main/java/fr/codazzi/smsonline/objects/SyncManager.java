@@ -114,6 +114,12 @@ public class SyncManager {
             result = new JSONObject(result_str);
             error = result.getInt("error");
             if (error == 0) {
+                this.setStatus(R.string.sta_connected);
+                this.api_token = result.getString("token");
+                this.api_key = result.getString("key");
+                this.api_user = result.getInt("user");
+                this.api_revision = result.getInt("revision");
+
                 if (!result.getString("rev_name").equals(revman.getName())) {
                     this.setStatus(R.string.sta_bad_revision);
                     revman.resetRevisions();
@@ -121,11 +127,6 @@ public class SyncManager {
                     this.stopWork(true);
                     return;
                 }
-                this.setStatus(R.string.sta_connected);
-                this.api_token = result.getString("token");
-                this.api_key = result.getString("key");
-                this.api_user = result.getInt("user");
-                this.api_revision = result.getInt("revision");
                 this.sendRevision();
             } else {
                 this.setStatus(Tools.getApiError(error));
@@ -133,7 +134,7 @@ public class SyncManager {
                 this.stopWork(true);
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, e.getMessage());
+            Tools.storeLog(this.context, "GetToken" + e.getMessage());
             this.stopWork(true);
         }
     }
@@ -176,7 +177,7 @@ public class SyncManager {
                 this.stopWork(true);
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, e.getMessage());
+            Tools.storeLog(this.context, "GetLastRevision" + e.getMessage());
             this.stopWork(true);
         }
     }
@@ -230,7 +231,7 @@ public class SyncManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Tools.storeLog(this.context, e.getMessage());
+            Tools.storeLog(this.context, "Send revision" + e.getMessage());
             stopWork(true);
         }
     }
@@ -257,7 +258,8 @@ public class SyncManager {
                 Tools.storeLog(this.context, "Error to delete Device");
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, e.getMessage());
+            e.printStackTrace();
+            Tools.storeLog(this.context, "Delete Device" + e.getMessage());
             this.stopWork(true);
         }
     }
@@ -376,7 +378,7 @@ public class SyncManager {
                 this.stopWork(true);
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, e.getMessage());
+            Tools.storeLog(this.context,"validRevision" + e.getMessage());
             this.stopWork(true);
         }
     }
@@ -417,7 +419,7 @@ public class SyncManager {
                 this.stopWork();
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, e.getMessage());
+            Tools.storeLog(this.context, "getActionsQueue" + e.getMessage());
             this.stopWork(true);
         }
     }
@@ -446,7 +448,7 @@ public class SyncManager {
                 this.stopWork(true);
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, e.getMessage());
+            Tools.storeLog(this.context, "validQueue" + e.getMessage());
             this.stopWork(true);
         }
     }
