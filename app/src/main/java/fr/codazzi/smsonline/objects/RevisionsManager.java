@@ -3,7 +3,6 @@ package fr.codazzi.smsonline.objects;
 import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,11 +48,11 @@ public class RevisionsManager {
             }
         }
         /* DEBUG */
-        Log.d("REVISION", "* ***** START REVISION LIST ***** *");
-        for (int i = 0; i < this.countRevisions(); i++) {
-            Log.d("REVISION_" + i, this.getRevision(i + 1).toString());
-        }
-        Log.d("REVISION", "* ***** END  REVISION  LIST ***** *");
+//        Log.d("REVISION", "* ***** START REVISION LIST ***** *");
+//        for (int i = 0; i < this.countRevisions(); i++) {
+//            Log.d("REVISION_" + i, this.getRevision(i + 1).toString());
+//        }
+//        Log.d("REVISION", "* ***** END  REVISION  LIST ***** *");
     }
 
     private void InitialiseRevisionsManager() {
@@ -64,7 +63,7 @@ public class RevisionsManager {
         name = Tools.getRandomString(20);
     }
 
-    void SaveRevisionsManager() {
+    private void SaveRevisionsManager() {
         SharedPreferences.Editor editor = this.settings.edit();
         JSONObject revision_manager_object = new JSONObject();
         try {
@@ -81,12 +80,12 @@ public class RevisionsManager {
         }
     }
 
-    public void resetRevisions() {
+    void resetRevisions() {
         this.InitialiseRevisionsManager();
         this.SaveRevisionsManager();
     }
 
-    public JSONObject getRevision(int id) {
+    JSONObject getRevision(int id) {
         try {
             return this.revisions.getJSONObject(id - 1);
         } catch (Exception e) {
@@ -95,15 +94,15 @@ public class RevisionsManager {
         }
     }
 
-    public void addRevision(JSONObject revision) {
-        this.revisions.put(revision);
-    }
+//    public void addRevision(JSONObject revision) {
+//        this.revisions.put(revision);
+//    }
 
     public String getName() {
         return this.name;
     }
 
-    public int countRevisions() {
+    int countRevisions() {
         return this.revisions.length();
     }
 

@@ -5,10 +5,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-/**
- * Created by azzod on 15/02/2017.
- */
-
 public class LaunchEvent {
 
     static public void setAlarm(Context context) {

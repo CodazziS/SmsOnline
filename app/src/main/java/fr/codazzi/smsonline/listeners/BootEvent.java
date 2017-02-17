@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import fr.codazzi.smsonline.Tools;
 
@@ -15,8 +14,7 @@ public class BootEvent extends BroadcastReceiver {
         if (intent.getAction().equals("EXIT")) {
             return;
         }
-        Tools.logDebug("Start TIMERS");
-        Log.d("DEBUGSTR", "Start all timers");
+        Tools.logDebug("Start boot TIMERS");
 
         /* START REVISION TIMER every 5 min */
         Intent myIntent = new Intent(context, RevisionsEvent.class);

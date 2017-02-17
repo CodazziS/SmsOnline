@@ -2,7 +2,6 @@ package fr.codazzi.smsonline.objects;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +48,6 @@ public class SyncManager {
 
     private void stopWork() { this.stopWork(false);}
     private void stopWork(boolean error) {
-        Log.d("Sync", "Stop work");
         SharedPreferences.Editor editor = this.settings.edit();
         editor.putBoolean("SyncManagerWorking", false);
         if (!error) {
@@ -92,7 +90,6 @@ public class SyncManager {
         JSONObject result;
         int error;
         RevisionsManager revman = new RevisionsManager(this.context, this.settings);
-        Log.d("SYNC", "getToken");
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -146,7 +143,6 @@ public class SyncManager {
         JSONObject result;
         int error;
         RevisionsManager revman = new RevisionsManager(this.context, this.settings);
-        Log.d("SYNC", "getLastRevision");
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -192,7 +188,6 @@ public class SyncManager {
         JSONArray sms_ids_array;
         JSONArray mms_ids_array;
         JSONArray contacts_ids_array;
-        Log.d("Sync", "SendRevision");
 
         try {
             if (max_revision == this.api_revision) {
@@ -217,20 +212,17 @@ public class SyncManager {
                 }
 
                 /* SMS */
-                Log.d("SYNCMAN", "Start SMS");
                 this.setStatus(R.string.sta_sync_sms);
                 if (!this.syncSms(sms_ids_array)) {
                     stopWork(true);
                 }
 
                 /* MMS */
-                Log.d("SYNCMAN", "Start MMS");
                 this.setStatus(R.string.sta_sync_mms);
                 if (!this.syncMms(mms_ids_array)) {
                     stopWork(true);
                 }
 
-                Log.d("SYNCMAN", "END SMS");
                 this.resetRetry();
                 this.validRevision(this.api_revision + 1);
                 this.setStatus(R.string.sta_synced);
@@ -247,7 +239,6 @@ public class SyncManager {
         String result_str;
         JSONObject result;
         int error;
-        Log.d("SYNC", "deleteDevice");
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -261,7 +252,6 @@ public class SyncManager {
             Future<String> future = executor.submit(worker);
             result_str = future.get();
             result = new JSONObject(result_str);
-            Log.d("deleteDevice", result_str);
             error = result.getInt("error");
             if (error != 0) {
                 Tools.storeLog(this.context, "Error to delete Device");
@@ -278,7 +268,6 @@ public class SyncManager {
             String result_str;
             JSONObject result;
             int error;
-            Log.d("SYNC", "syncContacts");
 
             ExecutorService executor = Executors.newFixedThreadPool(1);
             String url = this.api_url + "Contacts/Add";
@@ -304,11 +293,9 @@ public class SyncManager {
 
     private boolean syncSms(JSONArray sms_ids_array) throws Exception {
         for (int i = 0; i < sms_ids_array.length(); i++) {
-            Log.d("SYNCMAN", "Start SMS_" + i + "/" + sms_ids_array.length());
             String result_str;
             JSONObject result;
             int error;
-            Log.d("SYNC", "syncSms");
 
             this.resetRetry();
             JSONArray list = SmsManager.getSmsValues(this.context, sms_ids_array.getJSONArray(i));
@@ -337,7 +324,6 @@ public class SyncManager {
         JSONArray list = MmsManager.getMmsValues(this.context, mms_ids_array);
 
         for (int i = 0; i < list.length(); i++) {
-            Log.d("SYNCMAN", "Start MMS_" + i + "/" + list.length());
             String result_str;
             JSONObject result;
             JSONArray mms = new JSONArray();
@@ -369,7 +355,6 @@ public class SyncManager {
         String result_str;
         JSONObject result;
         int error;
-        Log.d("SYNC", "validRevision");
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -400,7 +385,6 @@ public class SyncManager {
         String result_str;
         JSONObject result;
         int error;
-        Log.d("SYNC", "getActionsQueue");
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -442,7 +426,6 @@ public class SyncManager {
         String result_str;
         JSONObject result;
         int error;
-        Log.d("SYNC", "validQueue");
 
         try {
             ExecutorService executor = Executors.newFixedThreadPool(1);

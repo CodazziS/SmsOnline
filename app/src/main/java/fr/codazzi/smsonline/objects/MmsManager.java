@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +19,7 @@ import java.text.MessageFormat;
 
 import fr.codazzi.smsonline.Tools;
 
-public class MmsManager {
+class MmsManager {
 
     static JSONArray getAllMms(Context context) {
         JSONArray mms_list = new JSONArray();
@@ -49,7 +48,6 @@ public class MmsManager {
             ids_str = ids_str.replace("[", "(");
             ids_str = ids_str.replace("]", ")");
             String selection = "_id IN " + ids_str;
-            Log.d("mmsManagerIDS", selection);
             Cursor query = contentResolver.query(uri, null, selection, null, null);
             if (query != null && query.moveToFirst()) {
                 do {
@@ -133,7 +131,7 @@ public class MmsManager {
         return mms;
     }
 
-    static public Bitmap getMmsImage(Context context, String _id) {
+    static private Bitmap getMmsImage(Context context, String _id) {
         Uri partURI = Uri.parse("content://mms/part/" + _id);
         InputStream is;
         Bitmap bitmap = null;
@@ -152,7 +150,7 @@ public class MmsManager {
         return bitmap;
     }
 
-    static public String getMmsText(Context context, String id) {
+    static private String getMmsText(Context context, String id) {
         Uri partURI = Uri.parse("content://mms/part/" + id);
         InputStream is;
         StringBuilder sb = new StringBuilder();

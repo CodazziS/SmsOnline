@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import fr.codazzi.smsonline.objects.SyncManager;
 
@@ -14,11 +13,6 @@ public class SyncEvent extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        Log.d("DEBUGSTR", "START SyncEVENT");
-//        SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
-//        SyncManager syncman = new SyncManager(context, settings);
-//        syncman.startSynchronization();
         new SyncAsync().execute(context);
     }
 }

@@ -1,7 +1,5 @@
 package fr.codazzi.smsonline.objects;
 
-import android.os.storage.StorageManager;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -91,7 +89,6 @@ class Api implements Callable<String> {
                 res += line;
             }
             rd.close();
-            Tools.logDebug(res);
             return res;
         } catch (Exception e) {
             e.printStackTrace();

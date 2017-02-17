@@ -1,7 +1,6 @@
 package fr.codazzi.smsonline;
 
-import android.Manifest;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -44,8 +42,10 @@ public class MainActivity extends AppCompatActivity {
             TextView status;
             int status_int;
             status = (TextView) findViewById(R.id.status_str);
-            status_int = this.settings.getInt("SyncManagerStatus", R.string.sta_unknow);
-            status.setText(getResources().getString(status_int));
+            if (status != null) {
+                status_int = this.settings.getInt("SyncManagerStatus", R.string.sta_unknow);
+                status.setText(getResources().getString(status_int));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void resetLogs(View view) {
+    public void resetLogs(View view) {
         Tools.resetLogs(this.getApplicationContext());
         TextView settings_logs = (TextView) findViewById(R.id.settingsLogs);
         settings_logs.setText(Tools.getStoreLog(this.getApplicationContext()));

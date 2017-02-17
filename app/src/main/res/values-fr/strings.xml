@@ -12,7 +12,6 @@
     <string name="main_sync">Dernière synchronisation</string>
     <string name="main_refresh">Actualiser les informations</string>
     <string name="main_goto_website">Visiter le site web</string>
-    <string name="never_sync">Jamais</string>
     <!-- activity_main - settings -->
     <string name="settings_email">Email</string>
     <string name="settings_password">Mot de passe</string>

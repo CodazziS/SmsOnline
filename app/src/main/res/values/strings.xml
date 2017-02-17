@@ -11,7 +11,6 @@
     <string name="main_refresh">Refresh informations</string>
     <string name="main_goto_website">Visite the Website</string>
     <string name="main_enable_notification">Notification access is disabled</string>
-    <string name="never_sync">Never</string>
 
         <!-- activity_main - settings -->
     <string name="settings_email">Email</string>
