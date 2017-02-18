@@ -14,10 +14,9 @@ public class BootEvent extends BroadcastReceiver {
         if (intent.getAction().equals("EXIT")) {
             return;
         }
-        Tools.logDebug("Start boot TIMERS");
-
         /* START REVISION TIMER every 5 min */
-        Intent myIntent = new Intent(context, RevisionsEvent.class);
+        Tools.storeLog(context, "LISTENER : Phone booted");
+        Intent myIntent = new Intent("fr.codazzi.smsonline.listeners.BootEvent");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,
@@ -26,11 +25,11 @@ public class BootEvent extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis() + 1000,
-                60000, //120000, // 2 min in ms
+                300000, //120000, // 2 min in ms
                 pendingIntent);
 
         /* START SYNC TIMER every 1 min */
-        Intent myIntent2 = new Intent(context, SyncEvent.class);
+        Intent myIntent2 = new Intent("fr.codazzi.smsonline.listeners.SyncEvent");
         PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
                 context,
                 0,

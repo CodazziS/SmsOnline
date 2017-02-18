@@ -47,7 +47,7 @@
         <!-- EVENT WHEN PHONE RESTART -->
         <receiver
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
             android:permission="fr.codazzi.smsonline.PERMISSION"
             android:name="fr.codazzi.smsonline.listeners.BootEvent">
             <intent-filter>
@@ -57,7 +57,8 @@
 
         <!-- EVENT BROADCAST -->
         <receiver
-            android:exported="false"
+            android:exported="true"
+            android:enabled="true"
             android:name="fr.codazzi.smsonline.listeners.RevisionsEvent">
             <intent-filter>
                 <action android:name="fr.codazzi.smsonline.android.action.broadcast" />
@@ -66,7 +67,8 @@
 
         <!-- SYNC BROADCAST -->
         <receiver
-            android:exported="false"
+            android:exported="true"
+            android:enabled="true"
             android:name="fr.codazzi.smsonline.listeners.SyncEvent">
             <intent-filter>
                 <action android:name="fr.codazzi.smsonline.android.action.broadcast" />

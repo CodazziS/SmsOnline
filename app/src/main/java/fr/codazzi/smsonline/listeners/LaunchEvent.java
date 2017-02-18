@@ -5,11 +5,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import fr.codazzi.smsonline.Tools;
+
 public class LaunchEvent {
 
     static public void setAlarm(Context context) {
         /* START REVISION TIMER every 5 min */
-        Intent myIntent = new Intent(context, RevisionsEvent.class);
+        Tools.storeLog(context, "LISTENER : App launched");
+        //Intent myIntent = new Intent(context, RevisionsEvent.class);
+        Intent myIntent = new Intent("fr.codazzi.smsonline.listeners.BootEvent");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,
@@ -18,11 +22,11 @@ public class LaunchEvent {
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis() + 1000,
-                60000, //120000, // 2 min in ms
+                300000, //120000, // 2 min in ms
                 pendingIntent);
 
         /* START SYNC TIMER every 1 min */
-        Intent myIntent2 = new Intent(context, SyncEvent.class);
+        Intent myIntent2 = new Intent("fr.codazzi.smsonline.listeners.SyncEvent");
         PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
                 context,
                 0,
