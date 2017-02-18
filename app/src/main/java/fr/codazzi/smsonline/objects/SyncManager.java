@@ -438,7 +438,7 @@ public class SyncManager {
                     "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8") +
                     "&id=" + URLEncoder.encode(String.valueOf(id), "utf-8");
 
-            Callable<String> worker = new Api("GET", url, data);
+            Callable<String> worker = new Api("POST", url, data);
             Future<String> future = executor.submit(worker);
             result_str = future.get();
             result = new JSONObject(result_str);

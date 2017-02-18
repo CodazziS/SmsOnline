@@ -20,7 +20,7 @@ public class SyncEvent extends BroadcastReceiver {
 class SyncAsync extends AsyncTask<Context, Integer, Long> {
     protected Long doInBackground(Context... contexts) {
         Context context = contexts[0];
-        SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
+        SharedPreferences settings = context.getSharedPreferences("smsonline", 0);
         SyncManager syncman = new SyncManager(context, settings);
         syncman.startSynchronization();
         return null;

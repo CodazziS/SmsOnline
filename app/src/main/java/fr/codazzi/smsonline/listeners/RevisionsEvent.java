@@ -19,7 +19,7 @@ public class RevisionsEvent extends BroadcastReceiver {
 class RevAsync extends AsyncTask<Context, Integer, Long> {
     protected Long doInBackground(Context... contexts) {
         Context context = contexts[0];
-        SharedPreferences settings = context.getSharedPreferences("swb_infos", 0);
+        SharedPreferences settings = context.getSharedPreferences("smsonline", 0);
         RevisionsManager revman = new RevisionsManager(context, settings);
         revman.searchNewRevision();
         return null;

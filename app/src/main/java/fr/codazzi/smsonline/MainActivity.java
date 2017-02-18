@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.settings = this.getSharedPreferences("swb_infos", 0);
+        this.settings = this.getSharedPreferences("smsonline", 0);
         putMain();
         LaunchEvent.setAlarm(this);
         this.refresh_loop();
