@@ -1,4 +1,4 @@
-package fr.codazzi.smsonline.controllers;
+package fr.codazzi.smsonline.objects;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -14,18 +14,39 @@ import org.json.JSONObject;
 
 import fr.codazzi.smsonline.Tools;
 
-class Contacts {
+class ContactsManager {
+    static JSONArray getAllContacts (Context c) {
+        JSONArray contacts = new JSONArray();
+        ContentResolver contentResolver = c.getContentResolver();
+        Cursor query = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                new String[] { "_id" },
+                null,
+                null,
+                null);
 
-    public static JSONArray getAllContacts (Context c) throws JSONException {
+        if (query != null && query.moveToFirst()) {
+            do {
+                contacts.put(query.getInt(query.getColumnIndex("_id")));
+            } while (query.moveToNext());
+            query.close();
+        }
+
+        return contacts;
+    }
+
+    static JSONArray getContactsValues (Context c, JSONArray ids) throws JSONException {
         JSONArray contactsAll = new JSONArray();
         JSONArray contacts_without_img = new JSONArray();
-        JSONArray contacts_with_img = new JSONArray();
+        JSONArray contacts_with_img;
         JSONObject contact;
-
         String photo_uri;
-
-        ContentResolver contentResolver = c.getContentResolver();
+        String ids_str = ids.toString();
         String[] projection;
+        ContentResolver contentResolver = c.getContentResolver();
+        ids_str = ids_str.replace("[", "(");
+        ids_str = ids_str.replace("]", ")");
+        String selection = "_id IN " + ids_str;
 
         projection = new String[]{
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
@@ -35,7 +56,7 @@ class Contacts {
         Cursor cursor = contentResolver.query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 projection,
-                null,
+                selection,
                 null,
                 null);
 
@@ -56,14 +77,15 @@ class Contacts {
                 if (photo_uri == null) {
                     contacts_without_img.put(contact);
                 } else {
+                    contacts_with_img = new JSONArray();
                     contacts_with_img.put(contact);
+                    contactsAll.put(contacts_with_img);
                 }
                 cursor.moveToNext();
             }
             cursor.close();
         }
-        contactsAll.put(0, contacts_without_img);
-        contactsAll.put(1, contacts_with_img);
+        contactsAll.put(contacts_without_img);
         return contactsAll;
     }
 }

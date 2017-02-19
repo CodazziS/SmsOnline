@@ -1,47 +1,16 @@
 <resources>
     <!-- COMMON -->
     <string name="app_name">SmsOnline</string>
-    <string-array name="status_str">
-        <!-- 00 --><item>Initialisation</item>
-        <!-- 01 --><item>Missing credentials</item>
-        <!-- 02 --><item>Network error</item>
-        <!-- 03 --><item>Email is not valid</item>
-        <!-- 04 --><item>Password is too short</item>
-        <!-- 05 --><item>Email already exist</item>
-        <!-- 06 --><item>Bad credentials</item>
-        <!-- 07 --><item>Object not found</item>
-        <!-- 08 --><item>Unknown error</item>
-        <!-- 09 --><item>Unknown error</item>
-        <!-- 10 --><item>Unknown error</item>
-        <!-- 11 --><item>Unknown error</item>
-        <!-- 12 --><item>Unknown error</item>
-        <!-- 13 --><item>Unknown error</item>
-        <!-- 14 --><item>Unknown error</item>
-        <!-- 15 --><item>Unknown error</item>
-        <!-- 16 --><item>API version not match: maybe you should update your application</item>
-        <!-- 17 --><item>Unknown error</item>
-        <!-- 18 --><item>Unknown error</item>
-        <!-- 19 --><item>Unknown error</item>
-        <!-- 20 --><item>Initialisation</item>
-        <!-- 21 --><item>Login</item>
-        <!-- 22 --><item>Sync device configuration</item>
-        <!-- 23 --><item>Contacts synchronization</item>
-        <!-- 24 --><item>SMS synchronization</item>
-        <!-- 25 --><item>MMS synchronization</item>
-        <!-- 26 --><item>Synchronized</item>
-    </string-array>
 
     <!-- VIEWS -->
         <!-- activity_main - main -->
     <string name="main_title">SmsOnline</string>
-    <string name="main_url">https://smsonline.fr</string>
     <string name="main_settings">Settings</string>
     <string name="main_status">Status</string>
     <string name="main_sync">Last synchronisation</string>
     <string name="main_refresh">Refresh informations</string>
     <string name="main_goto_website">Visite the Website</string>
     <string name="main_enable_notification">Notification access is disabled</string>
-    <string name="never_sync">Never</string>
 
         <!-- activity_main - settings -->
     <string name="settings_email">Email</string>
@@ -63,4 +32,22 @@
     <string name="permissions_text">The application need permissions for run.</string>
     <string name="permissions_ask">Ask Permissions</string>
     <string name="permission_cancel">Cancel</string>
+
+    <!-- STATUS -->
+    <string name="sta_no_infos">No credentials</string>
+    <string name="sta_connected">Connected</string>
+    <string name="sta_bad_revision">Revision error</string>
+    <string name="sta_synchronized">Synchronized</string>
+    <string name="sta_rev_error">Revision error</string>
+    <string name="sta_sync_contacts">Contact synchronized</string>
+    <string name="sta_sync_sms">Sms synchronized</string>
+    <string name="sta_sync_mms">Mms synchronized</string>
+    <string name="sta_synced">Synchronized</string>
+    <!-- API -->
+    <string name="sta_unknow">Unknow Error</string>
+    <string name="sta_bad_method">API method error</string>
+    <string name="sta_missing_arg">API arg error</string>
+    <string name="sta_invalid_mail">Mail invalid</string>
+    <string name="sta_short_password">Password invalid (too short)</string>
+    <string name="sta_bad_credential">Bad credentials</string>
 </resources>

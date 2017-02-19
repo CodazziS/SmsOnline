@@ -10,7 +10,10 @@ import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
+import org.json.JSONArray;
+
 import java.io.ByteArrayOutputStream;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -53,7 +56,7 @@ public class Tools {
         Return true if the permission is granted, ask the permission on
             Android 6+
      */
-    static public void getPermission (Activity ac, String permission) {
+    static void getPermission (Activity ac, String permission) {
 
         if (Build.VERSION.SDK_INT > 22) {
             if (ac.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -72,7 +75,7 @@ public class Tools {
         return true;
     }
 
-    static public void logDebug(int type, String tag, String data) {
+    static private void logDebug(int type, String tag, String data) {
         if (!BuildConfig.DEBUG) {
             return;
         }
@@ -98,9 +101,9 @@ public class Tools {
         }
     }
 
-    static public void logDebug(int type, String data) {
-        Tools.logDebug(type, "SWB", data);
-    }
+//    static public void logDebug(int type, String data) {
+//        Tools.logDebug(type, "SWB", data);
+//    }
 
     static public void logDebug(String data) {
         Tools.logDebug(0, "SWB", data);
@@ -117,7 +120,7 @@ public class Tools {
         editor.apply();
     }
 
-    static public void resetLogs(Context context) {
+    static void resetLogs(Context context) {
         SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
         SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String logs = simpleDate.format(new Date()) + ": Reset logs \n";
@@ -126,8 +129,49 @@ public class Tools {
         editor.apply();
     }
 
-    static public String getStoreLog(Context context) {
+    static String getStoreLog(Context context) {
         SharedPreferences settings = context.getSharedPreferences("swb_logs", 0);
         return settings.getString("logs", "");
+    }
+
+    static public boolean isInJSONArray(JSONArray arr, int value) {
+        try {
+            for (int i = 0; i < arr.length(); i++) {
+                if (arr.getInt(i) == value) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    static public String getRandomString(int size) {
+        String alpha = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder(size);
+        SecureRandom rnd = new SecureRandom();
+
+        for( int i = 0; i < size; i++ ) {
+            sb.append(alpha.charAt(rnd.nextInt(alpha.length())));
+        }
+        return sb.toString();
+    }
+
+    static public int getApiError(int error) {
+        switch (error) {
+            case 1:
+                return R.string.sta_bad_method;
+            case 2:
+                return R.string.sta_missing_arg;
+            case 3:
+                return R.string.sta_invalid_mail;
+            case 4:
+                return R.string.sta_short_password;
+            case 6:
+                return R.string.sta_bad_credential;
+            default:
+                return R.string.sta_unknow;
+        }
     }
 }
