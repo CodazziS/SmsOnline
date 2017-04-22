@@ -29,6 +29,21 @@ class SmsManager {
         return sms_list;
     }
 
+    static JSONArray getAllUnreadSms(Context context) {
+        JSONArray sms_list = new JSONArray();
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = Uri.parse("content://sms");
+        Cursor query = contentResolver.query(uri, new String[] { "_id" }, "read = 0", null, null);
+
+        if (query != null && query.moveToFirst()) {
+            do {
+                sms_list.put(query.getInt(query.getColumnIndex("_id")));
+            } while (query.moveToNext());
+            query.close();
+        }
+        return sms_list;
+    }
+
     static JSONArray getSmsValues(Context context, JSONArray ids) throws JSONException {
         JSONArray sms_list = new JSONArray();
         JSONObject sms;
@@ -50,7 +65,7 @@ class SmsManager {
                     sms.put("type", query.getString(query.getColumnIndex("type")));
                     sms.put("body", query.getString(query.getColumnIndex("body")));
                     sms.put("date", query.getString(query.getColumnIndex("date")));
-                    sms.put("read", query.getString(query.getColumnIndex("read")));
+                    sms.put("read", query.getInt(query.getColumnIndex("read")));
                     sms_list.put(sms);
                 } while (query.moveToNext());
                 query.close();

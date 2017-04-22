@@ -16,7 +16,8 @@ public class BootEvent extends BroadcastReceiver {
         }
         /* START REVISION TIMER every 5 min */
         Tools.storeLog(context, "LISTENER : Phone booted");
-        Intent myIntent = new Intent("fr.codazzi.smsonline.listeners.BootEvent");
+        Intent myIntent = new Intent(context, RevisionsEvent.class);
+        //Intent myIntent = new Intent("fr.codazzi.smsonline.listeners.BootEvent");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,
@@ -29,7 +30,8 @@ public class BootEvent extends BroadcastReceiver {
                 pendingIntent);
 
         /* START SYNC TIMER every 1 min */
-        Intent myIntent2 = new Intent("fr.codazzi.smsonline.listeners.SyncEvent");
+        Intent myIntent2 = new Intent(context, SyncEvent.class);
+        //Intent myIntent2 = new Intent("fr.codazzi.smsonline.listeners.SyncEvent");
         PendingIntent pendingIntent2 = PendingIntent.getBroadcast(
                 context,
                 0,

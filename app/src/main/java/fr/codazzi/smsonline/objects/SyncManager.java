@@ -134,7 +134,7 @@ public class SyncManager {
                 this.stopWork(true);
             }
         } catch (Exception e) {
-            Tools.storeLog(this.context, "GetToken" + e.getMessage());
+            Tools.storeLog(this.context, "GetToken: " + e.getMessage());
             this.stopWork(true);
         }
     }
@@ -308,7 +308,6 @@ public class SyncManager {
                     "&key=" + URLEncoder.encode(this.api_key, "utf-8") +
                     "&messages=" + URLEncoder.encode(list.toString(), "utf-8") +
                     "&device_id=" + URLEncoder.encode(Tools.getDeviceID(this.context), "utf-8");
-
             Callable<String> worker = new Api("POST", url, data);
             Future<String> future = executor.submit(worker);
             result_str = future.get();
@@ -356,6 +355,7 @@ public class SyncManager {
     private void validRevision(int rev) {
         String result_str;
         JSONObject result;
+        RevisionsManager revman = new RevisionsManager(this.context, this.settings);
         int error;
 
         try {
@@ -376,6 +376,8 @@ public class SyncManager {
             if (error != 0) {
                 Tools.storeLog(this.context, "validRevision Error : E" + error);
                 this.stopWork(true);
+            } else {
+                revman.deleteRevision(rev);
             }
         } catch (Exception e) {
             Tools.storeLog(this.context,"validRevision" + e.getMessage());

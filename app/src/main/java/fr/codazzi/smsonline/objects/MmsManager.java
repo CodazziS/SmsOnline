@@ -35,6 +35,21 @@ class MmsManager {
         return mms_list;
     }
 
+    static JSONArray getAllUnreadMms(Context context) {
+        JSONArray sms_list = new JSONArray();
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = Uri.parse("content://mms");
+        Cursor query = contentResolver.query(uri, new String[] { "_id" }, "read = 0", null, null);
+
+        if (query != null && query.moveToFirst()) {
+            do {
+                sms_list.put(query.getInt(query.getColumnIndex("_id")));
+            } while (query.moveToNext());
+            query.close();
+        }
+        return sms_list;
+    }
+
     static JSONArray getMmsValues(Context context, JSONArray ids) throws JSONException {
         JSONArray mms_list = new JSONArray();
         JSONObject mms;
@@ -61,7 +76,7 @@ class MmsManager {
                     mms.put("date_sent", query.getString(query.getColumnIndex("date")) + "000");
                     mms.put("type", mms_type);
                     mms.put("date", query.getString(query.getColumnIndex("date")) + "000");
-                    mms.put("read", query.getString(query.getColumnIndex("read")));
+                    mms.put("read", query.getInt(query.getColumnIndex("read")));
                     mms = MmsManager.getMmsInfos(context, mms_id, mms);
                     mms_list.put(mms);
                 } while (query.moveToNext());

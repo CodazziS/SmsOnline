@@ -17,6 +17,9 @@ public class RevisionsManager {
     private JSONArray mms_list_ids = null;
     private JSONArray contact_list_ids = null;
     private JSONArray revisions = null;
+    private JSONArray unreadSms = null;
+    private JSONArray unreadMms = null;
+    private int lastRevisionDeleted = 1;
     private String name = null;
     /*
         revisions = JSONObject(
@@ -42,6 +45,9 @@ public class RevisionsManager {
                 contact_list_ids = revision_manager_object.getJSONArray("contact_list_ids");
                 revisions = revision_manager_object.getJSONArray("revisions");
                 name = revision_manager_object.getString("name");
+                unreadSms = revision_manager_object.getJSONArray("unreadSms");
+                unreadMms = revision_manager_object.getJSONArray("unreadMms");
+                lastRevisionDeleted = revision_manager_object.getInt("lastRevisionDeleted");
             } catch (Exception e) {
                 e.printStackTrace();
                 InitialiseRevisionsManager();
@@ -60,6 +66,8 @@ public class RevisionsManager {
         mms_list_ids = new JSONArray();
         contact_list_ids = new JSONArray();
         revisions = new JSONArray();
+        unreadSms = new JSONArray();
+        unreadMms = new JSONArray();
         name = Tools.getRandomString(20);
     }
 
@@ -72,6 +80,9 @@ public class RevisionsManager {
             revision_manager_object.put("contact_list_ids", contact_list_ids);
             revision_manager_object.put("revisions", revisions);
             revision_manager_object.put("name", name);
+            revision_manager_object.put("lastRevisionDeleted", lastRevisionDeleted);
+            revision_manager_object.put("unreadSms", unreadSms);
+            revision_manager_object.put("unreadMms", unreadMms);
 
             editor.putString("RevisionsManager", revision_manager_object.toString());
             editor.apply();
@@ -85,8 +96,26 @@ public class RevisionsManager {
         this.SaveRevisionsManager();
     }
 
+    void deleteRevision(int id) {
+        JSONObject revision;
+        try {
+            for (int i = this.lastRevisionDeleted - 1; i < id - 1; i++) {
+                revision = this.revisions.getJSONObject(i);
+                revision.put("new_sms_ids", null);
+                revision.put("new_mms_ids", null);
+                revision.put("new_contacts_ids", null);
+                this.revisions.put(i, revision);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     JSONObject getRevision(int id) {
         try {
+            if (id < this.lastRevisionDeleted) {
+                this.resetRevisions();
+                return null;
+            }
             return this.revisions.getJSONObject(id - 1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,7 +141,9 @@ public class RevisionsManager {
 
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
             new_rev = this.searchNewSms(revision);
+            new_rev = this.searchUnreadSms(revision) || new_rev;
             new_rev = this.searchNewMms(revision) || new_rev;
+            new_rev = this.searchUnreadMms(revision) || new_rev;
         }
         if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
             new_rev = this.searchNewContacts(revision) || new_rev;
@@ -138,9 +169,31 @@ public class RevisionsManager {
                 }
             }
             revision.put("new_sms_ids", new_sms_ids);
-            /* Remove SMS */
+            /* @TODO Remove SMS */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return have_change;
+    }
 
-            /* Unread SMS */
+    private boolean searchUnreadSms(JSONObject revision) {
+        JSONArray sms_list = SmsManager.getAllUnreadSms(context);
+        JSONArray new_sms_ids = new JSONArray();
+        boolean have_change = false;
+
+        try {
+            if (revision.has("new_sms_ids")) {
+                new_sms_ids = revision.getJSONArray("new_sms_ids");
+            }
+
+            for (int i = 0; i < this.unreadSms.length(); i++) {
+                if (!Tools.isInJSONArray(sms_list, this.unreadSms.getInt(i))) {
+                    new_sms_ids.put(this.unreadSms.getInt(i));
+                    have_change = true;
+                }
+            }
+            revision.put("new_sms_ids", new_sms_ids);
+            this.unreadSms = sms_list;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,7 +217,30 @@ public class RevisionsManager {
             revision.put("new_mms_ids", new_mms_ids);
             /* Remove MMS */
 
-            /* Unread MMS */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return have_change;
+    }
+
+    private boolean searchUnreadMms(JSONObject revision) {
+        JSONArray mms_list = MmsManager.getAllUnreadMms(context);
+        JSONArray new_mms_ids = new JSONArray();
+        boolean have_change = false;
+
+        try {
+            if (revision.has("new_mms_ids")) {
+                new_mms_ids = revision.getJSONArray("new_mms_ids");
+            }
+
+            for (int i = 0; i < this.unreadMms.length(); i++) {
+                if (!Tools.isInJSONArray(mms_list, this.unreadMms.getInt(i))) {
+                    new_mms_ids.put(this.unreadMms.getInt(i));
+                    have_change = true;
+                }
+            }
+            revision.put("new_mms_ids", new_mms_ids);
+            this.unreadMms = mms_list;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,7 +263,6 @@ public class RevisionsManager {
             }
             revision.put("new_contacts_ids", new_contacts_ids);
             /* Remove contact */
-
         } catch (Exception e) {
             e.printStackTrace();
         }
