@@ -8,8 +8,8 @@ android {
         applicationId "fr.codazzi.smsonline"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 62
-        versionName "2.1.0"
+        versionCode 63
+        versionName "2.2.0"
     }
     buildTypes {
         release {

@@ -1,6 +1,7 @@
 package fr.codazzi.smsonline;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import fr.codazzi.smsonline.listeners.LaunchEvent;
+import fr.codazzi.smsonline.objects.RevisionsManager;
 
 public class MainActivity extends AppCompatActivity {
     private String c_activity;
@@ -133,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         CheckBox wifi_only;
         CheckBox show_full;
         CheckBox sync_mms;
+        final MainActivity self = this;
 
         this.c_activity = "settings";
 
@@ -165,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 saveSettings(v);
+                RevisionsManager revman = new RevisionsManager(self, self.settings);
+                revman.resetRevisions();
             }
         });
         clear_logs.setOnClickListener(new View.OnClickListener() {
@@ -188,9 +193,12 @@ public class MainActivity extends AppCompatActivity {
     }
     public void putInfos(View view) {
         try {
+            RevisionsManager revman = new RevisionsManager(this, this.settings);
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             Snackbar.make(findViewById(android.R.id.content),
-                    getString(R.string.app_name) + " - V" + pInfo.versionName + " (" + pInfo.versionCode + ")",
+                    getString(R.string.app_name) + " - V" +
+                            pInfo.versionName + " (" + pInfo.versionCode +
+                            ") - " + revman.countRevisions() + " revisions",
                     Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         } catch (PackageManager.NameNotFoundException e) {
@@ -265,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
             getString(R.string.home_change_saved),
             Snackbar.LENGTH_LONG
         ).setAction("Action", null).show();
+
         Perm.askPermissions(this);
     }
 }

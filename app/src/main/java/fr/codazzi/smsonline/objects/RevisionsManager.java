@@ -91,7 +91,8 @@ public class RevisionsManager {
         }
     }
 
-    void resetRevisions() {
+    public void resetRevisions() {
+        Tools.logDebug("Reset revisions");
         this.InitialiseRevisionsManager();
         this.SaveRevisionsManager();
     }
@@ -131,7 +132,7 @@ public class RevisionsManager {
         return this.name;
     }
 
-    int countRevisions() {
+    public int countRevisions() {
         return this.revisions.length();
     }
 
@@ -142,8 +143,16 @@ public class RevisionsManager {
         if (Tools.checkPermission(context, Manifest.permission.READ_SMS)) {
             new_rev = this.searchNewSms(revision);
             new_rev = this.searchUnreadSms(revision) || new_rev;
-            new_rev = this.searchNewMms(revision) || new_rev;
-            new_rev = this.searchUnreadMms(revision) || new_rev;
+            if (this.settings.getBoolean("sync_mms", false)) {
+                new_rev = this.searchNewMms(revision) || new_rev;
+                new_rev = this.searchUnreadMms(revision) || new_rev;
+            } else {
+                try {
+                    revision.put("new_mms_ids", new JSONArray());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         if (Tools.checkPermission(context, Manifest.permission.READ_CONTACTS)) {
             new_rev = this.searchNewContacts(revision) || new_rev;

@@ -2,6 +2,8 @@ package fr.codazzi.smsonline.objects;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,6 +79,17 @@ public class SyncManager {
             }
             return;
         }
+        /* Check network */
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = cm.getActiveNetworkInfo();
+        if (network == null
+                || (this.settings.getBoolean("wifi_only", true) &&
+                    network.getType() != ConnectivityManager.TYPE_WIFI
+                )
+                || !network.isConnectedOrConnecting()) {
+            return;
+        }
+
         this.startWork();
         if (this.api_token == null) {
             this.getToken();
